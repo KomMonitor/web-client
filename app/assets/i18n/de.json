@@ -91,6 +91,26 @@
     "EXPORT_CURRENT_MAP_VIEW": "aktuellen Kartenausschnitt exportieren",
     "SHOW_LAYER_CONTROL": "Layer Control anzeigen"
   },
+  "MAP_LAYERS": {
+    "GROUPS": {
+      "REACHABILITY": "Erreichbarkeitsanalyse",
+      "TEMPORARY": "Temporäre Layer",
+      "OUTLINE": "Raumebenen (Umringe)",
+      "GEORESOURCE": "Georessourcen",
+      "GEORESOURCE_POINT": "Punktdaten",
+      "GEORESOURCE_LINE": "Liniendaten",
+      "GEORESOURCE_AREA": "Flächendaten",
+      "GEORESOURCE_SERVICE": "Geodatendienste",
+      "INDICATOR": "Indikatoren"
+    },
+    "EMPTY_HINTS": {
+      "REACHABILITY": "Keine Ebenen – Berechnung unter Erreichbarkeitsanalyse",
+      "TEMPORARY": "Keine Ebenen – Dateien unter Datenimport laden oder einen Ort über die Adresssuche finden",
+      "OUTLINE": "Keine Raumebenen verfügbar",
+      "GEORESOURCE": "Keine Ebenen – Auswahl unter Infrastrukturdaten",
+      "INDICATOR": "Kein Indikator – Auswahl unter Indikatorenauswahl"
+    }
+  },
   "USER_INTERFACE": {
     "USER_LOGIN": "User Login",
     "USER_REGISTRATION": "Useristration"

@@ -91,6 +91,26 @@
     "EXPORT_CURRENT_MAP_VIEW": "Export Current Map View",
     "SHOW_LAYER_CONTROL": "Show Layer Control"
   },
+  "MAP_LAYERS": {
+    "GROUPS": {
+      "REACHABILITY": "Reachability Analysis",
+      "TEMPORARY": "Temporary Layers",
+      "OUTLINE": "Spatial Unit Outlines",
+      "GEORESOURCE": "Georesources",
+      "GEORESOURCE_POINT": "Point Data",
+      "GEORESOURCE_LINE": "Line Data",
+      "GEORESOURCE_AREA": "Area Data",
+      "GEORESOURCE_SERVICE": "Geodata Services",
+      "INDICATOR": "Indicators"
+    },
+    "EMPTY_HINTS": {
+      "REACHABILITY": "No layers – compute them under Reachability Analysis",
+      "TEMPORARY": "No layers – load files under Data Import or find a place with the address search",
+      "OUTLINE": "No spatial units available",
+      "GEORESOURCE": "No layers – select them under Infrastructure Data",
+      "INDICATOR": "No indicator – select one under Indicator Selection"
+    }
+  },
   "USER_INTERFACE": {
     "USER_LOGIN": "User Login",
     "USER_REGISTRATION": "User Registration"
