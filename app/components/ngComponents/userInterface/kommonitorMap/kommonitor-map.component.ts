@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit } from '@angular/core';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
@@ -45,6 +45,9 @@ import {
   ReachabilityStateService,
 } from 'services/reachability-state-service/reachability-state.service';
 
+/** The single indicator layer of the main map in the layer registry. */
+const INDICATOR_LAYER_ID = 'indicator';
+
 @Component({
   selector: 'app-kommonitor-map',
   templateUrl: './kommonitor-map.component.html',
@@ -77,6 +80,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private reachabilityLayerManager = inject(ReachabilityLayerManagerService);
   private mapControlsService = inject(MapControlsService);
   private mainMapLayers = inject(MainMapLayersService);
+
+  // The indicator's transparency lives on its pane (layer registry); the legend
+  // swatches show the resulting fill opacity.
+  private readonly legendOpacitySync = effect(() => {
+    const opacity = this.mainMapLayers.registry.entry(INDICATOR_LAYER_ID)?.opacity ?? 1;
+    this.classificationState.currentIndicatorOpacity =
+      this.envConfigService.defaultFillOpacity * opacity;
+  });
   private mapViewportState = inject(MapViewportStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
 
@@ -1043,10 +1054,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const layer = e.target;
-    this.visualStyleHelperService.setOpacity(layer.options.fillOpacity);
-
-    this.highlightFeatureForLayer(layer);
+    this.highlightFeatureForLayer(e.target);
   }
 
   highlightFeatureForLayer(layer) {
@@ -1078,18 +1086,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     clearTimeout(this.highlightTimeout);
 
-    this.highlightTimeout = setTimeout(() => {
-      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        if (layer._map) {
-          layer.bringToFront();
-          // also bring possible isochrone layer to front
-          // so it will not disapper behing indicator layer
-          if (this.isochronesLayer) {
-            this.isochronesLayer.bringToFront();
-          }
-        }
-      }
-    }, 150);
+    this.highlightTimeout = setTimeout(() => this.bringHighlightToFront(layer), 150);
   }
 
   setTemporarilyHighlightedStyle(layer) {
@@ -1107,18 +1104,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     clearTimeout(this.highlightTimeout);
 
-    this.highlightTimeout = setTimeout(() => {
-      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        if (layer._map) {
-          layer.bringToFront();
-          // also bring possible isochrone layer to front
-          // so it will not disapper behing indicator layer
-          if (this.isochronesLayer) {
-            this.isochronesLayer.bringToFront();
-          }
-        }
-      }
-    }, 150);
+    this.highlightTimeout = setTimeout(() => this.bringHighlightToFront(layer), 150);
+  }
+
+  /**
+   * Raises the feature within the indicator's own pane; layers in other panes,
+   * such as isochrones, keep their stacking.
+   */
+  private bringHighlightToFront(layer) {
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge && layer._map) {
+      layer.bringToFront();
+    }
   }
 
   preserveHighlightedFeatures() {
@@ -1340,19 +1336,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     justRestyling = false
   ) {
     this.classificationState.isCustomComputation = !!isCustomComputation;
-    //reset opacity
-    this.visualStyleHelperService.setOpacity(this.envConfigService.defaultFillOpacity);
+    // the transparency is no longer reset: it lives on the indicator's pane and
+    // survives a new indicator, spatial unit or date
 
     this.refreshFilteredStyle();
     this.refreshOutliersStyle();
     this.refreshNoDataStyle();
 
     this.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
-
-    if (this.currentIndicatorLayer) {
-      this.layerControl.removeLayer(this.currentIndicatorLayer);
-      this.map.removeLayer(this.currentIndicatorLayer);
-    }
 
     this.date = date;
     this.indicatorPropertyName = this.envConfigService.indicatorDatePrefix + date;
@@ -1382,7 +1373,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.indicatorPropertyName
     );
 
+    const layers = this.mainMapLayers.registry;
     const layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+      pane: layers.paneFor(INDICATOR_LAYER_ID),
       style: (feature) => result.styleFor(feature),
       onEachFeature: (e, l) => {
         this.onEachFeatureIndicator(e, l);
@@ -1401,14 +1394,26 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       selectedDate: this.selectionState.selectedDate,
     });
 
-    let layerName = indicatorMetadataAndGeoJSON.indicatorName + '_' + spatialUnitName + '_' + date;
-
-    if (isCustomComputation) {
-      layerName += ' - individuelles Berechnungsergebnis';
+    // replaces the previous indicator layer; the binding puts it on the map right away
+    layers.register({
+      id: INDICATOR_LAYER_ID,
+      groupId: 'indicator',
+      title: indicatorMetadataAndGeoJSON.indicatorName,
+      subtitle: [
+        spatialUnitName,
+        date,
+        ...(isCustomComputation ? ['individuelles Berechnungsergebnis'] : []),
+      ].join(' · '),
+      kind: 'vector',
+      // placeholder until the panel derives a swatch from the classification (D2)
+      symbol: { kind: 'fill', color: '#808080' },
+      layer,
+      capabilities: { searchable: true },
+    });
+    if (!justRestyling) {
+      // a newly chosen indicator is shown even if the user had hidden the previous one
+      layers.setVisible(INDICATOR_LAYER_ID, true);
     }
-
-    this.layerControl.addOverlay(layer, layerName, MAP_LAYER_GROUPS.indicator);
-    layer.addTo(this.map);
     this.mapControlsService.updateSearchControl();
 
     this.fitBounds();

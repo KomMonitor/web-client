@@ -36,9 +36,10 @@ function legacyName(entry: LayerEntryState): string {
 /**
  * Keeps the old grouped layer control in step with the registry until the new
  * panel replaces it (H1): every bound layer is listed under its old group
- * name, which the feature search still filters by, and a checkbox click turns
- * into `registry.setVisible()`. Everything else goes straight to the Leaflet
- * binding. The control's opacity slider stays unconnected.
+ * name, which the feature search still filters by, a checkbox click turns
+ * into `registry.setVisible()` and the control's opacity slider into
+ * `registry.setOpacity()` (through a hook in the vendored control), so it fades
+ * the layer's pane. Everything else goes straight to the Leaflet binding.
  *
  * The control reports every add and remove of a listed layer on the map as
  * 'overlayadd' / 'overlayremove', no matter who caused it. A layer therefore
@@ -53,6 +54,21 @@ export class LayerControlBridge implements MapLayerBinding {
   private readonly onOverlayAdd = (event: { layer: L.Layer }) => this.toggle(event.layer, true);
   private readonly onOverlayRemove = (event: { layer: L.Layer }) => this.toggle(event.layer, false);
 
+  /** Hook of the vendored control; undefined / false leave other layers to the control. */
+  private readonly opacityHandler = {
+    get: (layer: L.Layer): number | undefined => {
+      const id = this.idsByLayer.get(layer);
+      return id ? this.registry.entry(id)?.opacity : undefined;
+    },
+    set: (layer: L.Layer, opacity: number): boolean => {
+      const id = this.idsByLayer.get(layer);
+      if (id) {
+        this.registry.setOpacity(id, opacity);
+      }
+      return !!id;
+    },
+  };
+
   constructor(
     private readonly inner: LeafletLayerBinding,
     private readonly control: any,
@@ -61,6 +77,7 @@ export class LayerControlBridge implements MapLayerBinding {
   ) {
     map.on('overlayadd', this.onOverlayAdd);
     map.on('overlayremove', this.onOverlayRemove);
+    control.opacityHandler = this.opacityHandler;
   }
 
   bind(layer: BoundLayer): void {
@@ -69,9 +86,10 @@ export class LayerControlBridge implements MapLayerBinding {
     const entry = this.registry.entry(layer.id);
     const group = entry && legacyGroupOf(entry);
     if (entry && group) {
-      this.control.addOverlay(layer.layer, legacyName(entry), group);
+      // known before the control renders the item, so its slider starts at the registry's value
       this.idsByLayer.set(layer.layer, layer.id);
       this.layersById.set(layer.id, layer.layer);
+      this.control.addOverlay(layer.layer, legacyName(entry), group);
     }
   }
 
@@ -100,6 +118,9 @@ export class LayerControlBridge implements MapLayerBinding {
   dispose(): void {
     this.map.off('overlayadd', this.onOverlayAdd);
     this.map.off('overlayremove', this.onOverlayRemove);
+    if (this.control.opacityHandler === this.opacityHandler) {
+      delete this.control.opacityHandler;
+    }
     this.inner.dispose();
   }
 

@@ -39,7 +39,6 @@ export class VisualStyleHelperServiceNew {
   private positiveValues: any = [];
   private negativeValues: any = [];
 
-  private numberOfDecimals = this.envConfigService.numberOfDecimals;
   private defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
   private defaultBorderColorForFilteredValues =
     this.envConfigService.defaultBorderColorForFilteredValues;
@@ -66,8 +65,6 @@ export class VisualStyleHelperServiceNew {
   private defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
   private defaultFillOpacityForNoDataValues =
     this.envConfigService.defaultFillOpacityForNoDataValues;
-
-  private indicatorTransparency = 1 - this.envConfigService.defaultFillOpacity;
 
   private defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
   private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
@@ -735,23 +732,6 @@ export class VisualStyleHelperServiceNew {
       }
       return this.outlierStyle_high;
     }
-  }
-
-  getOpacity(_opacity) {
-    return this.defaultFillOpacity;
-  }
-
-  setOpacity(opacity) {
-    opacity = Number(opacity);
-    this.indicatorTransparency = Number((1 - opacity).toFixed(this.numberOfDecimals));
-    this.classificationState.currentIndicatorOpacity = opacity;
-
-    this.defaultFillOpacity = opacity;
-    this.defaultFillOpacityForOutliers_low = opacity;
-    this.defaultFillOpacityForOutliers_high = opacity;
-    this.defaultFillOpacityForZeroFeatures = opacity;
-    this.defaultFillOpacityForNoDataValues = opacity;
-    this.defaultFillOpacityForFilteredFeatures = opacity;
   }
 
   /**

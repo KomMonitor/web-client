@@ -231,6 +231,11 @@ L.Control.GroupedLayers = L.Control.extend({
   },
 
   _getOpacity: function(obj) {
+    // KomMonitor: layers of the map layer registry report their opacity through this hook
+    const handled = this.opacityHandler && this.opacityHandler.get(obj.layer);
+    if (handled !== undefined) {
+      return handled;
+    }
     if (obj.layer?.options?.opacity !== undefined) {
       return obj.layer.options.opacity;
     } else if(obj.layer?.getLayers) {
@@ -265,6 +270,11 @@ L.Control.GroupedLayers = L.Control.extend({
     slider.onchange = (evt) => {
       sliderValue = evt.target.value;
       let opacity = (1 - parseFloat(evt.target.value)).toFixed(2);
+      // KomMonitor: layers of the map layer registry are faded through their pane
+      if (this.opacityHandler && this.opacityHandler.set(obj.layer, parseFloat(opacity))) {
+        value.textContent = sliderValue;
+        return;
+      }
       if (obj.layer && obj.layer.setOpacity) {
         // WMS Layer
         obj.layer.setOpacity(opacity);

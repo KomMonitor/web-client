@@ -168,6 +168,70 @@ describe('LayerControlBridge', () => {
     expect(registry.entry('georesource:1')?.visible).toBe(true);
   });
 
+  describe('opacity slider of the old control', () => {
+    function slider(layer: L.Layer): HTMLInputElement {
+      const item = checkbox(layer).closest('.leaflet-control-layers-item')!;
+      return item.querySelector('input[type="range"]') as HTMLInputElement;
+    }
+
+    function slide(input: HTMLInputElement, transparency: string): void {
+      input.value = transparency;
+      input.dispatchEvent(new Event('change'));
+    }
+
+    it('starts at the transparency of the registry entry', () => {
+      const registration = area('georesource:1', { initial: { opacity: 0.6 } });
+
+      registry.register(registration);
+
+      expect(Number(slider(registration.layer!).value)).toBeCloseTo(0.4);
+    });
+
+    it('fades the pane of a registered layer and leaves its paths alone', () => {
+      const registration = area('georesource:1');
+      registry.register(registration);
+      const path = (registration.layer as L.Polygon).getElement()!;
+      const fillOpacity = path.getAttribute('fill-opacity');
+
+      slide(slider(registration.layer!), '0.5');
+
+      expect(registry.entry('georesource:1')?.opacity).toBe(0.5);
+      expect(map.getPane(registry.paneFor('georesource:1'))!.style.opacity).toBe('0.5');
+      expect(path.getAttribute('fill-opacity')).toBe(fillOpacity);
+    });
+
+    it('keeps the old behavior for layers the old sources add themselves', () => {
+      const legacy = L.geoJSON({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [7.3, 51.4],
+              [7.5, 51.4],
+              [7.5, 51.6],
+              [7.3, 51.4],
+            ],
+          ],
+        },
+      } as any);
+      control.addOverlay(legacy, 'Alt', MAP_LAYER_GROUPS.aoi);
+      map.addLayer(legacy);
+
+      slide(slider(legacy), '0.5');
+
+      const [path] = legacy.getLayers() as L.Path[];
+      expect(path.options.fillOpacity).toBe('0.50');
+    });
+
+    it('unhooks itself on dispose', () => {
+      bridge.dispose();
+
+      expect(control.opacityHandler).toBeUndefined();
+    });
+  });
+
   describe('legacyGroupOf', () => {
     const entry = (id: string, groupId: string) => ({ id, groupId }) as LayerEntryState;
 
