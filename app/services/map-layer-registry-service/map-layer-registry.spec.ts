@@ -4,6 +4,7 @@ import type * as L from 'leaflet';
 import { MAIN_MAP_LAYER_GROUPS } from './layer-group-catalog';
 import type {
   BoundLayer,
+  LayerGroupDef,
   LayerId,
   LayerRegistration,
   LayerTreeNode,
@@ -29,6 +30,13 @@ class FakeBinding implements MapLayerBinding {
   }
   zoomTo(id: LayerId): void {
     this.calls.push(['zoomTo', id]);
+  }
+
+  /** Kept apart from `calls`, so specs about other commands need not list every order. */
+  readonly orders: LayerId[][] = [];
+
+  setOrder(order: LayerId[]): void {
+    this.orders.push(order);
   }
 }
 
@@ -461,6 +469,245 @@ describe('MapLayerRegistry', () => {
       registry.setVisible('georesource:1', false);
 
       expect(searchable()).toEqual([]);
+    });
+  });
+
+  describe('moveEntry', () => {
+    beforeEach(() => {
+      registry.register(poi('georesource:1'));
+      registry.register(poi('georesource:2'));
+      registry.register(poi('georesource:3'));
+      registry.register(poi('georesource:9', { groupId: 'georesource.area', kind: 'vector' }));
+      // Point list top to bottom: 3, 2, 1.
+    });
+
+    it('moves an entry within its own list', () => {
+      registry.moveEntry('georesource:3', 2);
+      expect(idsIn(registry, 'georesource.point')).toEqual([
+        'georesource:2',
+        'georesource:1',
+        'georesource:3',
+      ]);
+
+      registry.moveEntry('georesource:1', 0);
+      expect(idsIn(registry, 'georesource.point')).toEqual([
+        'georesource:1',
+        'georesource:2',
+        'georesource:3',
+      ]);
+      expect(idsIn(registry, 'georesource.area')).toEqual(['georesource:9']);
+    });
+
+    it('clamps the target index to its own list', () => {
+      registry.moveEntry('georesource:3', 99);
+      expect(idsIn(registry, 'georesource.point')).toEqual([
+        'georesource:2',
+        'georesource:1',
+        'georesource:3',
+      ]);
+
+      registry.moveEntry('georesource:1', -5);
+      expect(idsIn(registry, 'georesource.point')).toEqual([
+        'georesource:1',
+        'georesource:2',
+        'georesource:3',
+      ]);
+      expect(idsIn(registry, 'georesource.area')).toEqual(['georesource:9']);
+    });
+
+    it('ignores unknown ids and entries that may not be reordered', () => {
+      registry.register(poi('georesource:4', { capabilities: { reorder: false } }));
+      const before = registry.drawOrder();
+
+      registry.moveEntry('georesource:404', 0);
+      registry.moveEntry('georesource:4', 3);
+      registry.moveEntry('georesource:2', Number.NaN);
+
+      expect(registry.drawOrder()).toEqual(before);
+    });
+
+    it('ignores entries of a group that is not sortable', () => {
+      const catalog: LayerGroupDef[] = [{ id: 'fixed', i18nKey: 'FIXED', sortable: false }];
+      const fixed = new MapLayerRegistry(catalog);
+      fixed.register(poi('a', { groupId: 'fixed' }));
+      fixed.register(poi('b', { groupId: 'fixed' }));
+
+      fixed.moveEntry('b', 1);
+
+      expect(fixed.drawOrder()).toEqual(['b', 'a']);
+    });
+  });
+
+  describe('moveGroup', () => {
+    beforeEach(() => {
+      registry.register(poi('indicator', { groupId: 'indicator', kind: 'vector' }));
+      registry.register(poi('georesource:1'));
+      registry.register(poi('reachability:live:start', { groupId: 'reachability' }));
+    });
+
+    it('moves a top-level group and with it the stacking of its entries', () => {
+      registry.moveGroup('indicator', 0);
+
+      expect(registry.tree().map((node) => node.group.id)).toEqual([
+        'indicator',
+        'reachability',
+        'temporary',
+        'outline',
+        'georesource',
+      ]);
+      expect(registry.drawOrder()).toEqual([
+        'indicator',
+        'reachability:live:start',
+        'georesource:1',
+      ]);
+    });
+
+    it('clamps the target index', () => {
+      registry.moveGroup('reachability', 42);
+
+      expect(registry.tree().at(-1)?.group.id).toBe('reachability');
+    });
+
+    it('keeps sub groups fixed and ignores unknown groups', () => {
+      const before = registry.tree().map((node) => node.group.id);
+
+      registry.moveGroup('georesource.point', 0);
+      registry.moveGroup('drawing', 0);
+
+      expect(registry.tree().map((node) => node.group.id)).toEqual(before);
+      expect(findNode(registry.tree(), 'georesource')?.children.map((n) => n.group.id)).toEqual([
+        'georesource.point',
+        'georesource.line',
+        'georesource.area',
+        'georesource.service',
+      ]);
+    });
+  });
+
+  describe('drawOrder', () => {
+    it('lists every entry top to bottom, hidden and not yet loaded ones included', () => {
+      registry.register(poi('indicator', { groupId: 'indicator', kind: 'vector' }));
+      registry.register(poi('wms:9', { groupId: 'georesource.service', kind: 'raster' }));
+      registry.register(poi('georesource:5', { groupId: 'georesource.area', kind: 'vector' }));
+      registry.register(poi('georesource:1'));
+      registry.register(poi('georesource:2'));
+      registry.register(
+        poi('outline:7', {
+          groupId: 'outline',
+          initial: { visible: false },
+          layer: undefined,
+          load: () => Promise.resolve(fakeLayer('outline:7')),
+        })
+      );
+      registry.register(poi('file:a.geojson', { groupId: 'temporary', kind: 'vector' }));
+      registry.setVisible('georesource:1', false);
+
+      expect(registry.drawOrder()).toEqual([
+        'file:a.geojson',
+        'outline:7',
+        'georesource:2',
+        'georesource:1',
+        'georesource:5',
+        'wms:9',
+        'indicator',
+      ]);
+    });
+  });
+
+  describe('maxEntries', () => {
+    const catalog: LayerGroupDef[] = [
+      { id: 'pair', i18nKey: 'PAIR', maxEntries: 2 },
+      { id: 'other', i18nKey: 'OTHER' },
+    ];
+
+    it('lets a new entry push out the oldest ones and tells their owner', () => {
+      const limited = new MapLayerRegistry(catalog);
+      const owner = { remove: jest.fn((id: LayerId) => limited.unregister(id)) };
+      limited.register(poi('a', { groupId: 'pair', owner }));
+      limited.register(poi('b', { groupId: 'pair', owner }));
+
+      limited.register(poi('c', { groupId: 'pair', owner }));
+
+      expect(limited.drawOrder()).toEqual(['c', 'b']);
+      expect(owner.remove).toHaveBeenCalledTimes(1);
+      expect(owner.remove).toHaveBeenCalledWith('a');
+    });
+
+    it('also makes room when an entry moves into a full group', () => {
+      const limited = new MapLayerRegistry(catalog);
+      limited.register(poi('a', { groupId: 'pair' }));
+      limited.register(poi('b', { groupId: 'pair' }));
+      limited.register(poi('c', { groupId: 'other' }));
+
+      limited.register(poi('c', { groupId: 'pair' }));
+
+      expect(limited.drawOrder()).toEqual(['c', 'b']);
+    });
+
+    it('does not push anything out when an entry is replaced', () => {
+      const limited = new MapLayerRegistry(catalog);
+      limited.register(poi('a', { groupId: 'pair' }));
+      limited.register(poi('b', { groupId: 'pair' }));
+
+      limited.register(poi('a', { groupId: 'pair', title: 'A again' }));
+
+      expect(limited.drawOrder()).toEqual(['b', 'a']);
+    });
+
+    it('keeps the single indicator of the main map when it is replaced', () => {
+      registry.register(poi('indicator', { groupId: 'indicator', kind: 'vector' }));
+      registry.register(poi('indicator', { groupId: 'indicator', kind: 'vector', title: 'B' }));
+
+      expect(findNode(registry.tree(), 'indicator')?.entries.map((e) => e.title)).toEqual(['B']);
+    });
+  });
+
+  describe('handing the order to the binding', () => {
+    beforeEach(() => {
+      registry.register(poi('georesource:1'));
+      registry.register(poi('indicator', { groupId: 'indicator', kind: 'vector' }));
+    });
+
+    it('sends the order on attach, after binding the layers', () => {
+      registry.attach(binding);
+
+      expect(binding.orders).toEqual([['georesource:1', 'indicator']]);
+      expect(binding.calls.map((call) => call[0])).toEqual(['bind', 'bind']);
+    });
+
+    it('sends it again after every change of the stacking', () => {
+      registry.attach(binding);
+
+      registry.register(poi('georesource:2'));
+      registry.moveEntry('georesource:2', 1);
+      registry.moveGroup('indicator', 0);
+      registry.unregister('georesource:1');
+
+      expect(binding.orders).toEqual([
+        ['georesource:1', 'indicator'],
+        ['georesource:2', 'georesource:1', 'indicator'],
+        ['georesource:1', 'georesource:2', 'indicator'],
+        ['indicator', 'georesource:1', 'georesource:2'],
+        ['indicator', 'georesource:2'],
+      ]);
+    });
+
+    it('does not send an unchanged order', () => {
+      registry.attach(binding);
+
+      registry.register(poi('georesource:1', { title: 'replaced' }));
+      registry.setVisible('georesource:1', false);
+      registry.setOpacity('georesource:1', 0.5);
+      registry.moveEntry('georesource:1', 0);
+      registry.moveGroup('georesource', 3);
+
+      expect(binding.orders).toHaveLength(1);
+    });
+
+    it('sends nothing while detached', () => {
+      registry.register(poi('georesource:2'));
+
+      expect(binding.orders).toEqual([]);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { computed, signal } from '@angular/core';
+import { computed, signal, type WritableSignal } from '@angular/core';
 import type * as L from 'leaflet';
 
 import { resolveLeafGroup } from './layer-group-catalog';
@@ -37,10 +37,15 @@ interface LayerSlot {
  * maps simply create their own instance.
  */
 export class MapLayerRegistry {
+  /** All entries; their order within a group is their order in the panel and on the map. */
   private readonly _entries = signal<readonly LayerEntryState[]>([]);
+  /** Top-level groups, top to bottom; sub groups keep the order of the catalogue. */
+  private readonly _groupOrder: WritableSignal<readonly LayerGroupDef[]>;
   private readonly slots = new Map<LayerId, LayerSlot>();
   private readonly panes = new Map<LayerId, string>();
   private binding?: MapLayerBinding;
+  /** The order the binding got last, so unchanged orders are not sent again. */
+  private sentOrder: readonly LayerId[] = [];
 
   /** Groups, sub groups and entries for the panel, top to bottom. */
   readonly tree = computed<LayerTreeNode[]>(() => {
@@ -48,16 +53,24 @@ export class MapLayerRegistry {
     for (const entry of this._entries()) {
       byGroup.set(entry.groupId, [...(byGroup.get(entry.groupId) ?? []), entry]);
     }
-    return this.catalog.map((group) => treeNode(group, byGroup));
+    return this._groupOrder().map((group) => treeNode(group, byGroup));
   });
 
-  private readonly visible = computed(() =>
-    this.tree()
-      .flatMap(treeEntries)
-      .filter((entry) => entry.visible)
-  );
+  /** All entries top to bottom, visible or not. */
+  private readonly ordered = computed(() => this.tree().flatMap(treeEntries));
 
-  constructor(private readonly catalog: readonly LayerGroupDef[]) {}
+  /**
+   * Ids of all entries top to bottom: group order, then sub groups, then the
+   * position in their list. Hidden and not yet loaded entries count too, so
+   * showing a layer never changes the stacking of the others.
+   */
+  readonly drawOrder = computed(() => this.ordered().map((entry) => entry.id));
+
+  private readonly visible = computed(() => this.ordered().filter((entry) => entry.visible));
+
+  constructor(private readonly catalog: readonly LayerGroupDef[]) {
+    this._groupOrder = signal(catalog);
+  }
 
   /** The current state of one entry. */
   entry(id: LayerId): LayerEntryState | undefined {
@@ -82,7 +95,8 @@ export class MapLayerRegistry {
    */
   register(registration: LayerRegistration): void {
     const { id, groupId } = registration;
-    if (!resolveLeafGroup(this.catalog, groupId)) {
+    const group = resolveLeafGroup(this.catalog, groupId)?.leaf;
+    if (!group) {
       throw new Error(`Layer '${id}': '${groupId}' is no leaf group of the catalogue`);
     }
     if (!registration.layer && !registration.load) {
@@ -117,6 +131,15 @@ export class MapLayerRegistry {
     } else if (hadLayer) {
       this.binding?.unbind(id);
     }
+
+    if (group.maxEntries !== undefined && previous?.groupId !== groupId) {
+      // The newcomer is on top, so the oldest entries at the bottom make room.
+      const overflow = this._entries()
+        .filter((existing) => existing.groupId === groupId)
+        .slice(group.maxEntries);
+      overflow.forEach((evicted) => this.evict(evicted.id));
+    }
+    this.syncOrder();
   }
 
   unregister(id: LayerId): void {
@@ -129,6 +152,7 @@ export class MapLayerRegistry {
     if (slot.layer) {
       this.binding?.unbind(id);
     }
+    this.syncOrder();
   }
 
   /** E.g. drops every entry of a source that is no longer in its reloaded catalogue. */
@@ -176,6 +200,52 @@ export class MapLayerRegistry {
   }
 
   /**
+   * Moves an entry to position `toIndex` (0 = top) of its own list; it never
+   * changes groups. Ignored for groups that are not sortable and for entries
+   * that may not be reordered.
+   */
+  moveEntry(id: LayerId, toIndex: number): void {
+    const entry = this.entry(id);
+    if (
+      !entry ||
+      Number.isNaN(toIndex) ||
+      !entry.capabilities.reorder ||
+      resolveLeafGroup(this.catalog, entry.groupId)?.leaf.sortable === false
+    ) {
+      return;
+    }
+    const entries = this._entries();
+    const from = entries.filter((other) => other.groupId === entry.groupId).indexOf(entry);
+    const others = entries.filter((other) => other.id !== id);
+    const list = others.filter((other) => other.groupId === entry.groupId);
+    const to = clampIndex(toIndex, list.length);
+    if (to === from) {
+      return;
+    }
+    // Insert before the entry that is to follow it, or right after the last one of the list.
+    const at =
+      to < list.length ? others.indexOf(list[to]) : others.indexOf(list[list.length - 1]) + 1;
+    this._entries.set([...others.slice(0, at), entry, ...others.slice(at)]);
+    this.syncOrder();
+  }
+
+  /** Moves a top-level group to position `toIndex` (0 = top); sub groups keep their order. */
+  moveGroup(groupId: string, toIndex: number): void {
+    const groups = this._groupOrder();
+    const from = groups.findIndex((group) => group.id === groupId);
+    if (from < 0 || Number.isNaN(toIndex)) {
+      return;
+    }
+    const to = clampIndex(toIndex, groups.length - 1);
+    if (to === from) {
+      return;
+    }
+    const others = groups.filter((group) => group.id !== groupId);
+    this._groupOrder.set([...others.slice(0, to), groups[from], ...others.slice(to)]);
+    this.syncOrder();
+  }
+
+  /**
    * The pane a source creates the layer of `id` in. Stable for the id, also
    * across unregistering, and safe as a CSS class name, which ids like
    * 'wfs:<title>' are not.
@@ -195,12 +265,13 @@ export class MapLayerRegistry {
    */
   attach(binding: MapLayerBinding): void {
     this.binding = binding;
-    for (const entry of this.tree().flatMap(treeEntries)) {
+    for (const entry of this.ordered()) {
       const layer = this.slots.get(entry.id)?.layer;
       if (layer) {
         binding.bind(this.boundLayer(entry, layer));
       }
     }
+    this.syncOrder(true);
   }
 
   /** Back to buffering, e.g. when the map is destroyed. */
@@ -218,6 +289,26 @@ export class MapLayerRegistry {
       visible: entry.visible,
       opacity: entry.opacity,
     };
+  }
+
+  /** Drops an entry that lost its place; its owner deselects it in its catalogue. */
+  private evict(id: LayerId): void {
+    this.slots.get(id)?.registration.owner?.remove?.(id);
+    // The owner normally unregisters it; make sure it is gone either way.
+    this.unregister(id);
+  }
+
+  /** Hands the draw order to the binding if it changed since it was last sent. */
+  private syncOrder(force = false): void {
+    if (!this.binding) {
+      return;
+    }
+    const order = this.drawOrder();
+    if (!force && sameIds(order, this.sentOrder)) {
+      return;
+    }
+    this.sentOrder = order;
+    this.binding.setOrder(order);
   }
 
   /** Changes one entry; false if there is none under `id`. */
@@ -242,6 +333,15 @@ function treeNode(group: LayerGroupDef, byGroup: Map<string, LayerEntryState[]>)
 /** All entries of a node and its sub groups, top to bottom. */
 function treeEntries(node: LayerTreeNode): LayerEntryState[] {
   return [...node.entries, ...node.children.flatMap(treeEntries)];
+}
+
+function sameIds(a: readonly LayerId[], b: readonly LayerId[]): boolean {
+  return a.length === b.length && a.every((id, index) => id === b[index]);
+}
+
+/** A whole number between 0 and `max`. */
+function clampIndex(value: number, max: number): number {
+  return Math.min(max, Math.max(0, Math.trunc(value)));
 }
 
 function clampOpacity(value: number): number {

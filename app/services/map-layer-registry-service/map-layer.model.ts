@@ -171,4 +171,6 @@ export interface MapLayerBinding {
   setVisible(id: LayerId, visible: boolean): void;
   setOpacity(id: LayerId, opacity: number): void;
   zoomTo(id: LayerId): void;
+  /** All registered ids, top to bottom; the binding derives the stacking of the layers from it. */
+  setOrder(order: LayerId[]): void;
 }
