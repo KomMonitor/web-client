@@ -183,11 +183,12 @@ export class OgcLayerManagerService {
     });
   }
 
-  // WFS only, until it moves to the registry (B4): matches by layer name only
-  // (not by group), mirroring the legacy behavior
+  // WFS only, until it moves to the registry (B4). Limited to the WFS group:
+  // matching the name alone also hit layers of other groups, among them
+  // those the layer registry manages.
   private removeLayersByTitle(title: string) {
     this.context.layerControl._layers.forEach((layer) => {
-      if (layer.name.includes(title)) {
+      if (layer.group.name === MAP_LAYER_GROUPS.wfs && layer.name.includes(title)) {
         this.context.layerControl.removeLayer(layer.layer);
         this.context.map.removeLayer(layer.layer);
       }

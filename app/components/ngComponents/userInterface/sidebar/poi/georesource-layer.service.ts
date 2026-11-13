@@ -158,10 +158,12 @@ export class GeoresourceLayerService {
     }, 250);
   }
 
+  // Reloading registers the layer again under the same id, which replaces it on
+  // the map and keeps its visibility, opacity and position; removing it first
+  // would lose them. Until the new data is there, the old layer stays.
   refreshSelectedGeoresources() {
     for (const georesource of this.georesourceStore.displayableGeoresources_keywordFiltered) {
       if (georesource.isSelected && (georesource.isPOI || georesource.isLOI || georesource.isAOI)) {
-        this.removeGeoresourceLayerFromMap(georesource);
         this.addGeoresourceLayerToMap(georesource);
       }
     }
@@ -172,14 +174,12 @@ export class GeoresourceLayerService {
     georesourceDataset.selectedDate =
       georesourceDataset.availablePeriodsOfValidity[event.srcElement.value];
     if (georesourceDataset.isSelected) {
-      this.removeGeoresourceLayerFromMap(georesourceDataset);
       this.addGeoresourceLayerToMap(georesourceDataset);
     }
   }
 
   onChangeSelectedDate(georesourceDataset: GeoresourcesDataset) {
     if (georesourceDataset.isSelected) {
-      this.removeGeoresourceLayerFromMap(georesourceDataset);
       this.addGeoresourceLayerToMap(georesourceDataset);
     }
   }
@@ -207,6 +207,12 @@ export class GeoresourceLayerService {
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
     this.http.get(url).subscribe({
       next: (response) => {
+        // deselected while loading: do not bring it back
+        if (!resource.isSelected) {
+          this.loadingData = false;
+          this.mapService.hideLoadingIcon();
+          return;
+        }
         resource.geoJSON = response;
         if (resource.isPOI)
           this.mapService.addPoiGeoresourceGeoJSON(resource, date, this.useCluster);
@@ -233,7 +239,6 @@ export class GeoresourceLayerService {
   refreshPoiLayers() {
     for (const poi of this.georesourceStore.displayableGeoresources_keywordFiltered) {
       if (poi.isSelected) {
-        this.removeGeoresourceLayerFromMap(poi);
         this.addGeoresourceLayerToMap(poi);
       }
     }

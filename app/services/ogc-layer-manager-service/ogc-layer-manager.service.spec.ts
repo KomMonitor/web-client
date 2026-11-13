@@ -6,7 +6,7 @@ import * as L from 'leaflet';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { MAIN_MAP_LAYER_GROUPS } from 'services/map-layer-registry-service/layer-group-catalog';
 import { MapLayerRegistry } from 'services/map-layer-registry-service/map-layer-registry';
-import { MapContext } from 'services/map-service/map-context';
+import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
 
 import { OgcLayerManagerService } from './ogc-layer-manager.service';
 
@@ -102,6 +102,37 @@ describe('OgcLayerManagerService', () => {
 
       expect(layers.drawOrder()).toEqual(['georesource:1']);
       expect(context.layerControl.removeLayer).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('WFS', () => {
+    it('removes only WFS entries of the old control, not namesakes in other groups', () => {
+      const wfsLayer = { id: 'wfs' };
+      const georesourceLayer = { id: 'georesource' };
+      const context: MapContext = {
+        map: { removeLayer: jest.fn() },
+        layerControl: {
+          removeLayer: jest.fn(),
+          _layers: [
+            { name: 'Schulen', layer: wfsLayer, group: { name: MAP_LAYER_GROUPS.wfs } },
+            {
+              name: 'Schulen_2024-01-01',
+              layer: georesourceLayer,
+              group: { name: MAP_LAYER_GROUPS.poi },
+            },
+          ],
+        },
+        layers: new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS),
+        updateSearchControl: jest.fn(),
+        hideLoadingIcon: jest.fn(),
+      };
+      service.initialize(context);
+
+      service.removeWfsLayer({ title: 'Schulen' });
+
+      expect(context.layerControl.removeLayer).toHaveBeenCalledTimes(1);
+      expect(context.layerControl.removeLayer).toHaveBeenCalledWith(wfsLayer);
+      expect(context.map.removeLayer).toHaveBeenCalledWith(wfsLayer);
     });
   });
 });
