@@ -98,7 +98,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   private map;
-  private spatialUnitOutlineLayerInitialized = false;
 
   datasetContainsNegativeValues: any;
 
@@ -244,12 +243,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // add the spatial unit outline layers once the initial metadata bootstrap
-    // is complete (replaces the former blind setTimeout(2000))
+    // after the initial bootstrap and after every reload (global filter change)
     this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) this.tryInitSpatialUnitOutlineLayer();
+        if (state === MetadataLoadingState.COMPLETE) this.onMetadataLoaded();
       });
 
     // single render channel for indicator layers (selection changes as well as
@@ -412,9 +410,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       case 'openLayerControl':
         this.mapControlsService.openLayerControl();
         break;
-      case 'onGlobalFilterChange':
-        this.onGlobalFilterChange();
-        break;
     }
   }
 
@@ -432,7 +427,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.mapControlsService.initMeasureControl();
 
     // covers the case that the metadata bootstrap completed before the map view existed
-    this.tryInitSpatialUnitOutlineLayer();
+    this.onMetadataLoaded();
   }
 
   private syncViewportState() {
@@ -440,14 +435,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.mapViewportState.setViewport(latLng.lat, latLng.lng, this.map.getZoom());
   }
 
-  // runs once, as soon as both the map view and the metadata bootstrap are ready
-  private tryInitSpatialUnitOutlineLayer() {
-    if (this.spatialUnitOutlineLayerInitialized) return;
+  /**
+   * Runs once the map view exists and the metadata are loaded: at startup and
+   * after every reload (global filter change). Brings the outlines in line
+   * with the spatial units and drops the layers of reloaded catalogues.
+   */
+  private onMetadataLoaded() {
     if (!this.layerControl) return;
     if (this.metadataBootstrap.metadataLoadingState !== MetadataLoadingState.COMPLETE) return;
 
-    this.spatialUnitOutlineLayerInitialized = true;
-    this.initSpatialUnitOutlineLayer();
+    this.refreshSpatialUnitOutlines();
+    this.georesourceLayerManager.clearAfterCatalogReload();
+    this.ogcLayerManager.clearWmsAfterCatalogReload();
   }
 
   // hands the layer managers a narrow context; the Leaflet instance itself
@@ -659,11 +658,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     );
   }
 
-  onGlobalFilterChange() {
-    // reset custom layers when global filters change. otherwise douplicates might be added
-    this.layerControl._layers = this.layerControl._layers.filter((e) => e.overlay === undefined);
-  }
-
   onCloseOutlierAlert() {
     this.showOutlierInfoAlert = false;
   }
@@ -755,15 +749,24 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Registers one hidden outline entry per spatial unit. The (potentially
-   * large) geometry is fetched only when the user shows it for the first time;
-   * the empty placeholder lets the old layer control list it before (until H1).
+   * Registers one outline entry per spatial unit, hidden at first. The
+   * (potentially large) geometry is fetched only when the user shows it; the
+   * empty placeholder lets the old layer control list it before (until H1).
+   *
+   * Runs again after every metadata reload: entries of spatial units that are
+   * gone are dropped, the others are registered anew. That keeps their
+   * visibility, opacity and position, and a visible one loads its geometry
+   * again, matching the new filter.
    */
-  initSpatialUnitOutlineLayer() {
+  refreshSpatialUnitOutlines() {
     const layers = this.mainMapLayers.registry;
-    for (const spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
-      if (!spatialUnit.isOutlineLayer) continue;
+    const outlineUnits = this.spatialUnitStore.availableSpatialUnits.filter(
+      (spatialUnit) => spatialUnit.isOutlineLayer
+    );
+    const ids = new Set(outlineUnits.map((spatialUnit) => `outline:${spatialUnit.spatialUnitId}`));
+    layers.unregisterWhere((entry) => entry.groupId === 'outline' && !ids.has(entry.id));
 
+    for (const spatialUnit of outlineUnits) {
       const id = `outline:${spatialUnit.spatialUnitId}`;
       const placeholder = L.geoJSON(undefined, {
         pane: layers.paneFor(id),

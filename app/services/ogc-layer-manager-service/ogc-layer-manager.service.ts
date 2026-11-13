@@ -57,6 +57,15 @@ export class OgcLayerManagerService {
     this.context.hideLoadingIcon();
   }
 
+  /**
+   * After the service catalogue was reloaded (global filter change), no WMS in
+   * it is selected any more, so one still on the map could not be deselected
+   * there. Drops them all; see GeoresourceLayerManagerService for the same.
+   */
+  clearWmsAfterCatalogReload() {
+    this.context.layers.unregisterWhere((entry) => entry.id.startsWith('wms:'));
+  }
+
   removeWmsLayer(dataset: WmsDataset) {
     this.context.layers.unregister(wmsLayerId(dataset));
     this.context.hideLoadingIcon();

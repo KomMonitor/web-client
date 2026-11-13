@@ -7,7 +7,14 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 
+import { GeoresourceLayerManagerService } from 'services/georesource-layer-manager-service/georesource-layer-manager.service';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 import { KommonitorMapComponent } from './kommonitor-map.component';
 
@@ -235,6 +242,75 @@ describe('KommonitorMapComponent', () => {
       component.removeIsochrones();
 
       expect(registry().entry(ISOCHRONES)).toBeUndefined();
+    });
+  });
+
+  describe('after a metadata (re)load', () => {
+    const registry = () => TestBed.inject(MainMapLayersService).registry;
+    const spatialUnit = (spatialUnitId: string, isOutlineLayer = true) =>
+      ({
+        spatialUnitId,
+        spatialUnitLevel: 'Ebene ' + spatialUnitId,
+        isOutlineLayer,
+        outlineColor: '#ff0000',
+        outlineWidth: 2,
+      }) as any;
+    const outlineIds = () =>
+      registry()
+        .drawOrder()
+        .filter((id) => id.startsWith('outline:'));
+
+    it('registers one hidden outline per outline spatial unit', () => {
+      TestBed.inject(SpatialUnitMetadataStoreService).availableSpatialUnits = [
+        spatialUnit('a'),
+        spatialUnit('b'),
+        spatialUnit('c', false),
+      ];
+
+      component.refreshSpatialUnitOutlines();
+
+      expect(outlineIds().sort()).toEqual(['outline:a', 'outline:b']);
+      expect(registry().entry('outline:a')).toMatchObject({ visible: false, status: 'idle' });
+    });
+
+    it('drops outlines of vanished spatial units and keeps the state of the others', () => {
+      const store = TestBed.inject(SpatialUnitMetadataStoreService);
+      store.availableSpatialUnits = [spatialUnit('a'), spatialUnit('b')];
+      component.refreshSpatialUnitOutlines();
+      registry().setOpacity('outline:a', 0.4);
+      registry().register({
+        id: 'file:x',
+        groupId: 'temporary',
+        title: 'x',
+        kind: 'vector',
+        symbol: { kind: 'fill', color: '#ff0000' },
+        layer: {} as any,
+      });
+
+      store.availableSpatialUnits = [spatialUnit('a')];
+      component.refreshSpatialUnitOutlines();
+
+      expect(outlineIds()).toEqual(['outline:a']);
+      expect(registry().entry('outline:a')?.opacity).toBe(0.4);
+      expect(registry().entry('file:x')).toBeDefined();
+    });
+
+    it('drops the georesource and WMS layers of the reloaded catalogues, once the map is there', () => {
+      const clearGeoresources = jest
+        .spyOn(TestBed.inject(GeoresourceLayerManagerService), 'clearAfterCatalogReload')
+        .mockImplementation(() => undefined);
+      const clearWms = jest
+        .spyOn(TestBed.inject(OgcLayerManagerService), 'clearWmsAfterCatalogReload')
+        .mockImplementation(() => undefined);
+      TestBed.inject(MetadataBootstrapService).setMetadataState(MetadataLoadingState.COMPLETE);
+
+      (component as any).onMetadataLoaded();
+      expect(clearGeoresources).not.toHaveBeenCalled();
+
+      component.layerControl = {};
+      (component as any).onMetadataLoaded();
+      expect(clearGeoresources).toHaveBeenCalledTimes(1);
+      expect(clearWms).toHaveBeenCalledTimes(1);
     });
   });
 });

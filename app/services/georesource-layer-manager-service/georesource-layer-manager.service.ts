@@ -47,6 +47,16 @@ export class GeoresourceLayerManagerService {
     this.unregister(georesourceMetadataAndGeoJSON);
   }
 
+  /**
+   * After the catalogue was reloaded (global filter change), nothing in it is
+   * selected any more, so a georesource still on the map could not be
+   * deselected there. Drops them all; should the store ever keep the
+   * selection across reloads, this has to keep the selected ones.
+   */
+  clearAfterCatalogReload() {
+    this.context.layers.unregisterWhere((entry) => entry.id.startsWith('georesource:'));
+  }
+
   /** Fits the map to the bounds of the dataset's layer, if it is registered. */
   zoomToLayer(georesourceMetadataAndGeoJSON) {
     this.context.layers.zoomTo(georesourceLayerId(georesourceMetadataAndGeoJSON));

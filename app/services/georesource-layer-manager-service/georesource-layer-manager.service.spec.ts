@@ -199,6 +199,23 @@ describe('GeoresourceLayerManagerService', () => {
     expect(layers.drawOrder()).toEqual(['georesource:g-2']);
   });
 
+  it('drops all georesource layers after a catalogue reload and leaves the others', () => {
+    service.addPoiGeoresource(poiDataset('g-1'), '2024-01-01', true);
+    service.addPoiGeoresource(poiDataset('g-2', 'Kitas'), '2024-01-01', false);
+    layers.register({
+      id: 'file:a',
+      groupId: 'temporary',
+      title: 'a',
+      kind: 'vector',
+      symbol: { kind: 'fill', color: '#ff0000' },
+      layer: L.featureGroup(),
+    });
+
+    service.clearAfterCatalogReload();
+
+    expect(layers.drawOrder()).toEqual(['file:a']);
+  });
+
   it('zooms through the registry', () => {
     const zoomTo = jest.spyOn(layers, 'zoomTo');
 

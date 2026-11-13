@@ -85,6 +85,23 @@ describe('OgcLayerManagerService', () => {
       expect(layers.drawOrder()).toEqual(['wms:wms-7']);
     });
 
+    it('drops all WMS layers after a catalogue reload and leaves the others', () => {
+      service.addWmsLayer(dataset(), 1);
+      service.addWmsLayer(dataset({ id: 'wms-8', title: 'Parks' }), 1);
+      layers.register({
+        id: 'georesource:1',
+        groupId: 'georesource.point',
+        title: 'Schulen',
+        kind: 'marker',
+        symbol: { kind: 'point', color: '#ff0000' },
+        layer: L.featureGroup(),
+      });
+
+      service.clearWmsAfterCatalogReload();
+
+      expect(layers.drawOrder()).toEqual(['georesource:1']);
+    });
+
     it('removes only its own entry, not others whose name contains the WMS title', () => {
       layers.register({
         id: 'georesource:1',
