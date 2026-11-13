@@ -115,6 +115,13 @@
       "THEMATIC": "Fachebenen",
       "THEMATIC_HINT": "Oben liegende Gruppen werden zuoberst gezeichnet"
     },
+    "BASE": {
+      "TITLE": "Basiskarte",
+      "BOTTOM": "unterste Ebene",
+      "EMPTY": "Leer",
+      "CHOOSE": "Basiskarte wählen",
+      "TRANSPARENCY": "Transparenz"
+    },
     "GROUP": {
       "COUNT": "{{count}} Ebenen"
     },

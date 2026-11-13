@@ -5,11 +5,12 @@ export const MAP_LAYERS_PANEL_STORAGE_KEY = 'kommonitor.mapLayers.panel';
 
 interface StoredUiState {
   collapsedGroups?: string[];
+  baseLayersExpanded?: boolean;
 }
 
 /**
  * Pure view state of the layer panel, kept apart from the layer registry:
- * which groups are collapsed. Stored in localStorage, so it survives a reload
+ * which groups are collapsed and whether the base layer gallery is open. Stored in localStorage, so it survives a reload
  * and the sidebar destroying the panel. Without storage (private mode, blocked
  * site data) it still works, it just forgets.
  */
@@ -17,13 +18,21 @@ interface StoredUiState {
   providedIn: 'root',
 })
 export class MapLayersPanelUiState {
+  private readonly stored = readStoredState();
   private readonly collapsedGroups = signal<ReadonlySet<string>>(
-    new Set(readStoredState().collapsedGroups ?? [])
+    new Set(this.stored.collapsedGroups ?? [])
   );
+  private readonly _baseLayersExpanded = signal(this.stored.baseLayersExpanded ?? false);
+
+  /** The base layer gallery starts collapsed. */
+  readonly baseLayersExpanded = this._baseLayersExpanded.asReadonly();
 
   constructor() {
     effect(() => {
-      const state: StoredUiState = { collapsedGroups: [...this.collapsedGroups()] };
+      const state: StoredUiState = {
+        collapsedGroups: [...this.collapsedGroups()],
+        baseLayersExpanded: this._baseLayersExpanded(),
+      };
       try {
         localStorage.setItem(MAP_LAYERS_PANEL_STORAGE_KEY, JSON.stringify(state));
       } catch {
@@ -35,6 +44,10 @@ export class MapLayersPanelUiState {
   /** Groups start expanded. */
   isExpanded(groupId: string): boolean {
     return !this.collapsedGroups().has(groupId);
+  }
+
+  toggleBaseLayers(): void {
+    this._baseLayersExpanded.update((expanded) => !expanded);
   }
 
   toggle(groupId: string): void {

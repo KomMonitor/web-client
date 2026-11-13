@@ -115,6 +115,13 @@
       "THEMATIC": "Thematic Layers",
       "THEMATIC_HINT": "Groups further up are drawn on top"
     },
+    "BASE": {
+      "TITLE": "Base map",
+      "BOTTOM": "bottom layer",
+      "EMPTY": "None",
+      "CHOOSE": "Choose a base map",
+      "TRANSPARENCY": "Transparency"
+    },
     "GROUP": {
       "COUNT": "{{count}} layers"
     },

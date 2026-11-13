@@ -3,6 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
 
+import { BaseLayerSectionComponent } from './base-layer-section.component';
 import { LayerGroupComponent } from './layer-group.component';
 import { isGroupShown } from './layer-tree.util';
 
@@ -18,7 +19,7 @@ import { isGroupShown } from './layer-tree.util';
   styleUrls: ['./map-layers-panel.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule, LayerGroupComponent],
+  imports: [TranslateModule, BaseLayerSectionComponent, LayerGroupComponent],
 })
 export class MapLayersPanelComponent {
   protected readonly registry = inject(MAP_LAYER_REGISTRY);

@@ -178,4 +178,20 @@ describe('MapLayersPanelComponent', () => {
       expect(badge(georesource)).toBe('1');
     });
   });
+  it('shows the base layer block above the thematic layers only if the map offers base layers', () => {
+    expect(render().querySelector('app-base-layer-section')).toBeNull();
+    fixture.destroy();
+
+    registry.setBaseLayers([
+      { id: 'base:Grau', title: 'Grau', thumbnail: null, layer: {} as LayerRegistration['layer'] },
+    ]);
+    const root = render();
+
+    const section = root.querySelector('app-base-layer-section');
+    expect(section).not.toBeNull();
+    expect(
+      section!.compareDocumentPosition(root.querySelector('.map-layers-panel__section-head')!) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
 });

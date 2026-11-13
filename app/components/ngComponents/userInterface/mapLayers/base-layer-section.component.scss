@@ -1,0 +1,250 @@
+:host {
+  display: block;
+}
+
+// Set apart from the thematic layers: a grey block of its own (concept 3.2).
+.base-layer-section {
+  margin-bottom: 10px;
+  border: 1px solid var(--map-layers-border, #dde1e5);
+  border-radius: 6px;
+  background: var(--map-layers-base-surface, #e4e8eb);
+}
+
+.base-layer-section__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary, #337ab7);
+    outline-offset: -2px;
+  }
+}
+
+.base-layer-section__chevron {
+  flex: none;
+  width: 12px;
+  font-size: 10px;
+  color: var(--map-layers-text-secondary, #6b7280);
+}
+
+.base-layer-section__mini {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  border: 1px solid var(--map-layers-border, #dde1e5);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.base-layer-section__title {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.base-layer-section__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12.5px;
+}
+
+.base-layer-section__badge {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
+
+  .fa-lock {
+    font-size: 9px;
+  }
+}
+
+.base-layer-section__body {
+  padding: 2px 8px 8px;
+}
+
+.base-layer-section__gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.base-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.base-tile__thumb {
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  outline: 1px solid var(--map-layers-border, #dde1e5);
+  outline-offset: -1px;
+  background: #fff;
+}
+
+.base-tile:hover .base-tile__thumb {
+  outline-color: var(--map-layers-text-secondary, #6b7280);
+}
+
+.base-tile__input:checked + .base-tile__thumb {
+  border-color: var(--kommonitor-primary, #337ab7);
+  outline: none;
+}
+
+.base-tile__input:focus-visible + .base-tile__thumb {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px var(--kommonitor-primary, #337ab7);
+}
+
+.base-tile__label {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-word;
+}
+
+.base-tile__input:checked ~ .base-tile__label {
+  font-weight: 600;
+}
+
+.base-preview__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.base-preview__image--grayscale {
+  filter: grayscale(1);
+}
+
+.base-preview__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--map-layers-text-inactive, #aab1b8);
+  font-size: 1.4em;
+}
+
+.base-layer-section__mini .base-preview__icon {
+  font-size: 11px;
+}
+
+.base-layer-section__transparency {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+
+  label {
+    margin: 0;
+  }
+
+  // Overrides the app-wide range look (app.scss, thick bar and square handle)
+  // with the thin track and round handle of the design draft.
+  input[type='range'] {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+
+    &::-webkit-slider-runnable-track {
+      height: 4px;
+      border: none;
+      border-radius: 2px;
+      background: var(--map-layers-text-inactive, #aab1b8);
+      box-shadow: none;
+    }
+
+    &::-moz-range-track {
+      height: 4px;
+      border: none;
+      border-radius: 2px;
+      background: var(--map-layers-text-inactive, #aab1b8);
+      box-shadow: none;
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      margin-top: -5px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: var(--kommonitor-primary, #337ab7);
+      box-shadow: 0 0 0 1px var(--kommonitor-primary, #337ab7);
+    }
+
+    &::-moz-range-thumb {
+      width: 10px;
+      height: 10px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: var(--kommonitor-primary, #337ab7);
+      box-shadow: 0 0 0 1px var(--kommonitor-primary, #337ab7);
+    }
+
+    // app.scss removes the focus outline of every range input
+    &:focus-visible {
+      outline: 2px solid var(--kommonitor-primary, #337ab7);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+  }
+}
+
+.base-layer-section__value {
+  flex: none;
+  min-width: 3.2em;
+  color: var(--map-layers-text-secondary, #6b7280);
+  text-align: right;
+}
