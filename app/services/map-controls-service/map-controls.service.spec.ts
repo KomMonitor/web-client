@@ -92,4 +92,94 @@ describe('MapControlsService', () => {
       expect(mainMapLayers.registry.entry('search:result')).toBeUndefined();
     });
   });
+
+  describe('feature search', () => {
+    let map: L.Map;
+    let mainMapLayers: MainMapLayersService;
+
+    const featureLayer = (name: string, pane: string) =>
+      L.geoJSON(
+        {
+          type: 'Feature',
+          properties: { NAME: name, ID: name },
+          geometry: { type: 'Point', coordinates: [7.01, 51.45] },
+        } as any,
+        { pane }
+      );
+
+    function register(id: string, name: string, searchable = true) {
+      const registry = mainMapLayers.registry;
+      const layer = featureLayer(name, registry.paneFor(id));
+      registry.register({
+        id,
+        groupId: 'temporary',
+        title: name,
+        kind: 'vector',
+        symbol: { kind: 'fill', color: '#ff0000' },
+        layer,
+        capabilities: { searchable },
+      });
+      return layer;
+    }
+
+    /** The layers the current feature search covers. */
+    const searchedLayers = (): L.Layer[] =>
+      (service as any).searchControl?.options.layer?.getLayers() ?? [];
+
+    beforeEach(() => {
+      (window as any).__env.FEATURE_NAME_PROPERTY_NAME = 'NAME';
+      (window as any).__env.FEATURE_ID_PROPERTY_NAME = 'ID';
+      const container = document.createElement('div');
+      Object.defineProperty(container, 'clientWidth', { value: 800 });
+      Object.defineProperty(container, 'clientHeight', { value: 600 });
+      document.body.appendChild(container);
+      map = L.map(container, { maxZoom: 18, zoomAnimation: false }).setView([51.45, 7.0], 12);
+      mainMapLayers = TestBed.inject(MainMapLayersService);
+      mainMapLayers.attach(map, service.initializeLayerControl(map, {}, []));
+    });
+
+    afterEach(() => {
+      mainMapLayers.detach();
+      const container = map.getContainer();
+      map.remove();
+      container.remove();
+    });
+
+    it('does nothing before the search exists', () => {
+      register('file:a', 'Schule A');
+      TestBed.tick();
+
+      expect((service as any).searchControl).toBeUndefined();
+    });
+
+    it('covers visible searchable layers and finds their features', () => {
+      service.initSearchControls();
+      const layer = register('file:a', 'Schule A');
+      register('file:b', 'Nicht durchsuchbar', false);
+      TestBed.tick();
+
+      expect(searchedLayers()).toEqual([layer]);
+      expect(Object.keys((service as any).searchControl._recordsFromLayer())).toEqual([
+        'Schule A (Name) - Schule A (ID)',
+      ]);
+    });
+
+    it('rebuilds when a layer is hidden, shown again or replaced', () => {
+      service.initSearchControls();
+      const first = register('file:a', 'Schule A');
+      TestBed.tick();
+
+      mainMapLayers.registry.setVisible('file:a', false);
+      TestBed.tick();
+      expect(searchedLayers()).toEqual([]);
+
+      mainMapLayers.registry.setVisible('file:a', true);
+      TestBed.tick();
+      expect(searchedLayers()).toEqual([first]);
+
+      const replacement = register('file:a', 'Schule A2');
+      TestBed.tick();
+      expect(searchedLayers()).toEqual([replacement]);
+    });
+  });
 });

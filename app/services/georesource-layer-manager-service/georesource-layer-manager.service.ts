@@ -128,14 +128,12 @@ export class GeoresourceLayerManagerService {
       capabilities: { searchable: true },
       ...entry,
     });
-    this.context.updateSearchControl();
     this.context.map.invalidateSize(true);
     this.context.hideLoadingIcon();
   }
 
   private unregister(georesourceMetadataAndGeoJSON) {
     this.context.layers.unregister(georesourceLayerId(georesourceMetadataAndGeoJSON));
-    this.context.updateSearchControl();
     this.context.hideLoadingIcon();
   }
 

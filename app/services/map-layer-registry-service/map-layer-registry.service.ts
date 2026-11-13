@@ -4,6 +4,7 @@ import type * as L from 'leaflet';
 import { MAIN_MAP_LAYER_GROUPS } from './layer-group-catalog';
 import { LayerControlBridge } from './layer-control-bridge';
 import { LeafletLayerBinding } from './leaflet-layer-binding';
+import type { LayerId } from './map-layer.model';
 import { MapLayerRegistry } from './map-layer-registry';
 
 /**
@@ -28,6 +29,11 @@ export class MainMapLayersService {
       this.registry
     );
     this.registry.attach(this.bridge);
+  }
+
+  /** The Leaflet layer the map shows for `id`; undefined while there is no map or it is not bound. */
+  layerFor(id: LayerId): L.Layer | undefined {
+    return this.bridge?.layerFor(id);
   }
 
   /** Lets go of the map, e.g. when the map component is destroyed; the registry keeps its entries. */

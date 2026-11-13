@@ -104,6 +104,11 @@ export class LeafletLayerBinding implements MapLayerBinding {
     }
   }
 
+  /** The Leaflet layer bound under `id`, for code that needs the layer itself (feature search). */
+  layerFor(id: LayerId): L.Layer | undefined {
+    return this.bound.get(id)?.layer;
+  }
+
   setOrder(order: LayerId[]): void {
     this.order = [...order];
     this.bound.forEach((bound, id) => (bound.pane.style.zIndex = String(this.zIndexFor(id))));

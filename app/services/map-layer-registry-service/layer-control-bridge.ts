@@ -114,6 +114,10 @@ export class LayerControlBridge implements MapLayerBinding {
     this.inner.setOrder(order);
   }
 
+  layerFor(id: LayerId): L.Layer | undefined {
+    return this.inner.layerFor(id);
+  }
+
   /** Stops listening first, so clearing the old map does not hide anything in the registry. */
   dispose(): void {
     this.map.off('overlayadd', this.onOverlayAdd);

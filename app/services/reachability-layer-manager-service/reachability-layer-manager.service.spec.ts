@@ -73,7 +73,6 @@ describe('ReachabilityLayerManagerService', () => {
       map: { invalidateSize: jest.fn() },
       layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
       layers,
-      updateSearchControl: jest.fn(),
       hideLoadingIcon: jest.fn(),
     };
     service.initialize(context);

@@ -96,7 +96,6 @@ export class FileLayerManagerService {
       this.context.layers.zoomTo(id);
 
       this.fileHelperService.setValue(FileUploadState.SUCCESS, dataset);
-      this.context.updateSearchControl();
       this.context.map.invalidateSize(true);
     } catch (error) {
       console.error(error);
@@ -121,7 +120,6 @@ export class FileLayerManagerService {
     const id = fileLayerId(dataset);
     this.context.layers.unregister(id);
     this.fileLayers.delete(id);
-    this.context.updateSearchControl();
   }
 }
 

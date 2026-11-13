@@ -66,7 +66,6 @@ describe('GeoresourceLayerManagerService', () => {
       map: { invalidateSize: jest.fn() },
       layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
       layers,
-      updateSearchControl: jest.fn(),
       hideLoadingIcon: jest.fn(),
     };
     service.initialize(context);
@@ -198,7 +197,6 @@ describe('GeoresourceLayerManagerService', () => {
     service.removePoiGeoresource({ georesourceId: 'g-1', datasetName: 'Schulen' });
 
     expect(layers.drawOrder()).toEqual(['georesource:g-2']);
-    expect(context.updateSearchControl).toHaveBeenCalled();
   });
 
   it('zooms through the registry', () => {

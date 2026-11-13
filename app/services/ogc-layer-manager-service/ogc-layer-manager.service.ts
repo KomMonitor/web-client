@@ -53,7 +53,6 @@ export class OgcLayerManagerService {
       layer: wmsLayer,
       initial: { opacity },
     });
-    this.context.updateSearchControl();
     this.context.map.invalidateSize(true);
     this.context.hideLoadingIcon();
   }
@@ -155,7 +154,6 @@ export class OgcLayerManagerService {
         this.context.layerControl.addOverlay(wfsLayer, dataset.title, MAP_LAYER_GROUPS.wfs);
         wfsLayer.addTo(this.context.map);
       }
-      this.context.updateSearchControl();
     } catch (error) {
       this.mapErrorNotificationService.displayMapApplicationError(error);
     }

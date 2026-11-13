@@ -457,7 +457,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       map: this.map,
       layerControl: this.layerControl,
       layers: this.mainMapLayers.registry,
-      updateSearchControl: () => this.mapControlsService.updateSearchControl(),
       hideLoadingIcon: () => this.hideLoadingIconOnMap(),
     };
 
@@ -810,7 +809,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       '/allFeatures';
     try {
       placeholder.addData(await firstValueFrom(this.http.get<any>(url)));
-      this.mapControlsService.updateSearchControl();
       return placeholder;
     } catch (error) {
       this.mapErrorNotificationService.displayMapApplicationError(error);
@@ -1452,7 +1450,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // a newly chosen indicator is shown even if the user had hidden the previous one
       layers.setVisible(INDICATOR_LAYER_ID, true);
     }
-    this.mapControlsService.updateSearchControl();
 
     this.fitBounds();
 

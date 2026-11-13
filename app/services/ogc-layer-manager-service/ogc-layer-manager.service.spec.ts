@@ -42,7 +42,6 @@ describe('OgcLayerManagerService', () => {
         map: { invalidateSize: jest.fn() },
         layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
         layers,
-        updateSearchControl: jest.fn(),
         hideLoadingIcon: jest.fn(),
       };
       service.initialize(context);
@@ -123,7 +122,6 @@ describe('OgcLayerManagerService', () => {
           ],
         },
         layers: new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS),
-        updateSearchControl: jest.fn(),
         hideLoadingIcon: jest.fn(),
       };
       service.initialize(context);

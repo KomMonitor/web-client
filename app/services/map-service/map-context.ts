@@ -13,8 +13,6 @@ export interface MapContext {
   layerControl: any;
   /** The layer registry of the main map: sources register their layers here. */
   layers: MapLayerRegistry;
-  /** Rebuilds the feature search index after layers changed. */
-  updateSearchControl(): void;
   /** Hides the map loading spinner. */
   hideLoadingIcon(): void;
 }

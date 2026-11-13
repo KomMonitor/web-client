@@ -272,6 +272,19 @@ describe('LeafletLayerBinding', () => {
     });
   });
 
+  describe('layerFor', () => {
+    it('hands out the bound layer by id', () => {
+      const polygon = square('mapLayer1');
+      binding.bind(bound('georesource:1', polygon, { visible: false }));
+
+      expect(binding.layerFor('georesource:1')).toBe(polygon);
+      expect(binding.layerFor('georesource:404')).toBeUndefined();
+
+      binding.unbind('georesource:1');
+      expect(binding.layerFor('georesource:1')).toBeUndefined();
+    });
+  });
+
   describe('dispose', () => {
     it('takes every layer off the map and stops reporting', () => {
       const polygon = square('mapLayer1');

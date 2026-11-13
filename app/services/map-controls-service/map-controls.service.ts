@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
 import * as L from 'leaflet';
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import 'leaflet-measure';
@@ -7,7 +7,6 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
-import { MAP_LAYER_GROUPS } from 'services/map-service/map-context';
 import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
 /**
@@ -35,6 +34,26 @@ export class MapControlsService {
 
   private layerControlVisible = false;
   private expertControlsVisible = false;
+
+  /** Set once the feature search exists; until then there is nothing to rebuild. */
+  private readonly searchReady = signal(false);
+
+  constructor() {
+    // The feature search covers every visible, searchable layer of the registry
+    // and follows it: showing, hiding, replacing or loading one rebuilds it.
+    // Several changes within one tick end up in a single rebuild.
+    effect(() => {
+      const entries = this.mainMapLayers.registry.visibleEntries({ searchable: true });
+      if (!this.searchReady()) {
+        return;
+      }
+      this.rebuildSearchControl(
+        entries
+          .map((entry) => this.mainMapLayers.layerFor(entry.id))
+          .filter((layer): layer is L.Layer => !!layer)
+      );
+    });
+  }
 
   // replaces the former global jQuery class toggles: visibility is tracked as
   // state and applied to the control's own container, so controls of other
@@ -139,6 +158,7 @@ export class MapControlsService {
 
     this.searchControl = new this.MultipleResultsLeafletSearch({});
     this.searchControl.addTo(this.map);
+    this.searchReady.set(true);
 
     // expert controls start hidden (shown via toggleExpertControls)
     this.setControlVisibility(this.geosearchControl, this.expertControlsVisible);
@@ -234,7 +254,8 @@ export class MapControlsService {
   }
 
   /** Rebuilds the feature search index from the currently displayed searchable layers. */
-  updateSearchControl() {
+  /** Replaces the feature search by one over the given layers' features. */
+  private rebuildSearchControl(featureLayers: L.Layer[]) {
     const isKomMonitorSpecificProperty = (propertyKey) => {
       if (propertyKey == 'outlier') {
         return true;
@@ -250,157 +271,133 @@ export class MapControlsService {
       return false;
     };
 
-    setTimeout(() => {
-      if (this.searchControl) {
-        try {
-          this.map.removeControl(this.searchControl);
-          this.searchControl = undefined;
-        } catch (error) {
-          this.mapErrorNotificationService.displayMapApplicationError(error);
-        }
+    if (this.searchControl) {
+      try {
+        this.map.removeControl(this.searchControl);
+        this.searchControl = undefined;
+      } catch (error) {
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       }
+    }
 
-      // build L.featureGroup of available POI layers
-      const featureLayers: any[] = [];
+    let layerGroup;
+    // if no relevant layers are currently displayed, then
+    if (featureLayers.length === 0) {
+      this.searchControl = new this.MultipleResultsLeafletSearch({});
+      this.searchControl.addTo(this.map);
 
-      for (const layerEntry of this.layerControl._layers) {
-        if (layerEntry) {
-          if (layerEntry.overlay) {
-            if (this.map.hasLayer(layerEntry.layer)) {
-              if (
-                layerEntry.group.name === MAP_LAYER_GROUPS.poi ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.loi ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.aoi ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.indicator ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.wfs ||
-                layerEntry.group.name === MAP_LAYER_GROUPS.file
-              ) {
-                featureLayers.push(layerEntry.layer);
+      // re-apply the expert mode state to the recreated control (the legacy
+      // blind jQuery toggle always hid it, so the feature search vanished
+      // after every layer change while expert mode was active)
+      this.setControlVisibility(this.searchControl, this.expertControlsVisible);
+    } else {
+      layerGroup = L.featureGroup(featureLayers);
+
+      this.searchControl = new this.MultipleResultsLeafletSearch({
+        position: 'topleft',
+        layer: layerGroup,
+        initial: false,
+        propertyName: this.envConfigService.FEATURE_NAME_PROPERTY_NAME,
+        textPlaceholder: 'Layer-Objekte nach Name und/oder ID filtern',
+        textCancel: 'Abbrechen',
+        textErr: 'Position nicht gefunden',
+        hideMarkerOnCollapse: true,
+        zoom: 15,
+        autoResize: true,
+        autoCollapse: false,
+        autoType: true,
+        formatData: function (json) {
+          //adds coordinates to name.
+          let propName = this.options.propertyName,
+            propLoc = this.options.propertyLoc,
+            i,
+            jsonret = {};
+          if (L.Util.isArray(propLoc))
+            for (i in json) {
+              if (!this._getPath(json[i], propName)) continue;
+              jsonret[
+                this._getPath(json[i], propName) +
+                  ' (' +
+                  json[i][propLoc[0]] +
+                  ',' +
+                  json[i][propLoc[1]] +
+                  ')'
+              ] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
+            }
+          else
+            for (i in json) {
+              if (!this._getPath(json[i], propName)) continue;
+              jsonret[
+                this._getPath(json[i], propName) +
+                  ' (' +
+                  json[i][propLoc][0] +
+                  ',' +
+                  json[i][propLoc][1] +
+                  ')'
+              ] = L.latLng(this._getPath(json[i], propLoc));
+            }
+          return jsonret;
+        },
+        filterData: function (text, records) {
+          let I,
+            icase,
+            regSearch,
+            frecords = {};
+
+          text = text.replace(/[.*+?^${}()|[\]\\]/g, ''); //sanitize remove all special characters
+          if (text === '') return [];
+
+          I = this.options.initial ? '^' : ''; //search only initial text
+          icase = !this.options.casesensitive ? 'i' : undefined;
+
+          regSearch = new RegExp(I + text, icase);
+
+          for (const key in records) {
+            // make a searchable string from all relevant feature properties
+            let recordString = '';
+            const record = records[key];
+            const recordProperties = record.layer.feature.properties;
+
+            for (const propertyKey in recordProperties) {
+              if (recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)) {
+                recordString += recordProperties[propertyKey];
               }
             }
+
+            if (regSearch.test(recordString)) frecords[key] = records[key];
           }
-        }
-      }
 
-      let layerGroup;
-      // if no relevant layers are currently displayed, then
-      if (featureLayers.length === 0) {
-        this.searchControl = new this.MultipleResultsLeafletSearch({});
-        this.searchControl.addTo(this.map);
+          return frecords;
+        },
+        buildTip: (text, val) => {
+          let emString = '';
 
-        // re-apply the expert mode state to the recreated control (the legacy
-        // blind jQuery toggle always hid it, so the feature search vanished
-        // after every layer change while expert mode was active)
-        this.setControlVisibility(this.searchControl, this.expertControlsVisible);
-      } else {
-        layerGroup = L.featureGroup(featureLayers);
-
-        this.searchControl = new this.MultipleResultsLeafletSearch({
-          position: 'topleft',
-          layer: layerGroup,
-          initial: false,
-          propertyName: this.envConfigService.FEATURE_NAME_PROPERTY_NAME,
-          textPlaceholder: 'Layer-Objekte nach Name und/oder ID filtern',
-          textCancel: 'Abbrechen',
-          textErr: 'Position nicht gefunden',
-          hideMarkerOnCollapse: true,
-          zoom: 15,
-          autoResize: true,
-          autoCollapse: false,
-          autoType: true,
-          formatData: function (json) {
-            //adds coordinates to name.
-            let propName = this.options.propertyName,
-              propLoc = this.options.propertyLoc,
-              i,
-              jsonret = {};
-            if (L.Util.isArray(propLoc))
-              for (i in json) {
-                if (!this._getPath(json[i], propName)) continue;
-                jsonret[
-                  this._getPath(json[i], propName) +
-                    ' (' +
-                    json[i][propLoc[0]] +
-                    ',' +
-                    json[i][propLoc[1]] +
-                    ')'
-                ] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
-              }
-            else
-              for (i in json) {
-                if (!this._getPath(json[i], propName)) continue;
-                jsonret[
-                  this._getPath(json[i], propName) +
-                    ' (' +
-                    json[i][propLoc][0] +
-                    ',' +
-                    json[i][propLoc][1] +
-                    ')'
-                ] = L.latLng(this._getPath(json[i], propLoc));
-              }
-            return jsonret;
-          },
-          filterData: function (text, records) {
-            let I,
-              icase,
-              regSearch,
-              frecords = {};
-
-            text = text.replace(/[.*+?^${}()|[\]\\]/g, ''); //sanitize remove all special characters
-            if (text === '') return [];
-
-            I = this.options.initial ? '^' : ''; //search only initial text
-            icase = !this.options.casesensitive ? 'i' : undefined;
-
-            regSearch = new RegExp(I + text, icase);
-
-            for (const key in records) {
-              // make a searchable string from all relevant feature properties
-              let recordString = '';
-              const record = records[key];
-              const recordProperties = record.layer.feature.properties;
-
-              for (const propertyKey in recordProperties) {
-                if (recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)) {
-                  recordString += recordProperties[propertyKey];
-                }
-              }
-
-              if (regSearch.test(recordString)) frecords[key] = records[key];
+          if (val.layer.metadataObject) {
+            if (val.layer.metadataObject.isPOI) {
+              emString +=
+                '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' +
+                val.layer.metadataObject.poiMarkerColor +
+                '">';
+              emString +=
+                "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" +
+                val.layer.metadataObject.poiSymbolColor +
+                ";' align='center' class='fas fa-" +
+                this.iconTranslate.translate(val.layer.metadataObject.poiSymbolBootstrap3Name) +
+                "' aria-hidden='true'></span>";
+              emString += '</i>';
             }
+          } else {
+            emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
+          }
+          return '<a href="" class="search-tip">' + emString + '&nbsp;&nbsp;' + text + '</a>';
+        },
+      });
 
-            return frecords;
-          },
-          buildTip: (text, val) => {
-            let emString = '';
+      this.searchControl.addTo(this.map);
 
-            if (val.layer.metadataObject) {
-              if (val.layer.metadataObject.isPOI) {
-                emString +=
-                  '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' +
-                  val.layer.metadataObject.poiMarkerColor +
-                  '">';
-                emString +=
-                  "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" +
-                  val.layer.metadataObject.poiSymbolColor +
-                  ";' align='center' class='fas fa-" +
-                  this.iconTranslate.translate(val.layer.metadataObject.poiSymbolBootstrap3Name) +
-                  "' aria-hidden='true'></span>";
-                emString += '</i>';
-              }
-            } else {
-              emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
-            }
-            return '<a href="" class="search-tip">' + emString + '&nbsp;&nbsp;' + text + '</a>';
-          },
-        });
-
-        this.searchControl.addTo(this.map);
-
-        // see above: apply state instead of blindly toggling the fresh control
-        this.setControlVisibility(this.searchControl, this.expertControlsVisible);
-      }
-    }, 200);
+      // see above: apply state instead of blindly toggling the fresh control
+      this.setControlVisibility(this.searchControl, this.expertControlsVisible);
+    }
   }
 
   private MultipleResultsLeafletSearch = L.Control.Search.extend({
