@@ -6,6 +6,7 @@ import 'leaflet-search';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
+import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MAP_LAYER_GROUPS } from 'services/map-service/map-context';
 import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
@@ -14,6 +15,9 @@ import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.grou
  * scale bar, geosearch (address search), feature search and measurement
  * (map refactoring plan, Phase 4 — extracted from KommonitorMapComponent).
  */
+/** The address search hit in the main map's layer registry. */
+const SEARCH_RESULT_LAYER_ID = 'search:result';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,6 +25,7 @@ export class MapControlsService {
   private envConfigService = inject(EnvConfigService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private iconTranslate = inject(IconTranslateService);
+  private mainMapLayers = inject(MainMapLayersService);
 
   private map: any;
   private layerControl: any;
@@ -116,12 +121,9 @@ export class MapControlsService {
       style: 'button',
       autoComplete: true,
       autoCompleteDelay: 250,
-      showMarker: true,
+      // the result is shown as the layer 'search:result' instead, see showSearchResult()
+      showMarker: false,
       showPopup: false,
-      marker: {
-        icon: new L.Icon.Default(),
-        draggable: false,
-      },
       popupFormat: ({ query, result }) => result.label,
       maxMarkers: 1,
       retainZoomLevel: false,
@@ -132,6 +134,8 @@ export class MapControlsService {
     });
 
     this.map.addControl(this.geosearchControl);
+    this.map.on('geosearch/showlocation', (event: any) => this.showSearchResult(event.location));
+    this.removeSearchResultWhenCleared(this.geosearchControl);
 
     this.searchControl = new this.MultipleResultsLeafletSearch({});
     this.searchControl.addTo(this.map);
@@ -139,6 +143,48 @@ export class MapControlsService {
     // expert controls start hidden (shown via toggleExpertControls)
     this.setControlVisibility(this.geosearchControl, this.expertControlsVisible);
     this.setControlVisibility(this.searchControl, this.expertControlsVisible);
+  }
+
+  /**
+   * Shows an address search hit as the layer 'search:result' among the
+   * temporary layers; the next hit replaces it under the same id.
+   */
+  showSearchResult(location: { x: number; y: number; label: string }) {
+    const layers = this.mainMapLayers.registry;
+    const pane = layers.paneFor(SEARCH_RESULT_LAYER_ID);
+    const marker = L.marker([location.y, location.x], {
+      icon: new L.Icon.Default(),
+      pane,
+      shadowPane: pane,
+    }).bindPopup(location.label);
+
+    layers.register({
+      id: SEARCH_RESULT_LAYER_ID,
+      groupId: 'temporary',
+      title: location.label,
+      kind: 'marker',
+      // Leaflet's default marker
+      symbol: { kind: 'point', color: '#2a81cb' },
+      layer: marker,
+      capabilities: { searchable: false },
+    });
+  }
+
+  /**
+   * leaflet-geosearch drops its result when the search is closed, cleared or
+   * left with ESC (`clearResults()`, as `keepResult` is off). It keeps collecting
+   * its markers even with `showMarker: false`, just off the map, so an empty
+   * marker group after `clearResults()` means the result is gone. The library
+   * fires no event for it, hence the wrapper on this control instance.
+   */
+  private removeSearchResultWhenCleared(control: any) {
+    const clearResults = control.clearResults.bind(control);
+    control.clearResults = (event?: KeyboardEvent | null, force?: boolean) => {
+      clearResults(event, force);
+      if (control.markers.getLayers().length === 0) {
+        this.mainMapLayers.registry.unregister(SEARCH_RESULT_LAYER_ID);
+      }
+    };
   }
 
   initMeasureControl() {
