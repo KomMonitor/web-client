@@ -339,50 +339,6 @@ export class GenericMapHelperService {
     });
   }
 
-  /**
-   * Builds the configured base layers (TILE_LAYER, TILE_LAYER_GRAYSCALE, WMS)
-   * for the main map, keyed by their configured name. Entries with an unknown
-   * layer type are skipped (map refactoring plan, Phase 4).
-   */
-  createBaseLayers(baseLayerConfigs: any[]): Map<string, any> {
-    const baseLayersByName = new Map<string, any>();
-
-    for (const baseMapEntry of baseLayerConfigs) {
-      if (baseMapEntry.layerType === 'TILE_LAYER_GRAYSCALE') {
-        baseLayersByName.set(
-          baseMapEntry.name,
-          createGrayscaleTileLayer(baseMapEntry.url, {
-            minZoom: baseMapEntry.minZoomLevel,
-            maxZoom: baseMapEntry.maxZoomLevel,
-            attribution: baseMapEntry.attribution_html,
-          })
-        );
-      } else if (baseMapEntry.layerType === 'TILE_LAYER') {
-        baseLayersByName.set(
-          baseMapEntry.name,
-          L.tileLayer(baseMapEntry.url, {
-            minZoom: baseMapEntry.minZoomLevel,
-            maxZoom: baseMapEntry.maxZoomLevel,
-            attribution: baseMapEntry.attribution_html,
-          })
-        );
-      } else if (baseMapEntry.layerType === 'WMS') {
-        baseLayersByName.set(
-          baseMapEntry.name,
-          L.tileLayer.wms(baseMapEntry.url, {
-            minZoom: baseMapEntry.minZoomLevel,
-            maxZoom: baseMapEntry.maxZoomLevel,
-            attribution: baseMapEntry.attribution_html,
-            layers: baseMapEntry.layerName_WMS,
-            format: 'image/png',
-          })
-        );
-      }
-    }
-
-    return baseLayersByName;
-  }
-
   initLayerControl(map, backgroundLayer) {
     const baseLayers = {
       'OpenStreetMap Graustufen': backgroundLayer,

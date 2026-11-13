@@ -185,7 +185,8 @@ try {
     //   layerName_WMS: "", // only relevant for layers of type WMS - multiple layers comma-separated
     //   attribution_html: "", // attribution info displayed at the bottom of the map as HTML string
     //   minZoomLevel: window.__env.minZoomLevel, // min zoom level for this layer (number between 1-20)
-    //   maxZoomLevel: window.__env.maxZoomLevel // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
+    //   maxZoomLevel: window.__env.maxZoomLevel, // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
+    //   thumbnailUrl: "" // optional - URL of a preview image for the base map gallery; if omitted, a tile (or WMS GetMap) at the initial map position is used
     // },
     {
       name: "Open Street Map - Graustufen", 

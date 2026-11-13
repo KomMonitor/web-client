@@ -33,6 +33,7 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MapContext } from 'services/map-service/map-context';
+import { createBaseLayers } from 'services/map-layer-registry-service/base-layer-factory';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
@@ -468,9 +469,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private initMap(): void {
     this.loadingData = true;
 
-    const baseLayersByName = this.genericMapHelperService.createBaseLayers(
-      this.envConfigService.baseLayers
-    );
+    const baseLayersByName = createBaseLayers(this.envConfigService.baseLayers);
 
     this.mapOverlayState.baseLayerDefinitionsArray = [
       {
