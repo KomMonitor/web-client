@@ -4,6 +4,10 @@
         "groups": []         // access for everyone
     },
     {
+        "id": "mapLayers", // Kartenebenen (Layersteuerung) - shown even without this entry; add it only to restrict access
+        "groups": []
+    },
+    {
         "id": "poi", // Georessourcen Menu
         "groups": ["kommonitorGroup1", "kommonitorGroup2"]  // access only for users with at least one of the KomMonitor groups
     },    

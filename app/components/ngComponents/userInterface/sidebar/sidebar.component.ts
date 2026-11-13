@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { SidebarStateService } from 'services/sidebar-state-service/sidebar-state.service';
 import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.component';
 import { KommonitorBalanceComponent } from './kommonitorBalance/kommonitor-balance.component';
@@ -8,6 +10,7 @@ import { KommonitorDataSetupComponent } from './kommonitorDataSetup/kommonitor-d
 import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-diagrams.component';
 import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.component';
 import { KommonitorReachabilityComponent } from './kommonitorReachability/kommonitor-reachability.component';
+import { MapLayersPanelComponent } from '../mapLayers/map-layers-panel.component';
 import { PoiComponent } from './poi/poi.component';
 import { RegressionDiagramComponent } from './regressionDiagram/regression-diagram.component';
 
@@ -27,6 +30,9 @@ import { RegressionDiagramComponent } from './regressionDiagram/regression-diagr
     RegressionDiagramComponent,
     KommonitorDataImportComponent,
     KommonitorReachabilityComponent,
+    TranslateModule,
+    ExpandableBoxComponent,
+    MapLayersPanelComponent,
   ],
 })
 export class SidebarComponent {

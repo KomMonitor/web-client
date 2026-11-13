@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
@@ -22,7 +23,7 @@ import { AuthService } from 'services/auth-service/auth.service';
   templateUrl: './sidebar-buttons.component.html',
   styleUrls: ['./sidebar-buttons.component.scss'],
   standalone: true,
-  imports: [CommonModule, DiagramMenuButtonComponent, ExportMenuButtonComponent],
+  imports: [CommonModule, TranslateModule, DiagramMenuButtonComponent, ExportMenuButtonComponent],
 })
 export class SidebarButtonsComponent {
   protected readonly sidebarState = inject(SidebarStateService);

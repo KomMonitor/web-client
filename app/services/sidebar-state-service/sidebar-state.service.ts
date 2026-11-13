@@ -4,6 +4,7 @@ import { MapService } from 'services/map-service/map.service';
 /** DOM id of a dockable sidebar panel. */
 export type SidebarElement =
   | 'sidebarIndicatorConfigCollapse'
+  | 'sidebarMapLayersCollapse'
   | 'sidebarPoiCollapse'
   | 'sidebarDataImportCollapse'
   | 'sidebarFilterCollapse'
