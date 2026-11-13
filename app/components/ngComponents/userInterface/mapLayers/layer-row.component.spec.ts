@@ -74,4 +74,91 @@ describe('LayerRowComponent', () => {
 
     expect(states(render())).toEqual(['MAP_LAYERS.STATUS.OUT_OF_SCALE']);
   });
+  describe('transparency', () => {
+    /** Re-renders with the current registry state, as the panel does through the tree. */
+    function refresh(): void {
+      fixture.componentRef.setInput('entry', registry.entry('wms:1'));
+      TestBed.tick();
+      fixture.detectChanges();
+    }
+
+    const expandButton = (root: HTMLElement) =>
+      root.querySelector<HTMLButtonElement>('.layer-row__expand')!;
+    const details = (root: HTMLElement) => root.querySelector<HTMLElement>('.layer-row__details');
+    const slider = (root: HTMLElement) =>
+      root.querySelector<HTMLInputElement>('.layer-row__details input[type="range"]')!;
+
+    it('opens below the row from the expand button', () => {
+      const root = render();
+      const button = expandButton(root);
+      expect(button.getAttribute('aria-expanded')).toBe('false');
+      expect(button.getAttribute('aria-label')).toBe('MAP_LAYERS.ROW.EXPAND');
+      expect(details(root)).toBeNull();
+
+      button.click();
+      refresh();
+
+      expect(button.getAttribute('aria-expanded')).toBe('true');
+      expect(details(root)!.id).toBe(button.getAttribute('aria-controls'));
+      expect(root.querySelector(`label[for="${slider(root).id}"]`)!.textContent!.trim()).toBe(
+        'MAP_LAYERS.ROW.TRANSPARENCY'
+      );
+    });
+
+    it('opens and closes from a click on the name, which stays out of the tab order', () => {
+      const root = render();
+      const name = root.querySelector<HTMLButtonElement>('button.layer-row__name')!;
+      expect(name.tabIndex).toBe(-1);
+      expect(name.textContent!.trim()).toBe('Luftbild');
+
+      name.click();
+      refresh();
+      expect(details(root)).not.toBeNull();
+      expect(name.getAttribute('aria-expanded')).toBe('true');
+
+      name.click();
+      refresh();
+      expect(details(root)).toBeNull();
+    });
+
+    it('shows the transparency and sets the opacity live', () => {
+      registry.setOpacity('wms:1', 0.7);
+      const root = render();
+      expandButton(root).click();
+      refresh();
+      expect(slider(root).value).toBe('30');
+      expect(slider(root).getAttribute('aria-valuetext')).toBe('30 %');
+
+      slider(root).value = '45';
+      slider(root).dispatchEvent(new Event('input'));
+      refresh();
+
+      expect(registry.entry('wms:1')!.opacity).toBe(0.55);
+      expect(root.querySelector('.layer-row__value')!.textContent!.trim()).toBe('45 %');
+    });
+
+    it('stays open for the next row of the same layer, e.g. after the panel was closed', () => {
+      expandButton(render()).click();
+      fixture.destroy();
+
+      expect(details(render())).not.toBeNull();
+    });
+
+    it('is not offered for layers without the opacity capability', () => {
+      registry.register({
+        id: 'wms:1',
+        groupId: 'georesource.service',
+        title: 'Luftbild',
+        kind: 'raster',
+        symbol: { kind: 'service', serviceType: 'wms' },
+        layer: {} as LayerRegistration['layer'],
+        capabilities: { opacity: false },
+      });
+      const root = render();
+
+      expect(root.querySelector('.layer-row__expand')).toBeNull();
+      expect(root.querySelector('button.layer-row__name')).toBeNull();
+      expect(root.querySelector('.layer-row__name')!.textContent!.trim()).toBe('Luftbild');
+    });
+  });
 });

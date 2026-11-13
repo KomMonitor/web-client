@@ -9,12 +9,21 @@
     <i class="fas" [class.fa-eye]="entry().visible" [class.fa-eye-slash]="!entry().visible"></i>
   </button>
   <app-layer-symbol class="layer-row__symbol" [symbol]="entry().symbol" />
-  <span class="layer-row__name">
-    {{ entry().title }}
-    @if (entry().subtitle) {
-      <span class="layer-row__subtitle">{{ entry().subtitle }}</span>
-    }
-  </span>
+  @if (entry().capabilities.opacity) {
+    <!-- a larger target for the mouse; the keyboard uses the expand button -->
+    <button
+      type="button"
+      class="layer-row__name layer-row__name--toggle"
+      tabindex="-1"
+      [attr.aria-expanded]="expanded()"
+      [attr.aria-controls]="detailsId"
+      (click)="toggleExpanded()"
+    >
+      <ng-container *ngTemplateOutlet="name" />
+    </button>
+  } @else {
+    <span class="layer-row__name"><ng-container *ngTemplateOutlet="name" /></span>
+  }
   @if (entry().status === 'loading') {
     <i
       class="fas fa-spinner fa-spin layer-row__state"
@@ -39,4 +48,47 @@
       [title]="'MAP_LAYERS.STATUS.OUT_OF_SCALE' | translate"
     ></i>
   }
+  @if (entry().capabilities.opacity) {
+    <button
+      type="button"
+      class="layer-row__expand"
+      [attr.aria-expanded]="expanded()"
+      [attr.aria-controls]="detailsId"
+      [attr.aria-label]="'MAP_LAYERS.ROW.EXPAND' | translate: { title: entry().title }"
+      (click)="toggleExpanded()"
+    >
+      <i
+        class="fas"
+        [class.fa-chevron-down]="!expanded()"
+        [class.fa-chevron-up]="expanded()"
+        aria-hidden="true"
+      ></i>
+    </button>
+  }
 </div>
+
+@if (entry().capabilities.opacity && expanded()) {
+  <div class="layer-row__details" [id]="detailsId">
+    <label [for]="detailsId + '-transparency'">{{
+      'MAP_LAYERS.ROW.TRANSPARENCY' | translate
+    }}</label>
+    <input
+      type="range"
+      min="0"
+      max="100"
+      step="1"
+      [id]="detailsId + '-transparency'"
+      [value]="transparency()"
+      [attr.aria-valuetext]="transparency() + ' %'"
+      (input)="setTransparency($any($event.target).value)"
+    />
+    <span class="layer-row__value">{{ transparency() }} %</span>
+  </div>
+}
+
+<ng-template #name>
+  {{ entry().title }}
+  @if (entry().subtitle) {
+    <span class="layer-row__subtitle">{{ entry().subtitle }}</span>
+  }
+</ng-template>

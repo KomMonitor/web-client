@@ -44,6 +44,20 @@ describe('MapLayersPanelUiState', () => {
     expect(TestBed.inject(MapLayersPanelUiState).baseLayersExpanded()).toBe(true);
   });
 
+  it('opens rows for this session only', () => {
+    const uiState = TestBed.inject(MapLayersPanelUiState);
+    expect(uiState.isRowExpanded('wms:1')).toBe(false);
+
+    uiState.toggleRow('wms:1');
+    TestBed.tick();
+    expect(uiState.isRowExpanded('wms:1')).toBe(true);
+    expect(uiState.isRowExpanded('wms:2')).toBe(false);
+    expect(localStorage.getItem(MAP_LAYERS_PANEL_STORAGE_KEY)).not.toContain('wms:1');
+
+    uiState.toggleRow('wms:1');
+    expect(uiState.isRowExpanded('wms:1')).toBe(false);
+  });
+
   it('works without storage, it just forgets', () => {
     jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('blocked');

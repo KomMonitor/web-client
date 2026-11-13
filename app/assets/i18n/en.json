@@ -126,7 +126,9 @@
       "COUNT": "{{count}} layers"
     },
     "ROW": {
-      "TOGGLE": "Show or hide layer: {{title}}"
+      "TOGGLE": "Show or hide layer: {{title}}",
+      "TRANSPARENCY": "Transparency",
+      "EXPAND": "Adjust transparency: {{title}}"
     },
     "STATUS": {
       "LOADING": "Loading",

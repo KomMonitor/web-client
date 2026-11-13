@@ -10,9 +10,11 @@ interface StoredUiState {
 
 /**
  * Pure view state of the layer panel, kept apart from the layer registry:
- * which groups are collapsed and whether the base layer gallery is open. Stored in localStorage, so it survives a reload
- * and the sidebar destroying the panel. Without storage (private mode, blocked
- * site data) it still works, it just forgets.
+ * which groups are collapsed, whether the base layer gallery is open and which
+ * rows show their transparency. Groups and gallery are stored in localStorage,
+ * so they survive a reload and the sidebar destroying the panel; without
+ * storage (private mode, blocked site data) they still work, they just forget.
+ * Open rows are only kept in memory, like the state of the layers themselves.
  */
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,8 @@ export class MapLayersPanelUiState {
     new Set(this.stored.collapsedGroups ?? [])
   );
   private readonly _baseLayersExpanded = signal(this.stored.baseLayersExpanded ?? false);
+
+  private readonly expandedRows = signal<ReadonlySet<string>>(new Set());
 
   /** The base layer gallery starts collapsed. */
   readonly baseLayersExpanded = this._baseLayersExpanded.asReadonly();
@@ -46,19 +50,31 @@ export class MapLayersPanelUiState {
     return !this.collapsedGroups().has(groupId);
   }
 
+  /** Rows start collapsed. */
+  isRowExpanded(layerId: string): boolean {
+    return this.expandedRows().has(layerId);
+  }
+
+  toggleRow(layerId: string): void {
+    this.expandedRows.update((expanded) => toggled(expanded, layerId));
+  }
+
   toggleBaseLayers(): void {
     this._baseLayersExpanded.update((expanded) => !expanded);
   }
 
   toggle(groupId: string): void {
-    this.collapsedGroups.update((collapsed) => {
-      const next = new Set(collapsed);
-      if (!next.delete(groupId)) {
-        next.add(groupId);
-      }
-      return next;
-    });
+    this.collapsedGroups.update((collapsed) => toggled(collapsed, groupId));
   }
+}
+
+/** A copy of `set` with `value` added, or removed if it was there. */
+function toggled(set: ReadonlySet<string>, value: string): ReadonlySet<string> {
+  const next = new Set(set);
+  if (!next.delete(value)) {
+    next.add(value);
+  }
+  return next;
 }
 
 function readStoredState(): StoredUiState {

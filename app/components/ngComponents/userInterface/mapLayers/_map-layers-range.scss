@@ -1,0 +1,61 @@
+// Range slider of the layer panel (base layer and layer transparency).
+// Overrides the app-wide range look (app.scss: thick bar, square handle, no
+// focus outline) with the thin track and round handle of the design draft.
+@mixin slider {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+
+  &::-webkit-slider-runnable-track {
+    height: 4px;
+    border: none;
+    border-radius: 2px;
+    background: var(--map-layers-text-inactive, #aab1b8);
+    box-shadow: none;
+  }
+
+  &::-moz-range-track {
+    height: 4px;
+    border: none;
+    border-radius: 2px;
+    background: var(--map-layers-text-inactive, #aab1b8);
+    box-shadow: none;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--kommonitor-primary, #337ab7);
+    box-shadow: 0 0 0 1px var(--kommonitor-primary, #337ab7);
+  }
+
+  &::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--kommonitor-primary, #337ab7);
+    box-shadow: 0 0 0 1px var(--kommonitor-primary, #337ab7);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary, #337ab7);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.45;
+  }
+}

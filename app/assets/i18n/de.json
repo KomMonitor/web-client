@@ -126,7 +126,9 @@
       "COUNT": "{{count}} Ebenen"
     },
     "ROW": {
-      "TOGGLE": "Ebene ein- oder ausblenden: {{title}}"
+      "TOGGLE": "Ebene ein- oder ausblenden: {{title}}",
+      "TRANSPARENCY": "Transparenz",
+      "EXPAND": "Transparenz einstellen: {{title}}"
     },
     "STATUS": {
       "LOADING": "Wird geladen",

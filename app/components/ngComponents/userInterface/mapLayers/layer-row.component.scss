@@ -1,3 +1,5 @@
+@use 'map-layers-range' as range;
+
 :host {
   display: block;
 }
@@ -56,6 +58,17 @@
   text-overflow: ellipsis;
 }
 
+// The name as a button that opens the transparency; it keeps the look of text.
+.layer-row__name--toggle {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .layer-row__subtitle {
   margin-left: 4px;
   color: var(--map-layers-text-secondary, #6b7280);
@@ -69,4 +82,52 @@
 
 .layer-row__state--error {
   color: #c9302c;
+}
+
+.layer-row__expand {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 10px;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    color: var(--kommonitor-primary, #337ab7);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary, #337ab7);
+    outline-offset: 1px;
+  }
+}
+
+// Indented below the row, aligned with the name.
+.layer-row__details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 8px 6px 58px;
+  font-size: 12px;
+
+  label {
+    margin: 0;
+    color: var(--map-layers-text-secondary, #6b7280);
+  }
+
+  input[type='range'] {
+    @include range.slider;
+  }
+}
+
+.layer-row__value {
+  flex: none;
+  min-width: 3.2em;
+  color: var(--map-layers-text-secondary, #6b7280);
+  text-align: right;
 }
