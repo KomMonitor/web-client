@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
@@ -31,7 +32,7 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import { MapContext } from 'services/map-service/map-context';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
@@ -95,9 +96,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   private map;
   private spatialUnitOutlineLayerInitialized = false;
-  // Lazily-populated outline overlays: placeholder layer -> its spatial unit + load state.
-  // The (potentially large) geometry is fetched only when the overlay is first enabled.
-  private outlineLayerRegistry = new Map<L.Layer, { spatialUnit: any; loaded: boolean }>();
 
   private singleMarkers: L.Marker[] = [];
 
@@ -514,9 +512,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.map.on('zoomend', () => this.syncViewportState());
     this.map.on('moveend', () => this.syncViewportState());
 
-    // lazily fetch outline geometry the first time an outline overlay is enabled
-    this.map.on('overlayadd', (e: any) => this.onOutlineOverlayAdded(e));
-
     this.baseMaps = [];
 
     baseLayersByName.forEach((value, key) => {
@@ -723,14 +718,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.filteredStyle = this.visualStyleHelperService.filteredStyle;
   }
 
+  /**
+   * Registers one hidden outline entry per spatial unit. The (potentially
+   * large) geometry is fetched only when the user shows it for the first time;
+   * the empty placeholder lets the old layer control list it before (until H1).
+   */
   initSpatialUnitOutlineLayer() {
+    const layers = this.mainMapLayers.registry;
     for (const spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
       if (!spatialUnit.isOutlineLayer) continue;
 
-      // Register an empty placeholder overlay only. The geometry is fetched
-      // lazily in onOutlineOverlayAdded() the first time the user enables it,
-      // so the app start no longer downloads every outline layer up front.
-      const layer = L.geoJSON(undefined, {
+      const id = `outline:${spatialUnit.spatialUnitId}`;
+      const placeholder = L.geoJSON(undefined, {
+        pane: layers.paneFor(id),
         style: () => ({
           color: spatialUnit.outlineColor,
           weight: spatialUnit.outlineWidth,
@@ -742,44 +742,45 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         onEachFeature: this.onEachFeatureSpatialUnit,
       });
 
-      this.outlineLayerRegistry.set(layer, { spatialUnit, loaded: false });
-
-      this.layerControl.addOverlay(
-        layer,
-        spatialUnit.spatialUnitLevel + '_Umringe',
-        MAP_LAYER_GROUPS.spatialUnitOutline
-      );
+      layers.register({
+        id,
+        groupId: 'outline',
+        title: spatialUnit.spatialUnitLevel,
+        kind: 'vector',
+        symbol: {
+          kind: 'outline',
+          // Leaflet's default stroke, which an outline without a color is drawn in
+          color: spatialUnit.outlineColor ?? '#3388ff',
+          dashed: !!spatialUnit.outlineDashArrayString,
+        },
+        layer: placeholder,
+        load: () => this.loadOutline(spatialUnit, placeholder),
+        initial: { visible: false },
+      });
     }
   }
 
-  // Lazily fetch the outline geometry the first time its overlay is enabled.
-  private onOutlineOverlayAdded(event: { layer: L.Layer }): void {
-    const entry = this.outlineLayerRegistry.get(event.layer);
-    if (!entry || entry.loaded) return;
-
-    // Guard against a duplicate fetch while the request is in flight.
-    entry.loaded = true;
+  /**
+   * Fills the outline placeholder with the spatial unit's geometry. A failure
+   * is reported here; the registry hides the entry and retries on the next show.
+   */
+  private async loadOutline(spatialUnit, placeholder: L.GeoJSON): Promise<L.Layer> {
     this.showLoadingIconOnMap();
-
     const url =
       this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       '/spatial-units/' +
-      entry.spatialUnit.spatialUnitId +
+      spatialUnit.spatialUnitId +
       '/allFeatures';
-
-    this.http.get(url).subscribe({
-      next: (geoJSON: any) => {
-        (event.layer as L.GeoJSON).addData(geoJSON);
-        this.mapControlsService.updateSearchControl();
-        this.hideLoadingIconOnMap();
-      },
-      error: (error) => {
-        // allow a retry the next time the overlay is toggled on
-        entry.loaded = false;
-        this.hideLoadingIconOnMap();
-        this.mapErrorNotificationService.displayMapApplicationError(error);
-      },
-    });
+    try {
+      placeholder.addData(await firstValueFrom(this.http.get<any>(url)));
+      this.mapControlsService.updateSearchControl();
+      return placeholder;
+    } catch (error) {
+      this.mapErrorNotificationService.displayMapApplicationError(error);
+      throw error;
+    } finally {
+      this.hideLoadingIconOnMap();
+    }
   }
 
   filterForScreenshot(node) {

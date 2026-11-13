@@ -26,8 +26,13 @@ export const DEFAULT_LAYER_CAPABILITIES: Readonly<LayerCapabilities> = {
 /** The Leaflet side of an entry, kept out of signals on purpose. */
 interface LayerSlot {
   registration: LayerRegistration;
-  /** The layer on the map side; missing until a `load`-only entry was loaded. */
+  /**
+   * The layer on the map side: missing until a `load`-only entry was loaded,
+   * a placeholder until an entry with both `layer` and `load` was loaded.
+   */
   layer?: L.Layer;
+  /** Whether `layer` is the final one; false while a `load` is still due. */
+  loaded: boolean;
   loading?: boolean;
 }
 
@@ -120,11 +125,11 @@ export class MapLayerRegistry implements MapLayerStatusSink {
       symbol: registration.symbol,
       visible: previous?.visible ?? registration.initial?.visible ?? true,
       opacity: previous?.opacity ?? initialOpacity(registration.initial?.opacity),
-      status: registration.layer ? 'ready' : 'idle',
+      status: registration.load ? 'idle' : 'ready',
       outOfScale: previous?.outOfScale ?? false,
       capabilities: { ...DEFAULT_LAYER_CAPABILITIES, ...registration.capabilities },
     };
-    this.slots.set(id, { registration, layer: registration.layer });
+    this.slots.set(id, { registration, layer: registration.layer, loaded: !registration.load });
     this._entries.update((entries) =>
       previous?.groupId === groupId
         ? entries.map((existing) => (existing.id === id ? entry : existing))
@@ -133,14 +138,13 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     );
 
     if (registration.layer) {
+      // a placeholder, too, so that it can be listed before its data is there
       this.binding?.bind(this.boundLayer(entry, registration.layer));
-    } else {
-      if (hadLayer) {
-        this.binding?.unbind(id);
-      }
-      if (entry.visible) {
-        this.ensureLoaded(id);
-      }
+    } else if (hadLayer) {
+      this.binding?.unbind(id);
+    }
+    if (entry.visible) {
+      this.ensureLoaded(id);
     }
 
     if (group.maxEntries !== undefined && previous?.groupId !== groupId) {
@@ -179,8 +183,9 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
     if (this.slots.get(id)?.layer) {
       this.binding?.setVisible(id, visible);
-    } else if (visible) {
-      // The first show of a `load`-only entry, or a new attempt after an error.
+    }
+    if (visible) {
+      // The first show of an entry with `load`, or a new attempt after an error.
       this.ensureLoaded(id);
     }
   }
@@ -314,11 +319,11 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     };
   }
 
-  /** Starts loading the layer of a `load`-only entry, unless it has one or is loading it. */
+  /** Starts the `load` of an entry, unless it is loaded already or loading. */
   private ensureLoaded(id: LayerId): void {
     const slot = this.slots.get(id);
     const load = slot?.registration.load;
-    if (!slot || !load || slot.layer || slot.loading) {
+    if (!slot || !load || slot.loaded || slot.loading) {
       return;
     }
     slot.loading = true;
@@ -336,10 +341,12 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
     slot.loading = false;
     slot.layer = layer;
+    slot.loaded = true;
     this.patch(id, { status: 'ready' });
     const entry = this.entry(id);
     if (entry) {
-      // With the current state: an entry hidden meanwhile is bound hidden.
+      // With the current state: an entry hidden meanwhile is bound hidden. A
+      // placeholder that came back filled is the same layer, which the binding keeps.
       this.binding?.bind(this.boundLayer(entry, layer));
     }
   }
@@ -354,6 +361,10 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
     slot.loading = false;
     this.patch(id, { status: 'error', visible: false });
+    if (slot.layer) {
+      // a placeholder shown for the attempt goes off the map again
+      this.binding?.setVisible(id, false);
+    }
   }
 
   /** Drops an entry that lost its place; its owner deselects it in its catalogue. */

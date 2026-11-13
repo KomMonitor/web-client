@@ -895,6 +895,81 @@ describe('MapLayerRegistry', () => {
       expect(registry.entry('outline:7')).toBeUndefined();
     });
 
+    describe('with a placeholder', () => {
+      function withPlaceholder(
+        load: () => Promise<L.Layer>,
+        placeholder = fakeLayer('placeholder')
+      ) {
+        return { ...outline(load), layer: placeholder };
+      }
+
+      it('binds the placeholder right away, hidden, and loads nothing yet', () => {
+        const load = jest.fn();
+        const placeholder = fakeLayer('placeholder');
+        registry.attach(binding);
+
+        registry.register(withPlaceholder(load, placeholder));
+
+        expect(registry.entry('outline:7')?.status).toBe('idle');
+        expect(load).not.toHaveBeenCalled();
+        expect(binding.calls).toEqual([
+          ['bind', expect.objectContaining({ layer: placeholder, visible: false })],
+        ]);
+      });
+
+      it('shows the placeholder and loads once on the first show', async () => {
+        const placeholder = fakeLayer('placeholder');
+        const load = jest.fn(() => Promise.resolve(placeholder));
+        registry.attach(binding);
+        registry.register(withPlaceholder(load, placeholder));
+        binding.calls.length = 0;
+
+        registry.setVisible('outline:7', true);
+
+        expect(registry.entry('outline:7')?.status).toBe('loading');
+        expect(binding.calls).toEqual([['setVisible', 'outline:7', true]]);
+        await flush();
+
+        expect(registry.entry('outline:7')?.status).toBe('ready');
+        expect(binding.calls.at(-1)).toEqual([
+          'bind',
+          expect.objectContaining({ layer: placeholder, visible: true }),
+        ]);
+
+        registry.setVisible('outline:7', false);
+        registry.setVisible('outline:7', true);
+        await flush();
+
+        expect(load).toHaveBeenCalledTimes(1);
+      });
+
+      it('hides the placeholder again after a failure and tries again on the next show', async () => {
+        const placeholder = fakeLayer('placeholder');
+        const load = jest
+          .fn()
+          .mockRejectedValueOnce(new Error('offline'))
+          .mockResolvedValueOnce(placeholder);
+        registry.attach(binding);
+        registry.register(withPlaceholder(load, placeholder));
+        binding.calls.length = 0;
+
+        registry.setVisible('outline:7', true);
+        await flush();
+
+        expect(registry.entry('outline:7')).toMatchObject({ status: 'error', visible: false });
+        expect(binding.calls).toEqual([
+          ['setVisible', 'outline:7', true],
+          ['setVisible', 'outline:7', false],
+        ]);
+
+        registry.setVisible('outline:7', true);
+        await flush();
+
+        expect(load).toHaveBeenCalledTimes(2);
+        expect(registry.entry('outline:7')).toMatchObject({ status: 'ready', visible: true });
+      });
+    });
+
     it('only counts the new load after unregistering and registering again', async () => {
       const first = deferred<L.Layer>();
       const second = deferred<L.Layer>();
