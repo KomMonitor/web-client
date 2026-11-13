@@ -1,0 +1,151 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { MAIN_MAP_LAYER_GROUPS } from 'services/map-layer-registry-service/layer-group-catalog';
+import type { LayerRegistration } from 'services/map-layer-registry-service/map-layer.model';
+import { MapLayerRegistry } from 'services/map-layer-registry-service/map-layer-registry';
+import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
+
+import { MAP_LAYERS_PANEL_STORAGE_KEY } from './map-layers-panel-ui-state.service';
+import { MapLayersPanelComponent } from './map-layers-panel.component';
+
+describe('MapLayersPanelComponent', () => {
+  let registry: MapLayerRegistry;
+  let fixture: ComponentFixture<MapLayersPanelComponent>;
+
+  const register = (id: string, groupId: string, title = id): void =>
+    registry.register({
+      id,
+      groupId,
+      title,
+      kind: 'vector',
+      symbol: { kind: 'fill', color: '#ff0000' },
+      // the panel never touches layers, and there is no map here
+      layer: {} as LayerRegistration['layer'],
+    });
+
+  function render(): HTMLElement {
+    fixture = TestBed.createComponent(MapLayersPanelComponent);
+    fixture.detectChanges();
+    return fixture.nativeElement;
+  }
+
+  /** The top-level group sections; titles show their i18n keys, as no loader is set up. */
+  const topGroups = (root: HTMLElement) => [
+    ...root.querySelectorAll<HTMLElement>('.layer-group--top'),
+  ];
+
+  const group = (root: HTMLElement, i18nKey: string): HTMLElement =>
+    [...root.querySelectorAll<HTMLElement>('.layer-group')].find(
+      (section) =>
+        section
+          .querySelector(':scope > .layer-group__header .layer-group__title')
+          ?.textContent?.trim() === i18nKey
+    )!;
+
+  const badge = (section: HTMLElement) =>
+    section.querySelector(':scope > .layer-group__header .layer-group__badge')!.textContent!.trim();
+  const rowTitles = (section: HTMLElement) =>
+    [...section.querySelectorAll('.layer-row__name')].map((name) =>
+      name.firstChild!.textContent!.trim()
+    );
+
+  beforeEach(() => {
+    localStorage.removeItem(MAP_LAYERS_PANEL_STORAGE_KEY);
+    registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS);
+    TestBed.configureTestingModule({
+      imports: [MapLayersPanelComponent, TranslateModule.forRoot()],
+      providers: [{ provide: MAP_LAYER_REGISTRY, useValue: registry }],
+    });
+  });
+
+  afterEach(() => localStorage.removeItem(MAP_LAYERS_PANEL_STORAGE_KEY));
+
+  it('shows the groups of the registry tree in their order, sub groups nested', () => {
+    register('indicator', 'indicator', 'Anteil 80+');
+    register('georesource:1', 'georesource.point', 'Schulen');
+    const root = render();
+
+    expect(
+      topGroups(root).map((section) =>
+        section.querySelector('.layer-group__title')!.textContent!.trim()
+      )
+    ).toEqual([
+      'MAP_LAYERS.GROUPS.REACHABILITY',
+      'MAP_LAYERS.GROUPS.TEMPORARY',
+      'MAP_LAYERS.GROUPS.OUTLINE',
+      'MAP_LAYERS.GROUPS.GEORESOURCE',
+      'MAP_LAYERS.GROUPS.INDICATOR',
+    ]);
+    const georesource = group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE');
+    expect(
+      georesource.querySelectorAll(':scope > .layer-group__body > app-layer-group')
+    ).toHaveLength(4);
+    expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT'))).toEqual(['Schulen']);
+    expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.INDICATOR'))).toEqual(['Anteil 80+']);
+  });
+
+  it('counts the layers of a group including its sub groups', () => {
+    register('georesource:1', 'georesource.point');
+    register('georesource:2', 'georesource.point');
+    register('georesource:3', 'georesource.area');
+    const root = render();
+
+    expect(badge(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE'))).toBe('3');
+    expect(badge(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT'))).toBe('2');
+    expect(badge(group(root, 'MAP_LAYERS.GROUPS.INDICATOR'))).toBe('0');
+  });
+
+  it('toggles the visibility of a layer with its eye', () => {
+    register('file:a', 'temporary', 'Datei A');
+    const setVisible = jest.spyOn(registry, 'setVisible');
+    const root = render();
+    const eye = root.querySelector<HTMLButtonElement>('.layer-row__eye')!;
+    expect(eye.getAttribute('aria-pressed')).toBe('true');
+
+    eye.click();
+    fixture.detectChanges();
+
+    expect(setVisible).toHaveBeenCalledWith('file:a', false);
+    expect(eye.getAttribute('aria-pressed')).toBe('false');
+    expect(eye.querySelector('i')!.classList).toContain('fa-eye-slash');
+  });
+
+  it('collapses a group and remembers it for the next panel', () => {
+    register('file:a', 'temporary', 'Datei A');
+    const root = render();
+    const header = group(root, 'MAP_LAYERS.GROUPS.TEMPORARY').querySelector<HTMLButtonElement>(
+      '.layer-group__header'
+    )!;
+    expect(header.getAttribute('aria-expanded')).toBe('true');
+
+    header.click();
+    fixture.detectChanges();
+
+    expect(header.getAttribute('aria-expanded')).toBe('false');
+    expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toEqual([]);
+
+    TestBed.tick();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [MapLayersPanelComponent, TranslateModule.forRoot()],
+      providers: [{ provide: MAP_LAYER_REGISTRY, useValue: registry }],
+    });
+    const again = render();
+    expect(
+      group(again, 'MAP_LAYERS.GROUPS.TEMPORARY')
+        .querySelector('.layer-group__header')!
+        .getAttribute('aria-expanded')
+    ).toBe('false');
+  });
+
+  it('shows a layer registered after rendering', () => {
+    const root = render();
+
+    register('search:result', 'temporary', 'Kettwiger Straße');
+    fixture.detectChanges();
+
+    expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toEqual(['Kettwiger Straße']);
+    expect(badge(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toBe('1');
+  });
+});

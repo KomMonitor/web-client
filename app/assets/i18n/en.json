@@ -109,6 +109,17 @@
       "OUTLINE": "No spatial units available",
       "GEORESOURCE": "No layers – select them under Infrastructure Data",
       "INDICATOR": "No indicator – select one under Indicator Selection"
+    },
+    "PANEL": {
+      "TITLE": "Map Layers",
+      "THEMATIC": "Thematic Layers",
+      "THEMATIC_HINT": "Groups further up are drawn on top"
+    },
+    "GROUP": {
+      "COUNT": "{{count}} layers"
+    },
+    "ROW": {
+      "TOGGLE": "Show or hide layer: {{title}}"
     }
   },
   "USER_INTERFACE": {

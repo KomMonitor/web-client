@@ -109,6 +109,17 @@
       "OUTLINE": "Keine Raumebenen verfügbar",
       "GEORESOURCE": "Keine Ebenen – Auswahl unter Infrastrukturdaten",
       "INDICATOR": "Kein Indikator – Auswahl unter Indikatorenauswahl"
+    },
+    "PANEL": {
+      "TITLE": "Kartenebenen",
+      "THEMATIC": "Fachebenen",
+      "THEMATIC_HINT": "Oben liegende Gruppen werden zuoberst gezeichnet"
+    },
+    "GROUP": {
+      "COUNT": "{{count}} Ebenen"
+    },
+    "ROW": {
+      "TOGGLE": "Ebene ein- oder ausblenden: {{title}}"
     }
   },
   "USER_INTERFACE": {

@@ -1,0 +1,10 @@
+<div class="map-layers-panel">
+  <div class="map-layers-panel__section-head">
+    <h3 class="map-layers-panel__section-title">{{ 'MAP_LAYERS.PANEL.THEMATIC' | translate }}</h3>
+    <p class="map-layers-panel__section-hint">{{ 'MAP_LAYERS.PANEL.THEMATIC_HINT' | translate }}</p>
+  </div>
+
+  @for (node of registry.tree(); track node.group.id) {
+    <app-layer-group [node]="node" />
+  }
+</div>

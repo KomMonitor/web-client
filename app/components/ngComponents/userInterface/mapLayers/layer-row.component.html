@@ -1,0 +1,17 @@
+<div class="layer-row" [title]="fullName()">
+  <button
+    type="button"
+    class="layer-row__eye"
+    [attr.aria-pressed]="entry().visible"
+    [attr.aria-label]="'MAP_LAYERS.ROW.TOGGLE' | translate: { title: entry().title }"
+    (click)="toggleVisible()"
+  >
+    <i class="fas" [class.fa-eye]="entry().visible" [class.fa-eye-slash]="!entry().visible"></i>
+  </button>
+  <span class="layer-row__name">
+    {{ entry().title }}
+    @if (entry().subtitle) {
+      <span class="layer-row__subtitle">{{ entry().subtitle }}</span>
+    }
+  </span>
+</div>
