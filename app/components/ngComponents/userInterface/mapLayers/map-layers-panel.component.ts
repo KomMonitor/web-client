@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
 
 import { LayerGroupComponent } from './layer-group.component';
+import { isGroupShown } from './layer-tree.util';
 
 /**
  * The layer panel ("Kartenebenen"): renders the tree of the registry it is
@@ -21,4 +22,5 @@ import { LayerGroupComponent } from './layer-group.component';
 })
 export class MapLayersPanelComponent {
   protected readonly registry = inject(MAP_LAYER_REGISTRY);
+  protected readonly isGroupShown = isGroupShown;
 }

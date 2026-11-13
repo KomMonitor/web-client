@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { LayerTreeNode } from 'services/map-layer-registry-service/map-layer.model';
 
 import { LayerRowComponent } from './layer-row.component';
+import { isGroupShown } from './layer-tree.util';
 import { MapLayersPanelUiState } from './map-layers-panel-ui-state.service';
 
 /**
@@ -26,6 +27,8 @@ export class LayerGroupComponent {
 
   protected readonly expanded = computed(() => this.uiState.isExpanded(this.node().group.id));
   protected readonly bodyId = computed(() => `map-layer-group-${this.node().group.id}`);
+
+  protected readonly isGroupShown = isGroupShown;
 
   protected toggle(): void {
     this.uiState.toggle(this.node().group.id);

@@ -1,0 +1,31 @@
+@let s = symbol();
+<span class="layer-symbol layer-symbol--{{ s.kind }}" aria-hidden="true">
+  @switch (s.kind) {
+    @case ('fill') {
+      <span class="layer-symbol__fill" [style.background-color]="s.color"></span>
+    }
+    @case ('point') {
+      <span class="layer-symbol__point" [style.background-color]="s.color"></span>
+    }
+    @case ('line') {
+      <span class="layer-symbol__line" [style.background-color]="s.color"></span>
+    }
+    @case ('outline') {
+      <span
+        class="layer-symbol__outline"
+        [style.border-color]="s.color"
+        [style.border-style]="s.dashed ? 'dashed' : 'solid'"
+      ></span>
+    }
+    @case ('isochrone') {
+      <span class="layer-symbol__rings"><span></span></span>
+    }
+    @case ('service') {
+      <i
+        class="fas layer-symbol__service"
+        [class.fa-image]="s.serviceType === 'wms'"
+        [class.fa-draw-polygon]="s.serviceType === 'wfs'"
+      ></i>
+    }
+  }
+</span>

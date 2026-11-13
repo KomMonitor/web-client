@@ -78,9 +78,10 @@ describe('MapLayersPanelComponent', () => {
       'MAP_LAYERS.GROUPS.INDICATOR',
     ]);
     const georesource = group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE');
+    // empty sub groups are left out (whenEmpty: 'hide'), only Punktdaten has a layer
     expect(
       georesource.querySelectorAll(':scope > .layer-group__body > app-layer-group')
-    ).toHaveLength(4);
+    ).toHaveLength(1);
     expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT'))).toEqual(['Schulen']);
     expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.INDICATOR'))).toEqual(['Anteil 80+']);
   });
@@ -147,5 +148,34 @@ describe('MapLayersPanelComponent', () => {
 
     expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toEqual(['Kettwiger Straße']);
     expect(badge(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toBe('1');
+  });
+
+  describe('empty groups', () => {
+    const hint = (section: HTMLElement) =>
+      section
+        .querySelector(':scope > .layer-group__body > .layer-group__hint')
+        ?.textContent?.trim();
+
+    it('shows the hint of an empty top-level group', () => {
+      const root = render();
+
+      expect(hint(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toBe(
+        'MAP_LAYERS.EMPTY_HINTS.TEMPORARY'
+      );
+      expect(hint(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE'))).toBe(
+        'MAP_LAYERS.EMPTY_HINTS.GEORESOURCE'
+      );
+    });
+
+    it('hides empty sub groups and drops the hint once a layer is there', () => {
+      register('wms:1', 'georesource.service', 'Luftbild');
+      const root = render();
+      const georesource = group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE');
+
+      expect(hint(georesource)).toBeUndefined();
+      expect(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT')).toBeUndefined();
+      expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_SERVICE'))).toEqual(['Luftbild']);
+      expect(badge(georesource)).toBe('1');
+    });
   });
 });

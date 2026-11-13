@@ -5,6 +5,8 @@
   </div>
 
   @for (node of registry.tree(); track node.group.id) {
-    <app-layer-group [node]="node" />
+    @if (isGroupShown(node)) {
+      <app-layer-group [node]="node" />
+    }
   }
 </div>

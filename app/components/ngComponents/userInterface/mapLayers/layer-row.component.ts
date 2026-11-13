@@ -4,14 +4,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { LayerEntryState } from 'services/map-layer-registry-service/map-layer.model';
 import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
 
-/** One layer of the panel: eye toggle and name. */
+import { LayerSymbolComponent } from './layer-symbol.component';
+
+/** One layer of the panel: eye toggle, symbol, name and its loading / error / zoom state. */
 @Component({
   selector: 'app-layer-row',
   templateUrl: './layer-row.component.html',
   styleUrls: ['./layer-row.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [TranslateModule, LayerSymbolComponent],
 })
 export class LayerRowComponent {
   readonly entry = input.required<LayerEntryState>();

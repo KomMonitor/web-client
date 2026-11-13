@@ -120,6 +120,11 @@
     },
     "ROW": {
       "TOGGLE": "Ebene ein- oder ausblenden: {{title}}"
+    },
+    "STATUS": {
+      "LOADING": "Wird geladen",
+      "ERROR": "Laden fehlgeschlagen – zum erneuten Versuch wieder einblenden",
+      "OUT_OF_SCALE": "In dieser Zoomstufe nicht sichtbar"
     }
   },
   "USER_INTERFACE": {

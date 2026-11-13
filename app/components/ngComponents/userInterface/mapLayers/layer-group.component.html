@@ -23,10 +23,15 @@
   @if (expanded()) {
     <div class="layer-group__body" [id]="bodyId()">
       @for (child of node().children; track child.group.id) {
-        <app-layer-group [node]="child" [depth]="depth() + 1" />
+        @if (isGroupShown(child)) {
+          <app-layer-group [node]="child" [depth]="depth() + 1" />
+        }
       }
       @for (entry of node().entries; track entry.id) {
         <app-layer-row [entry]="entry" />
+      }
+      @if (node().count === 0 && node().group.emptyHintI18nKey; as hint) {
+        <p class="layer-group__hint">{{ hint | translate }}</p>
       }
     </div>
   }

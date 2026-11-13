@@ -37,6 +37,17 @@
   }
 }
 
+.layer-row--hidden {
+  .layer-row__name,
+  .layer-row__subtitle {
+    color: var(--map-layers-text-inactive, #aab1b8);
+  }
+
+  .layer-row__symbol {
+    opacity: 0.4;
+  }
+}
+
 .layer-row__name {
   flex: 1 1 auto;
   min-width: 0;
@@ -48,4 +59,14 @@
 .layer-row__subtitle {
   margin-left: 4px;
   color: var(--map-layers-text-secondary, #6b7280);
+}
+
+.layer-row__state {
+  flex: none;
+  font-size: 12px;
+  color: var(--map-layers-text-secondary, #6b7280);
+}
+
+.layer-row__state--error {
+  color: #c9302c;
 }

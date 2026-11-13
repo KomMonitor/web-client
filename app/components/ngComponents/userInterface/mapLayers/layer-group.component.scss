@@ -71,3 +71,9 @@
 .layer-group__body {
   padding: 0 4px 4px 14px;
 }
+
+.layer-group__hint {
+  margin: 2px 4px 4px;
+  font-size: 11.5px;
+  color: var(--map-layers-text-secondary, #6b7280);
+}
