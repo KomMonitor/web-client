@@ -73,8 +73,7 @@ export type MapCommand =
   | { type: 'removeWfsLayer'; dataset: any }
   | { type: 'adjustWfsLayerColor'; dataset: any; opacity: any }
   // file layers
-  | { type: 'addFileLayer'; dataset: any }
-  | { type: 'adjustFileLayerOpacity'; dataset: any; opacity: any }
+  | { type: 'addFileLayer'; dataset: any; opacity: number }
   | { type: 'adjustFileLayerColor'; dataset: any }
   | { type: 'removeFileLayer'; dataset: any }
   // reachability scenario
@@ -396,18 +395,12 @@ export class MapService {
 
   // --- file layers ---
 
-  addFileLayerToMap(dataset, _opacity) {
-    // NOTE: the opacity argument was never delivered in the legacy broadcast
-    // either — the file layer is added with its default opacity
-    this.command({ type: 'addFileLayer', dataset });
+  addFileLayerToMap(dataset, opacity: number) {
+    this.command({ type: 'addFileLayer', dataset, opacity });
   }
 
   removeFileLayerFromMap(dataset) {
     this.command({ type: 'removeFileLayer', dataset });
-  }
-
-  adjustOpacityForFileLayer(dataset, opacity) {
-    this.command({ type: 'adjustFileLayerOpacity', dataset, opacity });
   }
 
   adjustColorForFileLayer(dataset) {

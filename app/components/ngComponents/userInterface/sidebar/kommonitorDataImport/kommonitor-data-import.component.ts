@@ -181,21 +181,17 @@ export class KommonitorDataImportComponent implements OnInit {
 
   toggleDataLayer(dataset) {
     if (dataset.isSelected) {
-      //display on Map
-      const opacity = 1 - dataset.transparency;
-      this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
+      this.kommonitorMapService.addFileLayerToMap(dataset, 1 - (dataset.transparency ?? 0));
     } else {
-      //remove WMS layer from map
       this.kommonitorMapService.removeFileLayerFromMap(dataset);
     }
   }
 
+  // Adding it again replaces the layer under the same id and keeps its
+  // visibility, opacity and position; removing it first would lose them.
   refreshDataLayer(dataset) {
     if (dataset.isSelected) {
-      this.kommonitorMapService.removeFileLayerFromMap(dataset);
-      //display on Map
-      const opacity = 1 - dataset.transparency;
-      this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
+      this.kommonitorMapService.addFileLayerToMap(dataset, 1 - (dataset.transparency ?? 0));
     }
   }
 
@@ -505,12 +501,6 @@ export class KommonitorDataImportComponent implements OnInit {
     } finally {
       // no-op
     }
-  }
-
-  adjustFileLayerTransparency(dataset) {
-    const opacity = 1 - dataset.transparency;
-
-    this.kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
   }
 
   adjustFileLayerColor(color, dataset) {

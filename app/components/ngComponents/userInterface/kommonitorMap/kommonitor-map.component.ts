@@ -380,10 +380,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         break;
       // file layers
       case 'addFileLayer':
-        this.fileLayerManager.addFileLayer(command.dataset, undefined);
-        break;
-      case 'adjustFileLayerOpacity':
-        this.fileLayerManager.adjustOpacity(command.dataset, command.opacity);
+        this.fileLayerManager.addFileLayer(command.dataset, command.opacity);
         break;
       case 'adjustFileLayerColor':
         this.fileLayerManager.adjustColor(command.dataset);
