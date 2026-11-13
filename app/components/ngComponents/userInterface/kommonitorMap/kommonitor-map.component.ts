@@ -48,6 +48,9 @@ import {
 
 /** The single indicator layer of the main map in the layer registry. */
 const INDICATOR_LAYER_ID = 'indicator';
+/** The live reachability result of the main map in the layer registry. */
+const LIVE_START_LAYER_ID = 'reachability:live:start';
+const LIVE_ISOCHRONES_LAYER_ID = 'reachability:live:isochrones';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -96,8 +99,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   private map;
   private spatialUnitOutlineLayerInitialized = false;
-
-  private singleMarkers: L.Marker[] = [];
 
   datasetContainsNegativeValues: any;
 
@@ -183,7 +184,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   customPropertyName;
 
   currentCustomIndicatorLayer;
-  isochronesLayer: any = undefined;
   isochroneMarkerLayer = undefined;
 
   showOutlierInfoAlert = false;
@@ -548,11 +548,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Shows the start points of the live reachability analysis; an empty list removes them. */
   addSingleMarker(locations: GeoJSONFeature[]) {
-    this.singleMarkers.forEach((m) => this.map.removeLayer(m));
-    this.singleMarkers = [];
+    const layers = this.mainMapLayers.registry;
+    if (locations.length === 0) {
+      layers.unregister(LIVE_START_LAYER_ID);
+      return;
+    }
 
-    locations.forEach((location) => {
+    const pane = layers.paneFor(LIVE_START_LAYER_ID);
+    const markers: L.Marker[] = locations.map((location) => {
       // Create a GeoJSON feature for the location
       const poiFeature: any = {
         type: 'Feature',
@@ -573,51 +578,86 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         poiSymbolBootstrap3Name: 'home',
       };
 
-      const newMarker = this.genericMapHelperService.createCustomMarker(
+      return this.genericMapHelperService.createCustomMarker(
         poiFeature,
         defaultMarkerStyle.poiMarkerStyle,
         defaultMarkerStyle.poiMarkerText,
         defaultMarkerStyle.poiSymbolColor,
         defaultMarkerStyle.poiMarkerColor,
         defaultMarkerStyle.poiSymbolBootstrap3Name,
-        defaultMarkerStyle
+        defaultMarkerStyle,
+        pane
       );
-      newMarker.addTo(this.map);
-
-      // track to enable deletion
-      this.singleMarkers.push(newMarker);
     });
 
-    if (this.singleMarkers.length > 0) {
-      const bounds = L.latLngBounds(this.singleMarkers.map((m) => m.getLatLng()));
-      // only zoom out to fit all features, never zoom in beyond the current level
-      const targetZoom = Math.min(this.map.getZoom(), this.map.getBoundsZoom(bounds));
-      this.map.setView(bounds.getCenter(), targetZoom);
-    }
+    layers.register({
+      id: LIVE_START_LAYER_ID,
+      groupId: 'reachability',
+      title: 'Startpunkte (live)',
+      subtitle: this.liveReachabilityDatasetName(),
+      kind: 'marker',
+      // awesome-markers blue, as the markers are drawn
+      symbol: { kind: 'point', color: '#38aadd' },
+      layer: L.featureGroup(markers),
+    });
+    // setting points is an explicit action: bring them back if they were hidden
+    layers.setVisible(LIVE_START_LAYER_ID, true);
+
+    const bounds = L.latLngBounds(markers.map((m) => m.getLatLng()));
+    // only zoom out to fit all features, never zoom in beyond the current level
+    const targetZoom = Math.min(this.map.getZoom(), this.map.getBoundsZoom(bounds));
+    this.map.setView(bounds.getCenter(), targetZoom);
   }
 
   removeIsochrones() {
-    if (this.isochronesLayer) {
-      this.map.removeLayer(this.isochronesLayer);
-      this.layerControl.removeLayer(this.isochronesLayer);
+    this.mainMapLayers.registry.unregister(LIVE_ISOCHRONES_LAYER_ID);
+  }
+
+  /** Shows the isochrones of the live reachability analysis, replacing earlier ones. */
+  addIsochrones(isochrones: any) {
+    const layers = this.mainMapLayers.registry;
+    const settings = this.reachabilityStateService.settings;
+    const isNew = !layers.entry(LIVE_ISOCHRONES_LAYER_ID);
+    const isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
+      this.liveReachabilityDatasetName(),
+      isochrones,
+      settings.transitMode,
+      settings.focus,
+      settings.rangeArray,
+      settings.useMultipleStartPoints,
+      settings.dissolveIsochrones,
+      layers.paneFor(LIVE_ISOCHRONES_LAYER_ID)
+    );
+
+    layers.register({
+      id: LIVE_ISOCHRONES_LAYER_ID,
+      groupId: 'reachability',
+      title: 'Isochronen (live)',
+      subtitle: `${this.liveReachabilityDatasetName()} · ${settings.transitMode}`,
+      kind: 'vector',
+      symbol: { kind: 'isochrone' },
+      layer: isochronesLayer,
+    });
+    // a new calculation is an explicit action: bring the isochrones back if hidden
+    layers.setVisible(LIVE_ISOCHRONES_LAYER_ID, true);
+
+    if (isNew) {
+      // New entries go on top of their list, which would put the isochrones above
+      // the start points that came first. Only when they are new, so that an order
+      // the user chose survives the next calculation.
+      const list = layers.drawOrder().filter((id) => id.startsWith('reachability:'));
+      const isochronesIndex = list.indexOf(LIVE_ISOCHRONES_LAYER_ID);
+      if (list.indexOf(LIVE_START_LAYER_ID) > isochronesIndex) {
+        layers.moveEntry(LIVE_START_LAYER_ID, isochronesIndex);
+      }
     }
   }
 
-  addIsochrones(isochrones: any) {
-    this.removeIsochrones();
-
-    this.isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
+  private liveReachabilityDatasetName(): string {
+    return (
       this.reachabilityStateService.settings.selectedStartPointLayer?.datasetName ||
-        'Manuelle Eingabe',
-      isochrones,
-      this.reachabilityStateService.settings.transitMode,
-      this.reachabilityStateService.settings.focus,
-      this.reachabilityStateService.settings.rangeArray,
-      this.reachabilityStateService.settings.useMultipleStartPoints,
-      this.reachabilityStateService.settings.dissolveIsochrones
+      'Manuelle Eingabe'
     );
-
-    this.isochronesLayer.addTo(this.map);
   }
 
   onGlobalFilterChange() {

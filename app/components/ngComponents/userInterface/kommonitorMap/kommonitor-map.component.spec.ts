@@ -7,6 +7,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 
+import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
+
 import { KommonitorMapComponent } from './kommonitor-map.component';
 
 jest.mock('dom-to-image-more', () => ({ __esModule: true, default: { toBlob: jest.fn() } }));
@@ -114,6 +116,125 @@ describe('KommonitorMapComponent', () => {
 
       expect(saveAs).not.toHaveBeenCalled();
       expect(component.loadingData).toBe(false);
+    });
+  });
+
+  describe('live reachability result', () => {
+    const START = 'reachability:live:start';
+    const ISOCHRONES = 'reachability:live:isochrones';
+    let map: { getZoom: jest.Mock; getBoundsZoom: jest.Mock; setView: jest.Mock };
+
+    const point = (lon: number, lat: number) =>
+      ({
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Point', coordinates: [lon, lat] },
+      }) as any;
+    const isochrones = () => ({
+      type: 'FeatureCollection',
+      features: [500, 1000].map((value) => ({
+        type: 'Feature',
+        properties: { value },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [7.4, 51.5],
+              [7.5, 51.5],
+              [7.45, 51.55],
+              [7.4, 51.5],
+            ],
+          ],
+        },
+      })),
+    });
+    const registry = () => TestBed.inject(MainMapLayersService).registry;
+    const registeredLayer = (spy: jest.SpyInstance, id: string): any =>
+      spy.mock.calls.filter(([registration]) => registration.id === id).at(-1)[0].layer;
+
+    beforeEach(() => {
+      map = { getZoom: jest.fn(() => 12), getBoundsZoom: jest.fn(() => 15), setView: jest.fn() };
+      (component as unknown as { map: unknown }).map = map;
+      (component as any).reachabilityStateService.settings = {
+        transitMode: 'foot-walking',
+        focus: 'distance',
+        rangeArray: [500, 1000],
+        useMultipleStartPoints: false,
+        dissolveIsochrones: false,
+      };
+    });
+
+    it('registers the start points in their pane and only ever zooms out to show them', () => {
+      const register = jest.spyOn(registry(), 'register');
+
+      component.addSingleMarker([point(7.4, 51.5), point(7.5, 51.6)]);
+
+      expect(registry().entry(START)).toMatchObject({
+        groupId: 'reachability',
+        title: 'Startpunkte (live)',
+        subtitle: 'Manuelle Eingabe',
+        kind: 'marker',
+      });
+      const pane = registry().paneFor(START);
+      expect(
+        registeredLayer(register, START)
+          .getLayers()
+          .map((marker: any) => marker.options.pane)
+      ).toEqual([pane, pane]);
+      expect(map.setView).toHaveBeenCalledWith(expect.anything(), 12);
+    });
+
+    it('replaces the start points and removes them for an empty list', () => {
+      component.addSingleMarker([point(7.4, 51.5)]);
+      component.addSingleMarker([point(7.4, 51.5), point(7.5, 51.6)]);
+      expect(registry().drawOrder()).toEqual([START]);
+
+      component.addSingleMarker([]);
+
+      expect(registry().entry(START)).toBeUndefined();
+    });
+
+    it('puts new isochrones below the start points, in their own pane', () => {
+      const register = jest.spyOn(registry(), 'register');
+      component.addSingleMarker([point(7.45, 51.52)]);
+
+      component.addIsochrones(isochrones());
+
+      expect(registry().entry(ISOCHRONES)).toMatchObject({
+        title: 'Isochronen (live)',
+        subtitle: 'Manuelle Eingabe · foot-walking',
+        kind: 'vector',
+        symbol: { kind: 'isochrone' },
+      });
+      expect(registry().drawOrder()).toEqual([START, ISOCHRONES]);
+      const paths = registeredLayer(register, ISOCHRONES)
+        .getLayers()
+        .flatMap((geoJson: any) => geoJson.getLayers());
+      expect(paths.map((path: any) => path.options.pane)).toEqual([
+        registry().paneFor(ISOCHRONES),
+        registry().paneFor(ISOCHRONES),
+      ]);
+    });
+
+    it('replaces the isochrones, keeps opacity and the chosen order, and shows them again', () => {
+      component.addSingleMarker([point(7.45, 51.52)]);
+      component.addIsochrones(isochrones());
+      registry().setOpacity(ISOCHRONES, 0.5);
+      registry().setVisible(ISOCHRONES, false);
+      registry().moveEntry(ISOCHRONES, 0);
+
+      component.addIsochrones(isochrones());
+
+      expect(registry().entry(ISOCHRONES)).toMatchObject({ opacity: 0.5, visible: true });
+      expect(registry().drawOrder()).toEqual([ISOCHRONES, START]);
+    });
+
+    it('removes the isochrones', () => {
+      component.addIsochrones(isochrones());
+
+      component.removeIsochrones();
+
+      expect(registry().entry(ISOCHRONES)).toBeUndefined();
     });
   });
 });
