@@ -1050,7 +1050,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     layer.on({
       mouseover: (l) => this.highlightFeature(l),
       mouseout: (l) => this.resetHighlight(l),
-      click: (l) => this.switchHighlightFeature(l),
+      click: (e) => this.switchHighlightFeature(e.target),
       // while picking a single point for reachability analysis, hovering the map
       // must not also reveal the indicator area's label tooltip
       tooltipopen: () => {
@@ -1061,6 +1061,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Selects or deselects an indicator feature, by a map click or from a diagram. */
   switchHighlightFeature(layer) {
     // while picking a single point for reachability analysis, clicks on the map
     // must not also toggle indicator area selection
@@ -1072,17 +1073,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // those shall be treated specially, i.e. keep being highlighted
     if (
       !this.filterHelperService.featureIsCurrentlySelected(
-        layer.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+        layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
       )
     ) {
-      this.filterHelperService.addFeatureToSelection(layer.target.feature);
-      this.highlightClickedFeature(layer.target);
+      this.filterHelperService.addFeatureToSelection(layer.feature);
+      this.highlightClickedFeature(layer);
     } else {
       //remove from array
       this.filterHelperService.removeFeatureFromSelection(
-        layer.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+        layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
       );
-      this.resetHighlightClickedFeature(layer.target);
+      this.resetHighlightClickedFeature(layer);
     }
   }
 
@@ -1157,20 +1158,35 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   preserveHighlightedFeatures() {
-    this.map.eachLayer((layer) => {
-      if (layer.feature) {
-        if (
-          this.filterHelperService.featureIsCurrentlySelected(
-            layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
-          )
-        ) {
-          this.setPermanentlyHighlightedStyle(layer);
-          // the legacy broadcast passed the properties unwrapped, so the
-          // receivers' array destructuring got undefined — fixed by the typed event
-          this.mapService.notifyFeatureHovered(layer.feature.properties);
-        }
+    for (const layer of this.indicatorFeatures()) {
+      if (
+        this.filterHelperService.featureIsCurrentlySelected(
+          layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+        )
+      ) {
+        this.setPermanentlyHighlightedStyle(layer);
+        // the legacy broadcast passed the properties unwrapped, so the
+        // receivers' array destructuring got undefined — fixed by the typed event
+        this.mapService.notifyFeatureHovered(layer.feature.properties);
       }
-    });
+    }
+  }
+
+  /**
+   * The features of the indicator layer. Highlighting looks only there: the
+   * whole map also holds outline features of the same spatial unit, with the
+   * same names and ids.
+   */
+  private indicatorFeatures(): any[] {
+    return this.currentIndicatorLayer?.getLayers() ?? [];
+  }
+
+  private findIndicatorFeature(spatialFeatureName): any {
+    return this.indicatorFeatures().find(
+      (layer) =>
+        layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
+        spatialFeatureName
+    );
   }
 
   resetHighlight(e) {
@@ -1614,62 +1630,25 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   highlightFeatureOnMap(spatialFeatureName) {
-    if (!spatialFeatureName) {
-      return;
+    const layer = spatialFeatureName && this.findIndicatorFeature(spatialFeatureName);
+    if (layer) {
+      this.highlightFeatureForLayer(layer);
     }
-    let done = false;
-
-    this.map.eachLayer((layer) => {
-      if (!done && layer.feature) {
-        if (
-          layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
-          spatialFeatureName
-        ) {
-          this.highlightFeatureForLayer(layer);
-          done = true;
-        }
-      }
-    });
   }
 
   unhighlightFeatureOnMap(spatialFeatureName) {
-    if (!spatialFeatureName) {
-      return;
+    const layer = spatialFeatureName && this.findIndicatorFeature(spatialFeatureName);
+    if (layer) {
+      this.resetHighlightForLayer(layer);
     }
-
-    let done = false;
-
-    this.map.eachLayer((layer) => {
-      if (!done && layer.feature) {
-        if (
-          layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
-          spatialFeatureName
-        ) {
-          this.resetHighlightForLayer(layer);
-          done = true;
-        }
-      }
-    });
   }
 
+  /** E.g. a click on a bar of a diagram. */
   switchHighlightFeatureOnMap(spatialFeatureName) {
-    if (!spatialFeatureName) {
-      return;
+    const layer = spatialFeatureName && this.findIndicatorFeature(spatialFeatureName);
+    if (layer) {
+      this.switchHighlightFeature(layer);
     }
-
-    let done = false;
-
-    this.map.eachLayer((layer) => {
-      if (!done && layer.feature) {
-        if (
-          layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
-          spatialFeatureName
-        ) {
-          this.switchHighlightFeature(layer);
-          done = true;
-        }
-      }
-    });
   }
 
   unselectAllFeatures() {

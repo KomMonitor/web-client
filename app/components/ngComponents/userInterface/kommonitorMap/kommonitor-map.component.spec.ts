@@ -6,7 +6,9 @@ import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
+import * as L from 'leaflet';
 
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { GeoresourceLayerManagerService } from 'services/georesource-layer-manager-service/georesource-layer-manager.service';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import {
@@ -311,6 +313,98 @@ describe('KommonitorMapComponent', () => {
       (component as any).onMetadataLoaded();
       expect(clearGeoresources).toHaveBeenCalledTimes(1);
       expect(clearWms).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('highlighting features (map commands, e.g. from diagrams)', () => {
+    const HOVER = '#e01414';
+    const CLICKED = '#42e5f4';
+    let map: { eachLayer: jest.Mock };
+    let outline: L.GeoJSON;
+
+    const collection = () => ({
+      type: 'FeatureCollection',
+      features: ['A', 'B'].map((name, index) => ({
+        type: 'Feature',
+        properties: { NAME: name, ID: name },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [7 + index, 51],
+              [7.5 + index, 51],
+              [7.5 + index, 51.5],
+              [7 + index, 51],
+            ],
+          ],
+        },
+      })),
+    });
+    const feature = (layer: L.GeoJSON, name: string): any =>
+      layer.getLayers().find((l: any) => l.feature.properties.NAME === name);
+    const indicator = () => (component as any).currentIndicatorLayer as L.GeoJSON;
+
+    beforeEach(() => {
+      Object.assign((window as any).__env, {
+        FEATURE_NAME_PROPERTY_NAME: 'NAME',
+        FEATURE_ID_PROPERTY_NAME: 'ID',
+        defaultColorForHoveredFeatures: HOVER,
+        defaultColorForClickedFeatures: CLICKED,
+      });
+      map = { eachLayer: jest.fn() };
+      (component as unknown as { map: unknown }).map = map;
+      (component as any).currentIndicatorLayer = L.geoJSON(collection() as any, {
+        style: { color: 'black', weight: 1 },
+      });
+      // an outline of the same spatial unit: same names and ids, not the indicator
+      outline = L.geoJSON(collection() as any, { style: { color: 'red', weight: 2 } });
+      TestBed.inject(FilterHelperService).clearSelectedFeatures();
+    });
+
+    it('highlights the indicator feature only', () => {
+      component.highlightFeatureOnMap('A');
+
+      expect(feature(indicator(), 'A').options).toMatchObject({ color: HOVER, weight: 3 });
+      expect(feature(outline, 'A').options).toMatchObject({ color: 'red', weight: 2 });
+      expect(map.eachLayer).not.toHaveBeenCalled();
+    });
+
+    it('resets the hover style of the indicator feature', () => {
+      const reset = jest
+        .spyOn(component, 'resetHighlightForLayer')
+        .mockImplementation(() => undefined);
+
+      component.unhighlightFeatureOnMap('A');
+
+      expect(reset).toHaveBeenCalledWith(feature(indicator(), 'A'));
+    });
+
+    it('selects and deselects a feature from a diagram without throwing', () => {
+      const deselect = jest
+        .spyOn(component, 'resetHighlightClickedFeature')
+        .mockImplementation(() => undefined);
+      const filterHelper = TestBed.inject(FilterHelperService);
+
+      expect(() => component.switchHighlightFeatureOnMap('B')).not.toThrow();
+      expect(filterHelper.featureIsCurrentlySelected('B')).toBe(true);
+      expect(feature(indicator(), 'B').options.color).toBe(CLICKED);
+      expect(feature(outline, 'B').options.color).toBe('red');
+
+      component.switchHighlightFeatureOnMap('B');
+
+      expect(filterHelper.featureIsCurrentlySelected('B')).toBe(false);
+      expect(deselect).toHaveBeenCalledWith(feature(indicator(), 'B'));
+    });
+
+    it('preserves the selection on the indicator features only', () => {
+      TestBed.inject(FilterHelperService).addFeatureToSelection(feature(indicator(), 'B').feature);
+
+      component.preserveHighlightedFeatures();
+
+      expect(feature(indicator(), 'B').options.color).toBe(CLICKED);
+      expect(feature(indicator(), 'A').options.color).toBe('black');
+      expect(feature(outline, 'B').options.color).toBe('red');
+      expect(map.eachLayer).not.toHaveBeenCalled();
     });
   });
 });
