@@ -2,6 +2,8 @@ import * as L from 'leaflet';
 
 import { createGrayscaleTileLayer } from 'util/leaflet-grayscale';
 
+import type { BaseLayerRegistration, BaseLayerThumbnail } from './map-layer.model';
+
 /** One entry of `window.__env.baseLayers`. */
 export interface BaseLayerConfig {
   /** Display name, also the key of the base layer. */
@@ -16,12 +18,6 @@ export interface BaseLayerConfig {
   maxZoomLevel?: number;
   /** Optional preview image for the base map gallery; generated from the start point if omitted. */
   thumbnailUrl?: string;
-}
-
-/** Preview image of a base layer; `grayscale` asks the gallery for a CSS grayscale filter. */
-export interface BaseLayerThumbnail {
-  url: string;
-  grayscale: boolean;
 }
 
 /** Slippy map tile coordinates. */
@@ -133,16 +129,33 @@ export function createBaseLayer(config: BaseLayerConfig): any {
   return BASE_LAYER_FACTORIES[config.layerType]?.create(config) ?? null;
 }
 
-/** The configured base layers keyed by name; entries with an unknown `layerType` are skipped. */
-export function createBaseLayers(configs: BaseLayerConfig[]): Map<string, any> {
-  const layersByName = new Map<string, any>();
-  for (const config of configs) {
+/** Whether a factory exists for the `layerType` of the entry. */
+export function isSupportedBaseLayer(config: BaseLayerConfig): boolean {
+  return !!BASE_LAYER_FACTORIES[config.layerType];
+}
+
+/**
+ * What the map hands to the registry: one registration per configured base
+ * layer, id 'base:<name>', with its preview at `center`. Entries with an
+ * unknown `layerType` are skipped.
+ */
+export function createBaseLayerRegistrations(
+  configs: BaseLayerConfig[],
+  center: { lat: number; lng: number }
+): BaseLayerRegistration[] {
+  return configs.flatMap((config) => {
     const layer = createBaseLayer(config);
-    if (layer) {
-      layersByName.set(config.name, layer);
-    }
-  }
-  return layersByName;
+    return layer
+      ? [
+          {
+            id: `base:${config.name}`,
+            title: config.name,
+            thumbnail: baseLayerThumbnail(config, center),
+            layer,
+          },
+        ]
+      : [];
+  });
 }
 
 /**

@@ -113,7 +113,7 @@ export interface MapLayerOwner {
 export interface LayerPanelSnapshot {
   version: 1;
   groupOrder: string[];
-  baseLayer: { id: string | null; opacity: number };
+  baseLayer: BaseLayerSelection;
   entries: LayerSnapshotEntry[];
 }
 
@@ -141,12 +141,34 @@ export interface LayerInfo {
   lines: string[];
 }
 
-export interface BaseLayerEntry {
+/** Preview image of a base layer; `grayscale` asks the gallery for a CSS grayscale filter. */
+export interface BaseLayerThumbnail {
+  url: string;
+  grayscale: boolean;
+}
+
+/** What the map hands to the registry for each configured base layer. */
+export interface BaseLayerRegistration {
+  /** 'base:<configured name>'. */
   id: string;
   title: string;
-  thumbnailUrl?: string;
-  /** null = the empty base layer. */
-  layer: L.Layer | null;
+  /** null: the gallery shows an icon. */
+  thumbnail: BaseLayerThumbnail | null;
+  layer: L.Layer;
+}
+
+/** What the panel renders of a base layer: serializable, no Leaflet objects. */
+export interface BaseLayerState {
+  id: string;
+  title: string;
+  thumbnail: BaseLayerThumbnail | null;
+}
+
+/** The chosen base layer and its opacity; `id` null is the empty map. */
+export interface BaseLayerSelection {
+  id: string | null;
+  /** 0..1, applied to the base layer itself. */
+  opacity: number;
 }
 
 /** One group of `MapLayerRegistry.tree()` with its sub groups or entries, top to bottom. */
@@ -191,6 +213,12 @@ export interface MapLayerBinding {
    * binding keeps the order for layers it gets later.
    */
   setOrder(order: LayerId[]): void;
+  /** The base layers to offer, in configuration order; replaces the previous ones. */
+  bindBaseLayers(layers: readonly BaseLayerRegistration[]): void;
+  /** Shows the base layer `id` below all other layers, or none for null. */
+  showBaseLayer(id: string | null): void;
+  /** Opacity (0..1) of the base layer, kept when another one is shown. */
+  setBaseLayerOpacity(opacity: number): void;
 }
 
 /** Where a binding reports what it learns from the map, e.g. from tile and zoom events. */

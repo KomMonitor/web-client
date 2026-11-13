@@ -2,7 +2,9 @@ import { computed } from '@angular/core';
 import type * as L from 'leaflet';
 
 import { MAIN_MAP_LAYER_GROUPS } from './layer-group-catalog';
+import type { LayerPreferences, LayerStatePersistence } from './layer-state-persistence';
 import type {
+  BaseLayerRegistration,
   BoundLayer,
   LayerGroupDef,
   LayerId,
@@ -38,7 +40,46 @@ class FakeBinding implements MapLayerBinding {
   setOrder(order: LayerId[]): void {
     this.orders.push(order);
   }
+
+  /** Base layer calls, also kept apart. */
+  readonly baseCalls: unknown[][] = [];
+
+  bindBaseLayers(layers: readonly BaseLayerRegistration[]): void {
+    this.baseCalls.push(['bindBaseLayers', layers.map((base) => base.id)]);
+  }
+  showBaseLayer(id: string | null): void {
+    this.baseCalls.push(['showBaseLayer', id]);
+  }
+  setBaseLayerOpacity(opacity: number): void {
+    this.baseCalls.push(['setBaseLayerOpacity', opacity]);
+  }
 }
+
+/** Keeps the preferences in memory and counts the saves. */
+class MemoryPersistence implements LayerStatePersistence {
+  saves = 0;
+
+  constructor(public preferences: LayerPreferences = {}) {}
+
+  load(): LayerPreferences {
+    return this.preferences;
+  }
+  save(preferences: LayerPreferences): void {
+    this.saves++;
+    this.preferences = preferences;
+  }
+}
+
+function base(name: string): BaseLayerRegistration {
+  return {
+    id: `base:${name}`,
+    title: name,
+    thumbnail: { url: `https://tiles.example/${name}.png`, grayscale: false },
+    layer: fakeLayer(`base:${name}`),
+  };
+}
+
+const BASES = [base('Grau'), base('Farbe'), base('Luftbild')];
 
 /** The registry never touches layers, so a tagged object stands in for a Leaflet layer. */
 function fakeLayer(name: string): L.Layer {
@@ -263,7 +304,7 @@ describe('MapLayerRegistry', () => {
 
   describe('buffering until attach', () => {
     it('binds nothing before attach and every entry with a layer on attach', () => {
-      const adapter = { setOpacity: jest.fn() };
+      const adapter = { getBounds: jest.fn() };
       registry.register(poi('georesource:1', { adapter }));
       registry.register(
         poi('outline:7', {
@@ -1040,6 +1081,165 @@ describe('MapLayerRegistry', () => {
 
       registry.reportOutOfScale('wms:404', true);
       expect(registry.entry('wms:404')).toBeUndefined();
+    });
+  });
+  describe('base layers', () => {
+    it('offers the base layers and shows the first by default', () => {
+      registry.setBaseLayers(BASES);
+
+      expect(registry.baseLayers()).toEqual([
+        { id: 'base:Grau', title: 'Grau', thumbnail: BASES[0].thumbnail },
+        { id: 'base:Farbe', title: 'Farbe', thumbnail: BASES[1].thumbnail },
+        { id: 'base:Luftbild', title: 'Luftbild', thumbnail: BASES[2].thumbnail },
+      ]);
+      expect(registry.activeBaseLayer()?.id).toBe('base:Grau');
+      expect(registry.baseLayerOpacity()).toBe(1);
+    });
+
+    it('keeps the first of duplicate ids', () => {
+      registry.setBaseLayers([BASES[0], { ...BASES[1], id: 'base:Grau' }, BASES[2]]);
+
+      expect(registry.baseLayers().map((b) => b.title)).toEqual(['Grau', 'Luftbild']);
+    });
+
+    it('has no base layer while the map offers none', () => {
+      expect(registry.baseLayers()).toEqual([]);
+      expect(registry.activeBaseLayer()).toBeNull();
+
+      registry.setBaseLayers([]);
+      expect(registry.activeBaseLayer()).toBeNull();
+    });
+
+    it('switches the base layer, to none as well, and ignores ids it does not offer', () => {
+      registry.setBaseLayers(BASES);
+
+      registry.setBaseLayer('base:Luftbild');
+      expect(registry.activeBaseLayer()?.id).toBe('base:Luftbild');
+
+      registry.setBaseLayer('base:Unbekannt');
+      expect(registry.activeBaseLayer()?.id).toBe('base:Luftbild');
+
+      registry.setBaseLayer(null);
+      expect(registry.activeBaseLayer()).toBeNull();
+    });
+
+    it('clamps the opacity and ignores NaN', () => {
+      registry.setBaseLayers(BASES);
+
+      registry.setBaseLayerOpacity(0.4);
+      expect(registry.baseLayerOpacity()).toBe(0.4);
+      registry.setBaseLayerOpacity(1.5);
+      expect(registry.baseLayerOpacity()).toBe(1);
+      registry.setBaseLayerOpacity(-1);
+      expect(registry.baseLayerOpacity()).toBe(0);
+      registry.setBaseLayerOpacity(NaN);
+      expect(registry.baseLayerOpacity()).toBe(0);
+    });
+
+    it('keeps the current base layer when the map hands them over again', () => {
+      registry.setBaseLayers(BASES);
+      registry.setBaseLayer('base:Farbe');
+      registry.setBaseLayers([base('Grau'), base('Farbe')]);
+      expect(registry.activeBaseLayer()?.id).toBe('base:Farbe');
+
+      registry.setBaseLayer(null);
+      registry.setBaseLayers(BASES);
+      expect(registry.activeBaseLayer()).toBeNull();
+
+      registry.setBaseLayer('base:Luftbild');
+      registry.setBaseLayers([base('Grau'), base('Farbe')]);
+      expect(registry.activeBaseLayer()?.id).toBe('base:Grau');
+    });
+
+    it('tells the binding, buffered until it is attached', () => {
+      registry.setBaseLayers(BASES);
+      registry.setBaseLayer('base:Farbe');
+      registry.setBaseLayerOpacity(0.5);
+      expect(binding.baseCalls).toEqual([]);
+
+      registry.attach(binding);
+      expect(binding.baseCalls).toEqual([
+        ['bindBaseLayers', ['base:Grau', 'base:Farbe', 'base:Luftbild']],
+        ['setBaseLayerOpacity', 0.5],
+        ['showBaseLayer', 'base:Farbe'],
+      ]);
+
+      binding.baseCalls.length = 0;
+      registry.setBaseLayer(null);
+      registry.setBaseLayer(null);
+      registry.setBaseLayerOpacity(0.7);
+      registry.setBaseLayerOpacity(0.7);
+      registry.setBaseLayers([base('Grau')]);
+      expect(binding.baseCalls).toEqual([
+        ['showBaseLayer', null],
+        ['setBaseLayerOpacity', 0.7],
+        ['bindBaseLayers', ['base:Grau']],
+        ['setBaseLayerOpacity', 0.7],
+        ['showBaseLayer', null],
+      ]);
+    });
+
+    it('sends nothing about base layers on attach before the map handed them over', () => {
+      registry.attach(binding);
+
+      expect(binding.baseCalls).toEqual([]);
+    });
+
+    describe('remembered', () => {
+      it('starts with the remembered base layer and opacity', () => {
+        const persistence = new MemoryPersistence({
+          baseLayer: { id: 'base:Luftbild', opacity: 0.3 },
+        });
+        registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS, persistence);
+        expect(registry.baseLayerOpacity()).toBe(0.3);
+
+        registry.attach(binding);
+        registry.setBaseLayers(BASES);
+        expect(registry.activeBaseLayer()?.id).toBe('base:Luftbild');
+        // the remembered opacity reaches the map before the base layer does
+        expect(binding.baseCalls).toEqual([
+          ['bindBaseLayers', ['base:Grau', 'base:Farbe', 'base:Luftbild']],
+          ['setBaseLayerOpacity', 0.3],
+          ['showBaseLayer', 'base:Luftbild'],
+        ]);
+        expect(persistence.saves).toBe(0);
+      });
+
+      it('starts with the empty map if that was chosen', () => {
+        registry = new MapLayerRegistry(
+          MAIN_MAP_LAYER_GROUPS,
+          new MemoryPersistence({ baseLayer: { id: null, opacity: 1 } })
+        );
+        registry.setBaseLayers(BASES);
+
+        expect(registry.activeBaseLayer()).toBeNull();
+      });
+
+      it('falls back to the first base layer if the remembered one is no longer configured', () => {
+        registry = new MapLayerRegistry(
+          MAIN_MAP_LAYER_GROUPS,
+          new MemoryPersistence({ baseLayer: { id: 'base:Alt', opacity: 1 } })
+        );
+        registry.setBaseLayers(BASES);
+
+        expect(registry.activeBaseLayer()?.id).toBe('base:Grau');
+      });
+
+      it('remembers each choice once the map handed over its base layers', () => {
+        const persistence = new MemoryPersistence();
+        registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS, persistence);
+        registry.setBaseLayerOpacity(0.2);
+        expect(persistence.saves).toBe(0);
+
+        registry.setBaseLayers(BASES);
+        registry.setBaseLayer('base:Farbe');
+        expect(persistence.preferences).toEqual({ baseLayer: { id: 'base:Farbe', opacity: 0.2 } });
+
+        registry.setBaseLayerOpacity(0.6);
+        registry.setBaseLayer(null);
+        expect(persistence.preferences).toEqual({ baseLayer: { id: null, opacity: 0.6 } });
+        expect(persistence.saves).toBe(3);
+      });
     });
   });
 });

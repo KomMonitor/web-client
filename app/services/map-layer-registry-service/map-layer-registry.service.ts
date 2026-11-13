@@ -3,6 +3,7 @@ import type * as L from 'leaflet';
 
 import { MAIN_MAP_LAYER_GROUPS } from './layer-group-catalog';
 import { LayerControlBridge } from './layer-control-bridge';
+import { LocalStorageLayerStatePersistence } from './layer-state-persistence';
 import { LeafletLayerBinding } from './leaflet-layer-binding';
 import type { LayerId } from './map-layer.model';
 import { MapLayerRegistry } from './map-layer-registry';
@@ -10,13 +11,17 @@ import { MapLayerRegistry } from './map-layer-registry';
 /**
  * Holds the layer registry of the main map and connects it to the Leaflet map
  * once the map component has built it. Until the old layer control goes (H1),
- * a bridge keeps that control in step.
+ * a bridge keeps that control in step. The base layer choice is remembered in
+ * localStorage.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class MainMapLayersService {
-  readonly registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS);
+  readonly registry = new MapLayerRegistry(
+    MAIN_MAP_LAYER_GROUPS,
+    new LocalStorageLayerStatePersistence()
+  );
   private bridge?: LayerControlBridge;
 
   /** Connects the registry to a newly built main map; a previous map is let go first. */

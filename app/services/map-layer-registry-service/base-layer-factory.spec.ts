@@ -4,7 +4,8 @@ import {
   baseLayerThumbnail,
   BaseLayerConfig,
   createBaseLayer,
-  createBaseLayers,
+  createBaseLayerRegistrations,
+  isSupportedBaseLayer,
   THUMBNAIL_ZOOM,
   tileAt,
   tileBoundsMercator,
@@ -170,12 +171,30 @@ describe('base-layer-factory', () => {
       expect(layer.options.attribution).toBe('Map data © RVR');
     });
 
-    it('returns null for an unknown layer type, which createBaseLayers skips', () => {
+    it('returns null for an unknown layer type', () => {
       const unknown = { ...tileConfig, name: 'Vektor', layerType: 'VECTOR_TILES' };
-      expect(createBaseLayer(unknown)).toBeNull();
 
-      const layers = createBaseLayers([grayscaleConfig, unknown, wmsConfig]);
-      expect([...layers.keys()]).toEqual(['OSM Grau', 'RVR Stadtplan']);
+      expect(createBaseLayer(unknown)).toBeNull();
+      expect(isSupportedBaseLayer(unknown)).toBe(false);
+      expect(isSupportedBaseLayer(wmsConfig)).toBe(true);
+    });
+  });
+
+  describe('createBaseLayerRegistrations', () => {
+    it('registers each supported base layer under base:<name> with its layer and thumbnail', () => {
+      const unknown = { ...tileConfig, name: 'Vektor', layerType: 'VECTOR_TILES' };
+
+      const registrations = createBaseLayerRegistrations(
+        [grayscaleConfig, unknown, wmsConfig],
+        ESSEN
+      );
+
+      expect(registrations.map(({ id, title }) => ({ id, title }))).toEqual([
+        { id: 'base:OSM Grau', title: 'OSM Grau' },
+        { id: 'base:RVR Stadtplan', title: 'RVR Stadtplan' },
+      ]);
+      expect(registrations[0].thumbnail).toEqual(baseLayerThumbnail(grayscaleConfig, ESSEN));
+      expect(registrations[1].layer).toBeInstanceOf(L.TileLayer.WMS);
     });
   });
 });

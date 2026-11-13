@@ -63,8 +63,11 @@ export class MapControlsService {
     if (container) container.style.display = visible ? '' : 'none';
   }
 
-  /** Creates the grouped layer control + scale bar and remembers the map. Returns the layer control. */
-  initializeLayerControl(map: any, baseMaps: any, sortableLayers: string[]) {
+  /**
+   * Creates the grouped layer control + scale bar and remembers the map. Returns the layer control;
+   * the base layers come later from the layer registry.
+   */
+  initializeLayerControl(map: any, sortableLayers: string[]) {
     this.map = map;
 
     const groupedOverlays = {
@@ -79,7 +82,7 @@ export class MapControlsService {
       spatialUnitOutlineLayerGroupName: {},
     };
 
-    this.layerControl = L.control.groupedLayers(baseMaps, groupedOverlays, {
+    this.layerControl = L.control.groupedLayers({}, groupedOverlays, {
       collapsed: false,
       position: 'topleft',
       layers: sortableLayers,

@@ -1,8 +1,11 @@
-import { computed, signal, type WritableSignal } from '@angular/core';
+import { computed, signal, type Signal, type WritableSignal } from '@angular/core';
 import type * as L from 'leaflet';
 
 import { resolveLeafGroup } from './layer-group-catalog';
+import type { LayerStatePersistence } from './layer-state-persistence';
 import type {
+  BaseLayerRegistration,
+  BaseLayerState,
   BoundLayer,
   LayerCapabilities,
   LayerEntryState,
@@ -38,7 +41,8 @@ interface LayerSlot {
 
 /**
  * Single source of truth for the layers of one map: which exist, whether they
- * are visible, their opacity and order. Sources register their layers here
+ * are visible, their opacity and order, and the base layer below them all,
+ * which an optional `LayerStatePersistence` remembers. Sources register their layers here
  * instead of adding them to the map. Every command changes the state first and
  * then calls the attached `MapLayerBinding` synchronously; before `attach()`
  * the registry only buffers. Plain class with signals, so tests and further
@@ -57,6 +61,24 @@ export class MapLayerRegistry implements MapLayerStatusSink {
   private binding?: MapLayerBinding;
   /** The order the binding got last, so unchanged orders are not sent again. */
   private sentOrder: readonly LayerId[] = [];
+
+  private baseLayerRegistrations: readonly BaseLayerRegistration[] = [];
+  /** Whether the map handed over its base layers; until then there is nothing to show or remember. */
+  private baseLayersKnown = false;
+  private readonly _baseLayers = signal<readonly BaseLayerState[]>([]);
+  private readonly _activeBaseLayerId = signal<string | null>(null);
+  private readonly _baseLayerOpacity: WritableSignal<number>;
+
+  /** The base layers the map offers, in configuration order. */
+  readonly baseLayers = this._baseLayers.asReadonly();
+
+  /** The base layer shown, or null for the empty map. */
+  readonly activeBaseLayer = computed<BaseLayerState | null>(
+    () => this._baseLayers().find((base) => base.id === this._activeBaseLayerId()) ?? null
+  );
+
+  /** Opacity (0..1) of the base layer; it stays when another base layer is chosen. */
+  readonly baseLayerOpacity: Signal<number>;
 
   /** Groups, sub groups and entries for the panel, top to bottom. */
   readonly tree = computed<LayerTreeNode[]>(() => {
@@ -79,8 +101,13 @@ export class MapLayerRegistry implements MapLayerStatusSink {
 
   private readonly visible = computed(() => this.ordered().filter((entry) => entry.visible));
 
-  constructor(private readonly catalog: readonly LayerGroupDef[]) {
+  constructor(
+    private readonly catalog: readonly LayerGroupDef[],
+    private readonly persistence?: LayerStatePersistence
+  ) {
     this._groupOrder = signal(catalog);
+    this._baseLayerOpacity = signal(persistence?.load().baseLayer?.opacity ?? 1);
+    this.baseLayerOpacity = this._baseLayerOpacity.asReadonly();
   }
 
   /** The current state of one entry. */
@@ -274,6 +301,63 @@ export class MapLayerRegistry implements MapLayerStatusSink {
   }
 
   /**
+   * Hands over the base layers of the map, in configuration order (duplicate
+   * ids keep the first), and shows one of them: the current one if it is still
+   * offered (the map was rebuilt), else the remembered one, where null is the
+   * empty map, else the first.
+   */
+  setBaseLayers(registrations: readonly BaseLayerRegistration[]): void {
+    const unique = registrations.filter(
+      (registration, index) =>
+        registrations.findIndex((other) => other.id === registration.id) === index
+    );
+    const offered = (id: string | null | undefined): id is string | null =>
+      id === null || unique.some((registration) => registration.id === id);
+    const current = this.baseLayersKnown ? this._activeBaseLayerId() : undefined;
+    const remembered = this.persistence?.load().baseLayer?.id;
+
+    let active: string | null = unique[0]?.id ?? null;
+    if (offered(current)) {
+      active = current;
+    } else if (offered(remembered)) {
+      active = remembered;
+    }
+
+    this.baseLayerRegistrations = unique;
+    this.baseLayersKnown = true;
+    this._baseLayers.set(unique.map(({ id, title, thumbnail }) => ({ id, title, thumbnail })));
+    this._activeBaseLayerId.set(active);
+    this.sendBaseLayers();
+  }
+
+  /** Shows the base layer `id`, or none for null; ids the map does not offer are ignored. */
+  setBaseLayer(id: string | null): void {
+    if (
+      id === this._activeBaseLayerId() ||
+      (id !== null && !this.baseLayerRegistrations.some((registration) => registration.id === id))
+    ) {
+      return;
+    }
+    this._activeBaseLayerId.set(id);
+    this.binding?.showBaseLayer(id);
+    this.savePreferences();
+  }
+
+  /** `value` (0..1) applies to the base layer itself; values outside are clamped. */
+  setBaseLayerOpacity(value: number): void {
+    if (Number.isNaN(value)) {
+      return;
+    }
+    const opacity = clampOpacity(value);
+    if (opacity === this._baseLayerOpacity()) {
+      return;
+    }
+    this._baseLayerOpacity.set(opacity);
+    this.binding?.setBaseLayerOpacity(opacity);
+    this.savePreferences();
+  }
+
+  /**
    * The pane a source creates the layer of `id` in. Stable for the id, also
    * across unregistering, and safe as a CSS class name, which ids like
    * 'wfs:<title>' are not.
@@ -293,6 +377,7 @@ export class MapLayerRegistry implements MapLayerStatusSink {
    */
   attach(binding: MapLayerBinding): void {
     this.binding = binding;
+    this.sendBaseLayers();
     for (const entry of this.ordered()) {
       const layer = this.slots.get(entry.id)?.layer;
       if (layer) {
@@ -385,6 +470,27 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
     this.sentOrder = order;
     this.binding.setOrder(order);
+  }
+
+  /** Hands the base layers, their opacity, which may be a remembered one, and the choice to the binding. */
+  private sendBaseLayers(): void {
+    if (this.binding && this.baseLayersKnown) {
+      this.binding.bindBaseLayers(this.baseLayerRegistrations);
+      this.binding.setBaseLayerOpacity(this._baseLayerOpacity());
+      this.binding.showBaseLayer(this._activeBaseLayerId());
+    }
+  }
+
+  /**
+   * Remembers the base layer choice. Not before the map handed over its base
+   * layers, or an early change would remember the empty map.
+   */
+  private savePreferences(): void {
+    if (this.baseLayersKnown) {
+      this.persistence?.save({
+        baseLayer: { id: this._activeBaseLayerId(), opacity: this._baseLayerOpacity() },
+      });
+    }
   }
 
   /** Changes one entry; false if there is none under `id`. */

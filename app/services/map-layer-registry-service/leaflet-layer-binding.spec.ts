@@ -368,4 +368,60 @@ describe('LeafletLayerBinding', () => {
       expect(registry.entry('wms:1')?.status).toBe('loading');
     });
   });
+  describe('base layers', () => {
+    const tiles = (minZoom: number, maxZoom: number) =>
+      L.tileLayer('https://tiles.example/{z}/{x}/{y}.png', { minZoom, maxZoom });
+    let grau: L.TileLayer;
+    let dtk: L.TileLayer;
+
+    beforeEach(() => {
+      grau = tiles(5, 18);
+      dtk = tiles(8, 20);
+      binding.bindBaseLayers([
+        { id: 'base:Grau', title: 'Grau', thumbnail: null, layer: grau },
+        { id: 'base:DTK', title: 'DTK', thumbnail: null, layer: dtk },
+      ]);
+    });
+
+    it('shows one base layer at a time in the tile pane, or none', () => {
+      binding.showBaseLayer('base:Grau');
+      expect(map.hasLayer(grau)).toBe(true);
+      expect(grau.getContainer()!.parentElement).toBe(map.getPane('tilePane'));
+
+      binding.showBaseLayer('base:DTK');
+      expect(map.hasLayer(grau)).toBe(false);
+      expect(map.hasLayer(dtk)).toBe(true);
+
+      binding.showBaseLayer(null);
+      expect(map.hasLayer(dtk)).toBe(false);
+    });
+
+    it('fades the base layer itself and keeps the opacity for the next one', () => {
+      binding.showBaseLayer('base:Grau');
+      binding.setBaseLayerOpacity(0.4);
+      expect(grau.options.opacity).toBe(0.4);
+
+      binding.showBaseLayer('base:DTK');
+      expect(dtk.options.opacity).toBe(0.4);
+    });
+
+    it('holds the map to the zoom range of all base layers while none is shown', () => {
+      binding.showBaseLayer(null);
+      expect(map.getMinZoom()).toBe(5);
+      expect(map.getMaxZoom()).toBe(20);
+
+      map.setZoom(19);
+      binding.showBaseLayer('base:Grau');
+      expect(map.getMaxZoom()).toBe(18);
+      expect(map.getZoom()).toBe(18);
+    });
+
+    it('takes the base layer off the map on dispose', () => {
+      binding.showBaseLayer('base:Grau');
+
+      binding.dispose();
+
+      expect(map.hasLayer(grau)).toBe(false);
+    });
+  });
 });

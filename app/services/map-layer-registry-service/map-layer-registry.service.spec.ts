@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import * as L from 'leaflet';
 import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
+import { MAP_LAYERS_PREFERENCES_STORAGE_KEY } from './layer-state-persistence';
 import { MAP_LAYER_REGISTRY, MainMapLayersService } from './map-layer-registry.service';
 
 function createMap(): L.Map {
@@ -56,6 +57,7 @@ describe('MainMapLayersService', () => {
   });
 
   afterEach(() => {
+    localStorage.clear();
     service.detach();
     maps.splice(0).forEach((map) => {
       const container = map.getContainer();
@@ -108,5 +110,24 @@ describe('MainMapLayersService', () => {
 
     expect(map.hasLayer(layer)).toBe(false);
     expect(service.registry.entry('georesource:1')?.visible).toBe(true);
+  });
+  it('shows the base layers on the map and remembers the choice in localStorage', () => {
+    const tiles = () => L.tileLayer('https://tiles.example/{z}/{x}/{y}.png', { maxZoom: 18 });
+    const bases = [
+      { id: 'base:A', title: 'A', thumbnail: null, layer: tiles() },
+      { id: 'base:B', title: 'B', thumbnail: null, layer: tiles() },
+    ];
+    const map = newMap();
+    service.attach(map, createControl(map));
+
+    service.registry.setBaseLayers(bases);
+    expect(map.hasLayer(bases[0].layer)).toBe(true);
+
+    service.registry.setBaseLayer('base:B');
+    expect(map.hasLayer(bases[1].layer)).toBe(true);
+    expect(JSON.parse(localStorage.getItem(MAP_LAYERS_PREFERENCES_STORAGE_KEY)!)).toEqual({
+      version: 1,
+      baseLayer: { id: 'base:B', opacity: 1 },
+    });
   });
 });

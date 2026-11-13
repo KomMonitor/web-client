@@ -3,7 +3,13 @@ import type * as L from 'leaflet';
 import { MAP_LAYER_GROUPS } from 'services/map-service/map-context';
 
 import type { LeafletLayerBinding } from './leaflet-layer-binding';
-import type { BoundLayer, LayerEntryState, LayerId, MapLayerBinding } from './map-layer.model';
+import type {
+  BaseLayerRegistration,
+  BoundLayer,
+  LayerEntryState,
+  LayerId,
+  MapLayerBinding,
+} from './map-layer.model';
 import type { MapLayerRegistry } from './map-layer-registry';
 
 /** Old group names by id prefix; checked first, since one new group spans several old ones. */
@@ -39,33 +45,52 @@ function legacyName(entry: LayerEntryState): string {
  * name, which the feature search still filters by, a checkbox click turns
  * into `registry.setVisible()` and the control's opacity slider into
  * `registry.setOpacity()` (through a hook in the vendored control), so it fades
- * the layer's pane. Everything else goes straight to the Leaflet binding.
+ * the layer's pane. The base layers are listed as its radio buttons: a choice
+ * there turns into `registry.setBaseLayer()` and their slider into
+ * `registry.setBaseLayerOpacity()`. Everything else goes straight to the
+ * Leaflet binding.
  *
  * The control reports every add and remove of a listed layer on the map as
  * 'overlayadd' / 'overlayremove', no matter who caused it. A layer therefore
  * leaves the control before it leaves the map, or replacing it would hide the
  * entry. Changes the registry made itself come back as no-ops, since its state
- * is already set when the binding runs.
+ * is already set when the binding runs. A radio click adds the chosen base
+ * layer to the map itself, which the control reports as 'baselayerchange'.
  */
 export class LayerControlBridge implements MapLayerBinding {
   private readonly idsByLayer = new Map<L.Layer, LayerId>();
   private readonly layersById = new Map<LayerId, L.Layer>();
+  private readonly baseIdsByLayer = new Map<L.Layer, string>();
 
   private readonly onOverlayAdd = (event: { layer: L.Layer }) => this.toggle(event.layer, true);
   private readonly onOverlayRemove = (event: { layer: L.Layer }) => this.toggle(event.layer, false);
+  private readonly onBaseLayerChange = (event: { layer: L.Layer }) => {
+    const id = this.baseIdsByLayer.get(event.layer);
+    if (id) {
+      this.registry.setBaseLayer(id);
+    }
+  };
 
   /** Hook of the vendored control; undefined / false leave other layers to the control. */
   private readonly opacityHandler = {
     get: (layer: L.Layer): number | undefined => {
       const id = this.idsByLayer.get(layer);
-      return id ? this.registry.entry(id)?.opacity : undefined;
+      if (id) {
+        return this.registry.entry(id)?.opacity;
+      }
+      return this.baseIdsByLayer.has(layer) ? this.registry.baseLayerOpacity() : undefined;
     },
     set: (layer: L.Layer, opacity: number): boolean => {
       const id = this.idsByLayer.get(layer);
       if (id) {
         this.registry.setOpacity(id, opacity);
+        return true;
       }
-      return !!id;
+      if (this.baseIdsByLayer.has(layer)) {
+        this.registry.setBaseLayerOpacity(opacity);
+        return true;
+      }
+      return false;
     },
   };
 
@@ -77,6 +102,7 @@ export class LayerControlBridge implements MapLayerBinding {
   ) {
     map.on('overlayadd', this.onOverlayAdd);
     map.on('overlayremove', this.onOverlayRemove);
+    map.on('baselayerchange', this.onBaseLayerChange);
     control.opacityHandler = this.opacityHandler;
   }
 
@@ -114,6 +140,24 @@ export class LayerControlBridge implements MapLayerBinding {
     this.inner.setOrder(order);
   }
 
+  bindBaseLayers(layers: readonly BaseLayerRegistration[]): void {
+    this.baseIdsByLayer.forEach((_, layer) => this.control.removeLayer(layer));
+    this.baseIdsByLayer.clear();
+    this.inner.bindBaseLayers(layers);
+    for (const base of layers) {
+      this.baseIdsByLayer.set(base.layer, base.id);
+      this.control.addBaseLayer(base.layer, base.title);
+    }
+  }
+
+  showBaseLayer(id: string | null): void {
+    this.inner.showBaseLayer(id);
+  }
+
+  setBaseLayerOpacity(opacity: number): void {
+    this.inner.setBaseLayerOpacity(opacity);
+  }
+
   layerFor(id: LayerId): L.Layer | undefined {
     return this.inner.layerFor(id);
   }
@@ -122,6 +166,7 @@ export class LayerControlBridge implements MapLayerBinding {
   dispose(): void {
     this.map.off('overlayadd', this.onOverlayAdd);
     this.map.off('overlayremove', this.onOverlayRemove);
+    this.map.off('baselayerchange', this.onBaseLayerChange);
     if (this.control.opacityHandler === this.opacityHandler) {
       delete this.control.opacityHandler;
     }

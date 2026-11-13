@@ -36,7 +36,7 @@ describe('MapControlsService', () => {
       map = L.map(container, { maxZoom: 18, zoomAnimation: false }).setView([51.45, 7.0], 12);
 
       mainMapLayers = TestBed.inject(MainMapLayersService);
-      const layerControl = service.initializeLayerControl(map, {}, []);
+      const layerControl = service.initializeLayerControl(map, []);
       mainMapLayers.attach(map, layerControl);
       service.initSearchControls();
       geosearch = (service as any).geosearchControl;
@@ -135,7 +135,7 @@ describe('MapControlsService', () => {
       document.body.appendChild(container);
       map = L.map(container, { maxZoom: 18, zoomAnimation: false }).setView([51.45, 7.0], 12);
       mainMapLayers = TestBed.inject(MainMapLayersService);
-      mainMapLayers.attach(map, service.initializeLayerControl(map, {}, []));
+      mainMapLayers.attach(map, service.initializeLayerControl(map, []));
     });
 
     afterEach(() => {

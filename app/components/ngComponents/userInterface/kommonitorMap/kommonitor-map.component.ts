@@ -33,7 +33,10 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MapContext } from 'services/map-service/map-context';
-import { createBaseLayers } from 'services/map-layer-registry-service/base-layer-factory';
+import {
+  createBaseLayerRegistrations,
+  isSupportedBaseLayer,
+} from 'services/map-layer-registry-service/base-layer-factory';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
@@ -210,7 +213,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   layerControl: any = undefined;
   showLegend = true;
   overlays: any[] = [];
-  baseMaps: any[] = [];
 
   propertyName;
 
@@ -469,7 +471,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private initMap(): void {
     this.loadingData = true;
 
-    const baseLayersByName = createBaseLayers(this.envConfigService.baseLayers);
+    const center = {
+      lat: this.envConfigService.initialLatitude,
+      lng: this.envConfigService.initialLongitude,
+    };
 
     this.mapOverlayState.baseLayerDefinitionsArray = [
       {
@@ -484,16 +489,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         },
       },
       ...this.envConfigService.baseLayers
-        .filter((baseMapEntry) => baseLayersByName.has(baseMapEntry.name))
+        .filter((baseMapEntry) => isSupportedBaseLayer(baseMapEntry))
         .map((baseMapEntry) => ({ layerConfig: baseMapEntry })),
     ];
 
+    // Without a layer: the layer registry shows the remembered or the first base layer.
     this.map = L.map('ngMap', {
-      center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
+      center: [center.lat, center.lng],
       zoom: this.envConfigService.initialZoomLevel,
       zoomDelta: 0.5,
       zoomSnap: 0.5,
-      layers: [baseLayersByName.get(this.envConfigService.baseLayers[0].name)],
     });
 
     this.mapViewportState.setViewport(
@@ -506,18 +511,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.map.on('zoomend', () => this.syncViewportState());
     this.map.on('moveend', () => this.syncViewportState());
 
-    this.baseMaps = [];
-
-    baseLayersByName.forEach((value, key) => {
-      this.baseMaps[key] = value;
-    });
-
     this.layerControl = this.mapControlsService.initializeLayerControl(
       this.map,
-      this.baseMaps,
       this.sortableLayers
     );
     this.mainMapLayers.attach(this.map, this.layerControl);
+    this.mainMapLayers.registry.setBaseLayers(
+      createBaseLayerRegistrations(this.envConfigService.baseLayers, center)
+    );
     this.destroyRef.onDestroy(() => this.mainMapLayers.detach());
 
     this.outlierFillPattern_low = this.visualStyleHelperService.outlierFillPattern_low;

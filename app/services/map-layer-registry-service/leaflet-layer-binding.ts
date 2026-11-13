@@ -2,6 +2,7 @@ import type * as L from 'leaflet';
 
 import { resolveLayerAdapter } from './layer-adapters';
 import type {
+  BaseLayerRegistration,
   BoundLayer,
   LayerAdapter,
   LayerId,
@@ -29,11 +30,18 @@ interface Bound {
  * Puts the layers of a `MapLayerRegistry` on a Leaflet map. Every layer gets
  * its own pane: the registry's draw order becomes the panes' z-indexes and its
  * opacity the pane's CSS opacity, which fades every kind of layer alike and
- * survives restyles. Tile events and the zoom range flow back as status.
+ * survives restyles. Tile events and the zoom range flow back as status. The
+ * base layer stays in Leaflet's tilePane below them all and is faded itself.
  */
 export class LeafletLayerBinding implements MapLayerBinding {
   private readonly bound = new Map<LayerId, Bound>();
   private order: readonly LayerId[] = [];
+  private baseLayers = new Map<string, L.Layer>();
+  /** The base layer on the map, if any. */
+  private baseLayer?: L.Layer;
+  private baseLayerOpacity = 1;
+  /** Zoom range of all base layers on offer, for the map without a base layer. */
+  private baseZoomRange: { min?: number; max?: number } = {};
   private readonly onZoomEnd = () => this.bound.forEach((_, id) => this.reportScale(id));
 
   constructor(
@@ -47,6 +55,7 @@ export class LeafletLayerBinding implements MapLayerBinding {
   dispose(): void {
     this.map.off('zoomend', this.onZoomEnd);
     [...this.bound.keys()].forEach((id) => this.unbind(id));
+    this.showBaseLayer(null);
   }
 
   bind(layer: BoundLayer): void {
@@ -114,6 +123,64 @@ export class LeafletLayerBinding implements MapLayerBinding {
     this.bound.forEach((bound, id) => (bound.pane.style.zIndex = String(this.zIndexFor(id))));
   }
 
+  bindBaseLayers(layers: readonly BaseLayerRegistration[]): void {
+    this.baseLayers = new Map(layers.map((base) => [base.id, base.layer]));
+    const options = layers.map((base) => base.layer.options ?? {});
+    this.baseZoomRange = {
+      min: extreme(
+        Math.min,
+        options.map((option) => option.minZoom)
+      ),
+      max: extreme(
+        Math.max,
+        options.map((option) => option.maxZoom)
+      ),
+    };
+  }
+
+  /**
+   * Leaflet derives the zoom range of the map from its layers, and marker
+   * clusters fail without one. A base layer brings it along; without one, the
+   * map is held to the range of all base layers on offer.
+   */
+  showBaseLayer(id: string | null): void {
+    const next = id === null ? undefined : this.baseLayers.get(id);
+    if (!next) {
+      this.map.setMinZoom(this.baseZoomRange.min);
+      this.map.setMaxZoom(this.baseZoomRange.max);
+    }
+    if (this.baseLayer && this.baseLayer !== next) {
+      this.map.removeLayer(this.baseLayer);
+    }
+    this.baseLayer = next;
+    if (next) {
+      setLayerOpacity(next, this.baseLayerOpacity);
+      // Back to the range of the layers; clearing it first lets Leaflet clamp the zoom on add.
+      this.map.setMinZoom(undefined);
+      this.map.setMaxZoom(undefined);
+      if (!this.map.hasLayer(next)) {
+        this.map.addLayer(next);
+      }
+      this.clampZoom();
+    }
+  }
+
+  setBaseLayerOpacity(opacity: number): void {
+    this.baseLayerOpacity = opacity;
+    if (this.baseLayer) {
+      setLayerOpacity(this.baseLayer, opacity);
+    }
+  }
+
+  /** For a base layer the old control added before the range was cleared, which Leaflet then did not clamp to. */
+  private clampZoom(): void {
+    const zoom = this.map.getZoom();
+    const clamped = Math.min(Math.max(zoom, this.map.getMinZoom()), this.map.getMaxZoom());
+    if (clamped !== zoom) {
+      this.map.setZoom(clamped);
+    }
+  }
+
   /** Ids without a place in the order yet go to the bottom; Leaflet's CSS would put them at 400. */
   private zIndexFor(id: LayerId): number {
     const index = this.order.indexOf(id);
@@ -157,6 +224,20 @@ export class LeafletLayerBinding implements MapLayerBinding {
       (options.maxZoom !== undefined && zoom > options.maxZoom);
     this.sink.reportOutOfScale(id, outOfScale);
   }
+}
+
+/** The smallest or largest of the given numbers; undefined if there is none. */
+function extreme(
+  pick: (...values: number[]) => number,
+  values: (number | undefined)[]
+): number | undefined {
+  const defined = values.filter((value): value is number => typeof value === 'number');
+  return defined.length ? pick(...defined) : undefined;
+}
+
+/** Tile and WMS layers fade themselves; base layers of other kinds keep their look. */
+function setLayerOpacity(layer: L.Layer, opacity: number): void {
+  (layer as any).setOpacity?.(opacity);
 }
 
 function applyOpacity(pane: HTMLElement, opacity: number): void {

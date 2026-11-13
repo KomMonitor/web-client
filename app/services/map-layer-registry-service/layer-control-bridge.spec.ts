@@ -232,6 +232,103 @@ describe('LayerControlBridge', () => {
     });
   });
 
+  describe('base layers', () => {
+    const tiles = () =>
+      L.tileLayer('https://tiles.example/{z}/{x}/{y}.png', { minZoom: 5, maxZoom: 18 });
+    const bases = () => [
+      { id: 'base:Grau', title: 'OSM Grau', thumbnail: null, layer: tiles() },
+      { id: 'base:Farbe', title: 'OSM Farbe', thumbnail: null, layer: tiles() },
+      { id: 'base:Luftbild', title: 'Luftbild', thumbnail: null, layer: tiles() },
+    ];
+
+    function radios(): HTMLInputElement[] {
+      return [...control.getContainer().querySelectorAll('input[type="radio"]')];
+    }
+
+    function radio(layer: L.Layer): HTMLInputElement {
+      return radios().find((input: any) => input.layerId === L.Util.stamp(layer))!;
+    }
+
+    function slider(layer: L.Layer): HTMLInputElement {
+      const item = radio(layer).closest('.leaflet-control-layers-item')!;
+      return item.querySelector('input[type="range"]') as HTMLInputElement;
+    }
+
+    it('lists the base layers as radios in their order, the shown one checked', () => {
+      const registrations = bases();
+
+      registry.setBaseLayers(registrations);
+
+      expect(
+        control._layers.filter((item: any) => !item.overlay).map((item: any) => item.name)
+      ).toEqual(['OSM Grau', 'OSM Farbe', 'Luftbild']);
+      expect(radios().map((input) => input.checked)).toEqual([true, false, false]);
+      expect(map.hasLayer(registrations[0].layer)).toBe(true);
+    });
+
+    it('turns a radio click into the registry choice, in either direction', () => {
+      const registrations = bases();
+      registry.setBaseLayers(registrations);
+
+      radio(registrations[2].layer).click();
+      expect(registry.activeBaseLayer()?.id).toBe('base:Luftbild');
+      expect(map.hasLayer(registrations[2].layer)).toBe(true);
+      expect(map.hasLayer(registrations[0].layer)).toBe(false);
+
+      radio(registrations[0].layer).click();
+      expect(registry.activeBaseLayer()?.id).toBe('base:Grau');
+      expect(map.hasLayer(registrations[0].layer)).toBe(true);
+      expect(map.hasLayer(registrations[2].layer)).toBe(false);
+    });
+
+    it('checks the radio of a base layer the registry chose', () => {
+      const registrations = bases();
+      registry.setBaseLayers(registrations);
+
+      registry.setBaseLayer('base:Farbe');
+      expect(radios().map((input) => input.checked)).toEqual([false, true, false]);
+
+      registry.setBaseLayer(null);
+      expect(radios().map((input) => input.checked)).toEqual([false, false, false]);
+    });
+
+    it('couples the slider of a base layer to the base layer opacity', () => {
+      const registrations = bases();
+      registry.setBaseLayers(registrations);
+      registry.setBaseLayerOpacity(0.7);
+      control._update();
+      expect(Number(slider(registrations[0].layer).value)).toBeCloseTo(0.3);
+
+      const input = slider(registrations[0].layer);
+      input.value = '0.6';
+      input.dispatchEvent(new Event('change'));
+
+      expect(registry.baseLayerOpacity()).toBeCloseTo(0.4);
+      expect(registrations[0].layer.options.opacity).toBeCloseTo(0.4);
+    });
+
+    it('replaces the listed base layers when the map hands over new ones', () => {
+      registry.setBaseLayers(bases());
+      const rebuilt = bases().slice(0, 2);
+
+      registry.setBaseLayers(rebuilt);
+
+      const listedBases = control._layers.filter((item: any) => !item.overlay);
+      expect(listedBases.map((item: any) => item.layer)).toEqual(rebuilt.map((base) => base.layer));
+      expect(map.hasLayer(rebuilt[0].layer)).toBe(true);
+    });
+
+    it('stops following the radios on dispose', () => {
+      const registrations = bases();
+      registry.setBaseLayers(registrations);
+      bridge.dispose();
+
+      map.addLayer(registrations[1].layer);
+
+      expect(registry.activeBaseLayer()?.id).toBe('base:Grau');
+    });
+  });
+
   describe('legacyGroupOf', () => {
     const entry = (id: string, groupId: string) => ({ id, groupId }) as LayerEntryState;
 
