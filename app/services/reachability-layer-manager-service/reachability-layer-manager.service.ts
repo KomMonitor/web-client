@@ -1,12 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import { MapContext } from 'services/map-service/map-context';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 
+const SCENARIO_ISOCHRONES_ID = 'reachability:scenario:isochrones';
+const SCENARIO_START_ID = 'reachability:scenario:start';
+
 /**
- * Manages the reachability scenario layers (start point markers + isochrones)
- * on the main map (map refactoring plan, Phase 3 — extracted from
- * KommonitorMapComponent).
+ * Shows a reachability scenario (isochrones + start points) on the main map by
+ * registering both with its layer registry. A new scenario replaces the
+ * previous one under the same ids.
  */
 @Injectable({
   providedIn: 'root',
@@ -17,72 +20,67 @@ export class ReachabilityLayerManagerService {
 
   private context!: MapContext;
 
-  private markerLayer: any = undefined;
-  private isochroneLayer: any = undefined;
-
   initialize(context: MapContext) {
     this.context = context;
   }
 
   removeScenario() {
-    this.removeScenarioLayers();
+    this.context.layers.unregister(SCENARIO_ISOCHRONES_ID);
+    this.context.layers.unregister(SCENARIO_START_ID);
 
     this.mapOverlayState.reachabilityScenarioOnMainMap = false;
   }
 
   replaceScenario(reachabilityScenario) {
-    this.removeScenarioLayers();
+    const layers = this.context.layers;
+    const settings = reachabilityScenario.reachabilitySettings;
+    const poiDataset = settings.selectedStartPointLayer;
+    const locationsArray = poiDataset.geoJSON.features.map(
+      (feature: any) => feature.geometry.coordinates
+    );
 
-    const poiDataset = reachabilityScenario.reachabilitySettings.selectedStartPointLayer;
-    const locationsArray: any[] = [];
-
-    poiDataset.geoJSON.features.forEach((feature: any) => {
-      locationsArray.push(feature.geometry.coordinates);
-    });
-
-    this.markerLayer = this.reachabilityMapHelperService.makeIsochroneMarkerLayer(locationsArray);
+    const isochroneLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
+      poiDataset.datasetName,
+      reachabilityScenario.isochrones_dissolved,
+      settings.transitMode,
+      settings.focus,
+      settings.rangeArray,
+      settings.useMultipleStartPoints,
+      settings.dissolveIsochrones,
+      layers.paneFor(SCENARIO_ISOCHRONES_ID)
+    );
+    const markerLayer = this.reachabilityMapHelperService.makeIsochroneMarkerLayer(
+      locationsArray,
+      layers.paneFor(SCENARIO_START_ID)
+    );
 
     this.mapOverlayState.reachabilityScenarioOnMainMap = true;
 
-    this.isochroneLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
-      reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName,
-      reachabilityScenario.isochrones_dissolved,
-      reachabilityScenario.reachabilitySettings.transitMode,
-      reachabilityScenario.reachabilitySettings.focus,
-      reachabilityScenario.reachabilitySettings.rangeArray,
-      reachabilityScenario.reachabilitySettings.useMultipleStartPoints,
-      reachabilityScenario.reachabilitySettings.dissolveIsochrones
-    );
-
-    this.context.layerControl.addOverlay(
-      this.markerLayer,
-      'Startpunkte der Isochronenberechnung - ' + poiDataset.datasetName,
-      MAP_LAYER_GROUPS.reachability
-    );
-    this.context.layerControl.addOverlay(
-      this.isochroneLayer,
-      'Erreichbarkeits-Isochronen_' +
-        reachabilityScenario.reachabilitySettings.transitMode +
-        '_' +
-        poiDataset.datasetName,
-      MAP_LAYER_GROUPS.reachability
-    );
-
-    this.markerLayer.addTo(this.context.map);
-    this.isochroneLayer.addTo(this.context.map);
+    // Isochrones first: a new entry goes on top, so the start points end up above them.
+    layers.register({
+      id: SCENARIO_ISOCHRONES_ID,
+      groupId: 'reachability',
+      title: 'Isochronen (Szenario)',
+      subtitle: `${poiDataset.datasetName} · ${settings.transitMode}`,
+      kind: 'vector',
+      symbol: { kind: 'isochrone' },
+      layer: isochroneLayer,
+    });
+    layers.register({
+      id: SCENARIO_START_ID,
+      groupId: 'reachability',
+      title: 'Startpunkte (Szenario)',
+      subtitle: poiDataset.datasetName,
+      kind: 'marker',
+      // Leaflet's default marker
+      symbol: { kind: 'point', color: '#2a81cb' },
+      layer: markerLayer,
+    });
+    // showing a scenario on the map is an explicit action: bring it back if it was hidden
+    layers.setVisible(SCENARIO_ISOCHRONES_ID, true);
+    layers.setVisible(SCENARIO_START_ID, true);
 
     this.context.map.invalidateSize(true);
-    this.context.map.fitBounds(this.isochroneLayer.getBounds());
-  }
-
-  private removeScenarioLayers() {
-    if (this.markerLayer) {
-      this.context.layerControl.removeLayer(this.markerLayer);
-      this.context.map.removeLayer(this.markerLayer);
-    }
-    if (this.isochroneLayer) {
-      this.context.layerControl.removeLayer(this.isochroneLayer);
-      this.context.map.removeLayer(this.isochroneLayer);
-    }
+    layers.zoomTo(SCENARIO_ISOCHRONES_ID);
   }
 }
