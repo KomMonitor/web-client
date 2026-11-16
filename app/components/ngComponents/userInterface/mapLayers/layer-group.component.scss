@@ -91,6 +91,12 @@
   color: var(--map-layers-text-secondary, #6b7280);
 }
 
+// Font Awesome centres the chevrons on the line box, but the uppercase titles of
+// the top-level groups sit a little higher: lift the chevrons by a whole pixel.
+.layer-group--top > .layer-group__header .layer-group__chevron {
+  translate: 0 -1px;
+}
+
 .layer-group__title {
   flex: 1 1 auto;
   min-width: 0;
