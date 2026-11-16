@@ -116,7 +116,7 @@ describe('MapLayersPanelComponent', () => {
     register('file:a', 'temporary', 'Datei A');
     const root = render();
     const header = group(root, 'MAP_LAYERS.GROUPS.TEMPORARY').querySelector<HTMLButtonElement>(
-      '.layer-group__header'
+      '.layer-group__toggle'
     )!;
     expect(header.getAttribute('aria-expanded')).toBe('true');
 
@@ -135,7 +135,7 @@ describe('MapLayersPanelComponent', () => {
     const again = render();
     expect(
       group(again, 'MAP_LAYERS.GROUPS.TEMPORARY')
-        .querySelector('.layer-group__header')!
+        .querySelector('.layer-group__toggle')!
         .getAttribute('aria-expanded')
     ).toBe('false');
   });
@@ -193,5 +193,68 @@ describe('MapLayersPanelComponent', () => {
       section!.compareDocumentPosition(root.querySelector('.map-layers-panel__section-head')!) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
+  });
+  describe('group menu', () => {
+    const menuButton = (section: HTMLElement) =>
+      section.querySelector<HTMLButtonElement>(':scope > .layer-group__header .layer-group__menu');
+    const items = () => [
+      ...document.querySelectorAll<HTMLButtonElement>('.layer-actions-menu__item'),
+    ];
+    const topTitles = (root: HTMLElement) =>
+      topGroups(root).map((section) =>
+        section.querySelector('.layer-group__title')!.textContent!.trim()
+      );
+
+    it('is offered for top-level groups only', () => {
+      register('wms:1', 'georesource.service', 'Luftbild');
+      const root = render();
+
+      expect(menuButton(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE'))).not.toBeNull();
+      expect(menuButton(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_SERVICE'))).toBeNull();
+      expect(
+        menuButton(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE'))!.getAttribute('aria-label')
+      ).toBe('MAP_LAYERS.ACTIONS.GROUP_MENU');
+    });
+
+    it('moves a group down and up again, also on the map', () => {
+      const root = render();
+      const reachability = group(root, 'MAP_LAYERS.GROUPS.REACHABILITY');
+
+      menuButton(reachability)!.click();
+      fixture.detectChanges();
+      expect(items().map((item) => item.getAttribute('aria-disabled') === 'true')).toEqual([
+        true,
+        false,
+      ]);
+      items()[1].click();
+      fixture.detectChanges();
+
+      expect(topTitles(root).slice(0, 2)).toEqual([
+        'MAP_LAYERS.GROUPS.TEMPORARY',
+        'MAP_LAYERS.GROUPS.REACHABILITY',
+      ]);
+      expect(registry.tree()[1].group.id).toBe('reachability');
+
+      menuButton(group(root, 'MAP_LAYERS.GROUPS.REACHABILITY'))!.click();
+      fixture.detectChanges();
+      items()[0].click();
+      fixture.detectChanges();
+
+      expect(registry.tree()[0].group.id).toBe('reachability');
+    });
+
+    it('gives the focus back to the ⋮ button of the moved group', () => {
+      const root = render();
+      menuButton(group(root, 'MAP_LAYERS.GROUPS.REACHABILITY'))!.click();
+      fixture.detectChanges();
+
+      items()[1].click();
+      fixture.detectChanges();
+      TestBed.tick();
+
+      expect(document.activeElement).toBe(
+        menuButton(group(root, 'MAP_LAYERS.GROUPS.REACHABILITY'))
+      );
+    });
   });
 });

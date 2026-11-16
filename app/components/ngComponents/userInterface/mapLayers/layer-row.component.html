@@ -1,4 +1,10 @@
-<div class="layer-row" [class.layer-row--hidden]="!entry().visible" [title]="fullName()">
+<div
+  class="layer-row"
+  [class.layer-row--hidden]="!entry().visible"
+  [title]="fullName()"
+  [cdkContextMenuTriggerFor]="menu"
+  [cdkContextMenuDisabled]="!menuItems().length"
+>
   <button
     type="button"
     class="layer-row__eye"
@@ -48,6 +54,17 @@
       [title]="'MAP_LAYERS.STATUS.OUT_OF_SCALE' | translate"
     ></i>
   }
+  @if (menuItems().length) {
+    <button
+      #menuTrigger
+      type="button"
+      class="layer-row__menu"
+      [cdkMenuTriggerFor]="menu"
+      [attr.aria-label]="'MAP_LAYERS.ACTIONS.MENU' | translate: { title: entry().title }"
+    >
+      <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+    </button>
+  }
   @if (entry().capabilities.opacity) {
     <button
       type="button"
@@ -85,6 +102,14 @@
     <span class="layer-row__value">{{ transparency() }} %</span>
   </div>
 }
+
+<ng-template #menu>
+  <app-layer-actions-menu
+    [items]="menuItems()"
+    [label]="'MAP_LAYERS.ACTIONS.MENU' | translate: { title: entry().title }"
+    (triggered)="runAction($event)"
+  />
+</ng-template>
 
 <ng-template #name>
   {{ entry().title }}

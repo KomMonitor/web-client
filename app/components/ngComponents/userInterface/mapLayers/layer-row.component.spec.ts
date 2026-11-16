@@ -2,9 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { MAIN_MAP_LAYER_GROUPS } from 'services/map-layer-registry-service/layer-group-catalog';
-import type { LayerRegistration } from 'services/map-layer-registry-service/map-layer.model';
+import type {
+  LayerEntryState,
+  LayerRegistration,
+} from 'services/map-layer-registry-service/map-layer.model';
 import { MapLayerRegistry } from 'services/map-layer-registry-service/map-layer-registry';
 import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
+
+import {
+  type LayerAction,
+  MAP_LAYER_ACTIONS,
+} from 'services/map-layer-registry-service/layer-actions';
 
 import { LayerRowComponent } from './layer-row.component';
 
@@ -29,11 +37,23 @@ describe('LayerRowComponent', () => {
     });
   });
 
-  function render(): HTMLElement {
+  function render(id = 'wms:1'): HTMLElement {
     fixture = TestBed.createComponent(LayerRowComponent);
-    fixture.componentRef.setInput('entry', registry.entry('wms:1'));
+    fixture.componentRef.setInput('entry', registry.entry(id));
     fixture.detectChanges();
     return fixture.nativeElement;
+  }
+
+  function wms(id: string, overrides: Partial<LayerRegistration> = {}): LayerRegistration {
+    return {
+      id,
+      groupId: 'georesource.service',
+      title: id,
+      kind: 'raster',
+      symbol: { kind: 'service', serviceType: 'wms' },
+      layer: {} as LayerRegistration['layer'],
+      ...overrides,
+    };
   }
 
   /** Labels of the state icons; the keys stand in for the texts, as no loader is set up. */
@@ -159,6 +179,109 @@ describe('LayerRowComponent', () => {
       expect(root.querySelector('.layer-row__expand')).toBeNull();
       expect(root.querySelector('button.layer-row__name')).toBeNull();
       expect(root.querySelector('.layer-row__name')!.textContent!.trim()).toBe('Luftbild');
+    });
+  });
+  describe('actions menu', () => {
+    /** The menu renders into the overlay container, outside the row. */
+    const items = () => [
+      ...document.querySelectorAll<HTMLButtonElement>('.layer-actions-menu__item'),
+    ];
+    const labels = () => items().map((item) => item.textContent!.trim());
+    const disabled = () => items().map((item) => item.getAttribute('aria-disabled') === 'true');
+    const trigger = (root: HTMLElement) =>
+      root.querySelector<HTMLButtonElement>('.layer-row__menu')!;
+
+    function open(root: HTMLElement): void {
+      trigger(root).click();
+      fixture.detectChanges();
+    }
+
+    it('opens from the ⋮ button and lists what applies', () => {
+      const root = render();
+      expect(trigger(root).getAttribute('aria-label')).toBe('MAP_LAYERS.ACTIONS.MENU');
+      expect(trigger(root).getAttribute('aria-haspopup')).toBe('menu');
+
+      open(root);
+
+      expect(document.querySelector('.layer-actions-menu')!.getAttribute('role')).toBe('menu');
+      // alone in its list and not removable; no map, so no extent to zoom to
+      expect(labels()).toEqual(['MAP_LAYERS.ACTIONS.ZOOM_TO']);
+      expect(disabled()).toEqual([true]);
+    });
+
+    it('moves the layer within its list', () => {
+      registry.register(wms('wms:2'));
+      const root = render();
+      open(root);
+      expect(labels()).toEqual([
+        'MAP_LAYERS.ACTIONS.ZOOM_TO',
+        'MAP_LAYERS.ACTIONS.MOVE_UP',
+        'MAP_LAYERS.ACTIONS.MOVE_DOWN',
+      ]);
+      expect(disabled()).toEqual([true, false, true]);
+
+      items()[1].click();
+      fixture.detectChanges();
+
+      expect(registry.drawOrder()).toEqual(['wms:1', 'wms:2']);
+      expect(items()).toEqual([]);
+    });
+
+    it('removes a removable layer through its owner', () => {
+      const owner = { remove: jest.fn() };
+      registry.register(wms('wms:1', { owner, capabilities: { remove: true } }));
+      const root = render();
+      open(root);
+
+      items()
+        .find((item) => item.textContent!.includes('REMOVE'))!
+        .click();
+
+      expect(owner.remove).toHaveBeenCalledWith('wms:1');
+      expect(registry.entry('wms:1')).toBeUndefined();
+    });
+
+    it('opens on right-click on the row', () => {
+      const root = render();
+      const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+
+      root.querySelector('.layer-row')!.dispatchEvent(event);
+      fixture.detectChanges();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(labels()).toEqual(['MAP_LAYERS.ACTIONS.ZOOM_TO']);
+    });
+
+    it('has no ⋮ button and keeps the browser menu when nothing applies', () => {
+      registry.register(wms('wms:1', { capabilities: { zoomTo: false } }));
+      const root = render();
+      const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+
+      root.querySelector('.layer-row')!.dispatchEvent(event);
+
+      expect(trigger(root)).toBeNull();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('lists actions provided through MAP_LAYER_ACTIONS', () => {
+      const run = jest.fn();
+      const exportAction: LayerAction = {
+        id: 'export',
+        i18nKey: 'EXPORT',
+        icon: 'fas fa-download',
+        order: 50,
+        appliesTo: (entry: LayerEntryState) => entry.kind === 'raster',
+        run,
+      };
+      TestBed.configureTestingModule({
+        providers: [{ provide: MAP_LAYER_ACTIONS, multi: true, useValue: exportAction }],
+      });
+      const root = render();
+      open(root);
+
+      expect(labels()).toEqual(['MAP_LAYERS.ACTIONS.ZOOM_TO', 'EXPORT']);
+      items()[1].click();
+      expect(run).toHaveBeenCalledWith(registry.entry('wms:1'), registry);
     });
   });
 });

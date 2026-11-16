@@ -134,6 +134,14 @@
       "LOADING": "Wird geladen",
       "ERROR": "Laden fehlgeschlagen – zum erneuten Versuch wieder einblenden",
       "OUT_OF_SCALE": "In dieser Zoomstufe nicht sichtbar"
+    },
+    "ACTIONS": {
+      "MENU": "Aktionen für Ebene: {{title}}",
+      "GROUP_MENU": "Aktionen für Gruppe: {{title}}",
+      "ZOOM_TO": "Auf Ebene zoomen",
+      "MOVE_UP": "Nach oben",
+      "MOVE_DOWN": "Nach unten",
+      "REMOVE": "Entfernen"
     }
   },
   "USER_INTERFACE": {

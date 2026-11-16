@@ -1,0 +1,14 @@
+<div class="layer-actions-menu" cdkMenu [attr.aria-label]="label()">
+  @for (item of items(); track item.id) {
+    <button
+      type="button"
+      class="layer-actions-menu__item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="item.disabled"
+      (cdkMenuItemTriggered)="triggered.emit(item.id)"
+    >
+      <i class="layer-actions-menu__icon" [class]="item.icon" aria-hidden="true"></i>
+      <span>{{ item.i18nKey | translate }}</span>
+    </button>
+  }
+</div>

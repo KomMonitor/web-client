@@ -9,11 +9,23 @@
   background: #fff;
 }
 
+// The toggle and the ⋮ button side by side; a button may not hold another one.
 .layer-group__header {
   display: flex;
   align-items: center;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--map-layers-hover, #f5f7f9);
+  }
+}
+
+.layer-group__toggle {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
   gap: 6px;
-  width: 100%;
+  min-width: 0;
   min-height: 30px;
   padding: 4px 8px;
   border: none;
@@ -23,13 +35,33 @@
   text-align: left;
   cursor: pointer;
 
-  &:hover {
-    background: var(--map-layers-hover, #f5f7f9);
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary, #337ab7);
+    outline-offset: -2px;
+  }
+}
+
+.layer-group__menu {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    color: var(--kommonitor-primary, #337ab7);
   }
 
   &:focus-visible {
     outline: 2px solid var(--kommonitor-primary, #337ab7);
-    outline-offset: -2px;
+    outline-offset: 1px;
   }
 }
 

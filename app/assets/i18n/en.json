@@ -134,6 +134,14 @@
       "LOADING": "Loading",
       "ERROR": "Loading failed – show the layer again to retry",
       "OUT_OF_SCALE": "Not visible at this zoom level"
+    },
+    "ACTIONS": {
+      "MENU": "Actions for layer: {{title}}",
+      "GROUP_MENU": "Actions for group: {{title}}",
+      "ZOOM_TO": "Zoom to layer",
+      "MOVE_UP": "Move up",
+      "MOVE_DOWN": "Move down",
+      "REMOVE": "Remove"
     }
   },
   "USER_INTERFACE": {

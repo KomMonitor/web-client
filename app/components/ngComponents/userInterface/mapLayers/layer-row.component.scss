@@ -84,6 +84,7 @@
   color: #c9302c;
 }
 
+.layer-row__menu,
 .layer-row__expand {
   flex: none;
   width: 22px;
@@ -123,6 +124,10 @@
   input[type='range'] {
     @include range.slider;
   }
+}
+
+.layer-row__menu {
+  font-size: 12px;
 }
 
 .layer-row__value {
