@@ -117,16 +117,23 @@ describe('KommonitorDataSetupService', () => {
   });
 
   it('dateStringToMs round-trips a datePickerToDateSlider label back to the original date', () => {
-    // Month and day both >= 10, outside any DST transition: dateStringToMs builds
-    // a non-zero-padded ISO string, which `new Date(...)` only parses for two-digit
-    // month/day (see the dateStringToMs single-digit month/day finding reported
-    // separately - month 1-9 or day 1-9 makes it return NaN).
+    // Use a date outside any DST transition so the function's fixed
+    // (Nov 1) timezone-offset reference matches the current one exactly.
     const label = service.datePickerToDateSlider({ year: 2024, month: 11, day: 15 });
     const ms = service.dateStringToMs(label);
     const roundTripped = new Date(ms);
     expect(roundTripped.getFullYear()).toBe(2024);
     expect(roundTripped.getMonth()).toBe(10);
     expect(roundTripped.getDate()).toBe(15);
+  });
+
+  it('dateStringToMs round-trips a single-digit month and day', () => {
+    const label = service.datePickerToDateSlider({ year: 2024, month: 3, day: 5 });
+    const ms = service.dateStringToMs(label);
+    const roundTripped = new Date(ms);
+    expect(roundTripped.getFullYear()).toBe(2024);
+    expect(roundTripped.getMonth()).toBe(2);
+    expect(roundTripped.getDate()).toBe(5);
   });
 
   describe('prepTopicsTree', () => {

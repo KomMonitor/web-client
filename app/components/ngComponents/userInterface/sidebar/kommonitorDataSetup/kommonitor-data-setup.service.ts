@@ -94,14 +94,9 @@ export class KommonitorDataSetupService {
   dateStringToMs(dateStr: string): number {
     const parts = dateStr.split(' ');
     const offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset() * 60 * 1000;
-    const tms = new Date(
-      parts[2] +
-        '-' +
-        (this.months.indexOf(parts[1]) + 1) +
-        '-' +
-        parts[0].replace('.', '') +
-        'T00:00:00Z'
-    ).getTime();
+    const month = String(this.months.indexOf(parts[1]) + 1).padStart(2, '0');
+    const day = parts[0].replace('.', '').padStart(2, '0');
+    const tms = new Date(`${parts[2]}-${month}-${day}T00:00:00Z`).getTime();
     return tms + offset;
   }
 
