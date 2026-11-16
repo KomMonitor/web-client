@@ -139,9 +139,53 @@
       "MENU": "Actions for layer: {{title}}",
       "GROUP_MENU": "Actions for group: {{title}}",
       "ZOOM_TO": "Zoom to layer",
+      "INFO": "Details / metadata",
       "MOVE_UP": "Move up",
       "MOVE_DOWN": "Move down",
       "REMOVE": "Remove"
+    },
+    "INFO": {
+      "TITLE": "Details: {{title}}",
+      "CLOSE": "Close details",
+      "LOADING": "Loading details …",
+      "EMPTY": "No details available",
+      "SPATIAL_UNIT": "Spatial unit",
+      "DATE": "Reference date",
+      "UNIT": "Unit",
+      "SOURCE": "Source",
+      "TYPE": "Type",
+      "FEATURES": "Features",
+      "AREAS": "Areas",
+      "AS_OF": "As of",
+      "SERVICE": "Service",
+      "LAYER_NAME": "Layer name",
+      "ORIGIN": "Origin",
+      "FILE": "File",
+      "ADDRESS": "Address",
+      "TRANSIT_MODE": "Mode of transport",
+      "FOCUS": "Measure",
+      "RANGES": "Thresholds",
+      "START_POINTS": "Start points",
+      "ORIGINS": {
+        "FILE": "File import",
+        "SEARCH": "Address search"
+      },
+      "TRANSIT_MODES": {
+        "BUFFER": "Buffer (straight line)",
+        "FOOT_WALKING": "Walking",
+        "CYCLING_REGULAR": "Cycling",
+        "DRIVING_CAR": "Car",
+        "WHEELCHAIR": "Wheelchair"
+      },
+      "FOCUS_VALUES": {
+        "TIME": "Time",
+        "DISTANCE": "Distance"
+      },
+      "RANGES_TIME": "{{values}} min",
+      "RANGES_DISTANCE": "{{values}} m",
+      "START_POINTS_VALUE": "{{name}} ({{count}})",
+      "NOT_LOADED": "not loaded yet – show the layer to load it",
+      "SESSION_NOTE": "This session only – lost when the page is reloaded"
     }
   },
   "USER_INTERFACE": {

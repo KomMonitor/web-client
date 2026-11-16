@@ -72,4 +72,18 @@ describe('MapLayersPanelUiState', () => {
 
     expect(uiState.isExpanded('indicator')).toBe(false);
   });
+
+  it('keeps the details of one layer open at a time, in memory only', () => {
+    const uiState = TestBed.inject(MapLayersPanelUiState);
+
+    uiState.showInfo('wms:1');
+    uiState.showInfo('wms:2');
+    TestBed.tick();
+
+    expect([uiState.isInfoOpen('wms:1'), uiState.isInfoOpen('wms:2')]).toEqual([false, true]);
+    expect(localStorage.getItem(MAP_LAYERS_PANEL_STORAGE_KEY)).not.toContain('wms:2');
+
+    uiState.closeInfo();
+    expect(uiState.isInfoOpen('wms:2')).toBe(false);
+  });
 });

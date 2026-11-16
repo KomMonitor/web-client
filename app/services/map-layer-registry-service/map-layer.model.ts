@@ -55,6 +55,10 @@ export interface LayerRegistration {
   capabilities?: Partial<LayerCapabilities>;
   /** Per-layer override of the default adapter, e.g. WMS bounds from the capabilities. */
   adapter?: Partial<LayerAdapter>;
+  /**
+   * Short metadata for the panel's details. Called when they are opened, so
+   * it may read values that only exist later, e.g. after a `load`.
+   */
   info?: () => LayerInfo | Promise<LayerInfo>;
   owner?: MapLayerOwner;
 }
@@ -93,6 +97,8 @@ export interface LayerEntryState {
   /** Outside the layer's min/max zoom. */
   outOfScale: boolean;
   capabilities: LayerCapabilities;
+  /** The registration brings `info`, so the panel can show details. */
+  hasInfo: boolean;
 }
 
 /**
@@ -135,10 +141,24 @@ export type LayerSymbol =
   | { kind: 'isochrone' }
   | { kind: 'service'; serviceType: 'wms' | 'wfs' };
 
+/** Short metadata of a layer; the panel translates the keys, the layer's title is shown already. */
 export interface LayerInfo {
-  title: string;
-  /** E.g. ['Raumebene: Stadtteile', 'Stand 2024-12-31', 'Einheit: %']. */
-  lines: string[];
+  /** Label and value pairs; items without a value are left out. */
+  items: LayerInfoItem[];
+  /** Translation key of a note below the items, e.g. that a layer lives for this session only. */
+  noteKey?: string;
+}
+
+/** One fact, e.g. { labelKey: 'MAP_LAYERS.INFO.UNIT', value: '%' }. */
+export interface LayerInfoItem {
+  labelKey: string;
+  /** Shown as is ... */
+  value?: string | number;
+  /** ... or translated, with `params`. */
+  valueKey?: string;
+  params?: Record<string, unknown>;
+  /** The value may hold markup, as data sources do; it is rendered sanitized, like in the legend. */
+  html?: boolean;
 }
 
 /** Preview image of a base layer; `grayscale` asks the gallery for a CSS grayscale filter. */
