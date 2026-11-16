@@ -5,6 +5,7 @@ import { ExportButtonVisibilityService } from 'services/export-button-visibility
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { FavoriteStarComponent } from 'components/ngComponents/common/favorite-star/favorite-star.component';
 import { GeoresourceElementComponent } from 'components/ngComponents/userInterface/sidebar/poi/georesource-element/georesource-element.component';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
 
 /**
  * One WMS layer rendered as a card-style row, the WMS counterpart of
@@ -13,9 +14,7 @@ import { GeoresourceElementComponent } from 'components/ngComponents/userInterfa
  * meaningless for an external map service), and its "legend" is a
  * lazily-loaded GetLegendGraphic image instead of a marker/colour preview.
  *
- * `dataset` is typed loosely (`any`), matching the rest of the WMS handling
- * in this area; at runtime it is a `WmsDataset`, whose URL/layer name live
- * under `connectionDetails.baseUrl`/`connectionDetails.layerName`.
+ * `dataset`'s URL/layer name live under `connectionDetails.baseUrl`/`connectionDetails.layerName`.
  */
 @Component({
   selector: 'app-georesource-wms-element',
@@ -28,7 +27,7 @@ export class GeoresourceWmsElementComponent {
   protected exportButtonVisibility = inject(ExportButtonVisibilityService);
   protected ogcService = inject(OgcService);
 
-  @Input({ required: true }) dataset!: any;
+  @Input({ required: true }) dataset!: WmsDataset;
   @Input() showFavSelection = false;
   @Input() isFavorite = false;
   /** Nesting depth of the enclosing topic, for the same per-level row color `app-topic-element` uses. */
