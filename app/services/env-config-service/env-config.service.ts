@@ -382,10 +382,6 @@ export class EnvConfigService {
   get baseLayers(): any {
     return window.__env.baseLayers;
   }
-  get sortableLayers(): any {
-    return window.__env.sortableLayers;
-  }
-
   // --- Transparency ---
   get useTransparencyOnIndicator(): any {
     return window.__env.useTransparencyOnIndicator;

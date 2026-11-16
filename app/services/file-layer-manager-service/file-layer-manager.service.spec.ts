@@ -76,7 +76,6 @@ describe('FileLayerManagerService', () => {
     register = jest.spyOn(layers, 'register');
     context = {
       map: { invalidateSize: jest.fn() },
-      layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
       layers,
       hideLoadingIcon: jest.fn(),
     };
@@ -107,7 +106,6 @@ describe('FileLayerManagerService', () => {
     ).toEqual([pane, pane]);
     expect(zoomTo).toHaveBeenCalledWith('file:Schulen');
     expect(setValue).toHaveBeenCalledWith(FileUploadState.SUCCESS, dataset);
-    expect(context.layerControl.addOverlay).not.toHaveBeenCalled();
   });
 
   it('registers area and line files as vectors in the pane of their entry', () => {
@@ -177,7 +175,6 @@ describe('FileLayerManagerService', () => {
     service.removeFileLayer({ datasetName: 'Schulen' });
 
     expect(layers.drawOrder()).toEqual(['file:Schulen_2']);
-    expect(context.layerControl.removeLayer).not.toHaveBeenCalled();
   });
 
   it('restyles the file layer with a new color', () => {

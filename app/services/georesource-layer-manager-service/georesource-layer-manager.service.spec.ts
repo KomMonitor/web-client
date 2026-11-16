@@ -64,7 +64,6 @@ describe('GeoresourceLayerManagerService', () => {
     register = jest.spyOn(layers, 'register');
     context = {
       map: { invalidateSize: jest.fn() },
-      layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
       layers,
       hideLoadingIcon: jest.fn(),
     };
@@ -89,7 +88,6 @@ describe('GeoresourceLayerManagerService', () => {
         symbol: { kind: 'point', color: 'blue' },
         capabilities: expect.objectContaining({ searchable: true }),
       });
-      expect(context.layerControl.addOverlay).not.toHaveBeenCalled();
       expect(context.hideLoadingIcon).toHaveBeenCalled();
     });
 

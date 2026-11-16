@@ -21,6 +21,21 @@ describe('MapControlsService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('initialize', () => {
+    it('adds the scale bar and no layer control, which the layer panel replaced', () => {
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const map = L.map(container).setView([51.45, 7.0], 12);
+
+      service.initialize(map);
+
+      expect(container.querySelector('.leaflet-control-scale')).not.toBeNull();
+      expect(container.querySelector('.leaflet-control-layers')).toBeNull();
+      map.remove();
+      container.remove();
+    });
+  });
+
   describe('address search result', () => {
     let map: L.Map;
     let mainMapLayers: MainMapLayersService;
@@ -36,8 +51,8 @@ describe('MapControlsService', () => {
       map = L.map(container, { maxZoom: 18, zoomAnimation: false }).setView([51.45, 7.0], 12);
 
       mainMapLayers = TestBed.inject(MainMapLayersService);
-      const layerControl = service.initializeLayerControl(map, []);
-      mainMapLayers.attach(map, layerControl);
+      service.initialize(map);
+      mainMapLayers.attach(map);
       service.initSearchControls();
       geosearch = (service as any).geosearchControl;
     });
@@ -159,7 +174,8 @@ describe('MapControlsService', () => {
       document.body.appendChild(container);
       map = L.map(container, { maxZoom: 18, zoomAnimation: false }).setView([51.45, 7.0], 12);
       mainMapLayers = TestBed.inject(MainMapLayersService);
-      mainMapLayers.attach(map, service.initializeLayerControl(map, []));
+      service.initialize(map);
+      mainMapLayers.attach(map);
     });
 
     afterEach(() => {

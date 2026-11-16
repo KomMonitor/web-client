@@ -134,7 +134,7 @@ export class GeoresourceLayerManagerService {
     this.unregister(georesourceMetadataAndGeoJSON);
   }
 
-  /** The date becomes the subtitle; the old layer control shows '<name>_<date>' as before. */
+  /** The date becomes the subtitle of the entry. */
   private register(
     georesourceMetadataAndGeoJSON,
     date: string,

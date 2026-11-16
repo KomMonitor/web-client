@@ -341,7 +341,7 @@ describe('KommonitorMapComponent', () => {
       (component as any).onMetadataLoaded();
       expect(clearGeoresources).not.toHaveBeenCalled();
 
-      component.layerControl = {};
+      (component as unknown as { map: unknown }).map = {};
       (component as any).onMetadataLoaded();
       expect(clearGeoresources).toHaveBeenCalledTimes(1);
       expect(clearWms).toHaveBeenCalledTimes(1);

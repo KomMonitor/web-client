@@ -7,16 +7,15 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
-import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
-/**
- * Sets up and owns the controls of the main map: grouped layer control,
- * scale bar, geosearch (address search), feature search and measurement
- * (map refactoring plan, Phase 4 — extracted from KommonitorMapComponent).
- */
 /** The address search hit in the main map's layer registry. */
 const SEARCH_RESULT_LAYER_ID = 'search:result';
 
+/**
+ * Sets up and owns the controls of the main map: scale bar, geosearch
+ * (address search), feature search and measurement (map refactoring plan,
+ * Phase 4 — extracted from KommonitorMapComponent).
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -27,12 +26,10 @@ export class MapControlsService {
   private mainMapLayers = inject(MainMapLayersService);
 
   private map: any;
-  private layerControl: any;
   private searchControl: any;
   private geosearchControl: any;
   private measureControl: any;
 
-  private layerControlVisible = false;
   private expertControlsVisible = false;
 
   /** Set once the feature search exists; until then there is nothing to rebuild. */
@@ -64,57 +61,13 @@ export class MapControlsService {
   }
 
   /**
-   * Creates the grouped layer control + scale bar and remembers the map. Returns the layer control;
-   * the base layers come later from the layer registry.
+   * Remembers the map, which the searches and the measurement tool need, and
+   * adds the scale bar. The layers are listed by the layer panel, not by a
+   * control on the map.
    */
-  initializeLayerControl(map: any, sortableLayers: string[]) {
+  initialize(map: L.Map) {
     this.map = map;
-
-    const groupedOverlays = {
-      indicatorLayerGroupName: {},
-      poiLayerGroupName: {},
-      loiLayerGroupName: {},
-      aoiLayerGroupName: {},
-      wmsLayerGroupName: {},
-      wfsLayerGroupName: {},
-      fileLayerGroupName: {},
-      reachabilityLayerGroupName: {},
-      spatialUnitOutlineLayerGroupName: {},
-    };
-
-    this.layerControl = L.control.groupedLayers({}, groupedOverlays, {
-      collapsed: false,
-      position: 'topleft',
-      layers: sortableLayers,
-    });
-
-    delete this.layerControl._groupList;
-    this.layerControl._groupList = ['', 'Raumebene Umringe', 'Indikatoren'];
-
-    map.addControl(this.layerControl);
-
-    // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
-    this.layerControlVisible = false;
-    this.setControlVisibility(this.layerControl, false);
-
-    // Disable map interaction while the user's cursor is inside the control
-    this.layerControl.getContainer().addEventListener('mouseover', () => {
-      map.dragging.disable();
-      map.touchZoom.disable();
-      map.doubleClickZoom.disable();
-      map.scrollWheelZoom.disable();
-    });
-    this.layerControl.getContainer().addEventListener('mouseout', () => {
-      map.dragging.enable();
-      map.touchZoom.enable();
-      map.doubleClickZoom.enable();
-      map.scrollWheelZoom.enable();
-    });
-
-    const scaleBar = L.control.scale({ position: 'bottomleft' });
-    scaleBar.addTo(map);
-
-    return this.layerControl;
+    L.control.scale({ position: 'bottomleft' }).addTo(map);
   }
 
   initSearchControls() {
@@ -252,11 +205,6 @@ export class MapControlsService {
         );
       },
     });
-  }
-
-  openLayerControl() {
-    this.layerControlVisible = !this.layerControlVisible;
-    this.setControlVisibility(this.layerControl, this.layerControlVisible);
   }
 
   toggleExpertControls() {

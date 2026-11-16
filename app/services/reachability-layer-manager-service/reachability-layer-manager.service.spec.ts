@@ -71,7 +71,6 @@ describe('ReachabilityLayerManagerService', () => {
     register = jest.spyOn(layers, 'register');
     context = {
       map: { invalidateSize: jest.fn() },
-      layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
       layers,
       hideLoadingIcon: jest.fn(),
     };
@@ -99,7 +98,6 @@ describe('ReachabilityLayerManagerService', () => {
     expect(layers.drawOrder()).toEqual([START, ISOCHRONES]);
     expect(zoomTo).toHaveBeenCalledWith(ISOCHRONES);
     expect(TestBed.inject(MapOverlayStateService).reachabilityScenarioOnMainMap).toBe(true);
-    expect(context.layerControl.addOverlay).not.toHaveBeenCalled();
   });
 
   it('draws paths and markers into the panes of their entries', () => {

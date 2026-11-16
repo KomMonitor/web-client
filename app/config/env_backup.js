@@ -173,8 +173,9 @@ try {
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
 
-  // Controls, which layers will be sortable via drag&drop in Leaflet's layer control
-  // Possible values ["Raumebenen", "Georessourcen", "Points of Interest", "Lines of Interest", "Areas of Interest", "Indikatoren", "Erreichbarkeiten", "Web Map Services (WMS)", "Web Feature Services (WFS)"]
+  // DEPRECATED, no effect: listed the layers that were sortable in the former Leaflet layer control.
+  // The layer panel sorts every group and every layer list (except the single indicator) by drag & drop.
+  // Kept so that existing configurations stay valid; can be removed from them.
   window.__env.sortableLayers = ["Web Map Services (WMS)"];
 
   window.__env.baseLayers = [ // baseLayers of instance; first will be set as default starting layer

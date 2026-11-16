@@ -91,7 +91,6 @@ export type MapCommand =
   | { type: 'hideLoadingIcon' }
   | { type: 'exportMap' }
   | { type: 'toggleExpertControls' }
-  | { type: 'openLayerControl' }
   | { type: 'onGlobalFilterChange' };
 
 /** Facts about the currently rendered indicator dataset, shown by legend + classification panel. */
@@ -446,10 +445,6 @@ export class MapService {
 
   toggleExpertControls() {
     this.command({ type: 'toggleExpertControls' });
-  }
-
-  openLayerControl() {
-    this.command({ type: 'openLayerControl' });
   }
 
   onGlobalFilterChange() {

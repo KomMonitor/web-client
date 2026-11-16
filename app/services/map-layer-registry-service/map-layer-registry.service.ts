@@ -2,7 +2,6 @@ import { Injectable, InjectionToken, inject } from '@angular/core';
 import type * as L from 'leaflet';
 
 import { MAIN_MAP_LAYER_GROUPS } from './layer-group-catalog';
-import { LayerControlBridge } from './layer-control-bridge';
 import { LocalStorageLayerStatePersistence } from './layer-state-persistence';
 import { LeafletLayerBinding } from './leaflet-layer-binding';
 import type { LayerId } from './map-layer.model';
@@ -10,9 +9,8 @@ import { MapLayerRegistry } from './map-layer-registry';
 
 /**
  * Holds the layer registry of the main map and connects it to the Leaflet map
- * once the map component has built it. Until the old layer control goes (H1),
- * a bridge keeps that control in step. The base layer choice is remembered in
- * localStorage.
+ * once the map component has built it. The base layer choice and the group
+ * order are remembered in localStorage.
  */
 @Injectable({
   providedIn: 'root',
@@ -22,29 +20,24 @@ export class MainMapLayersService {
     MAIN_MAP_LAYER_GROUPS,
     new LocalStorageLayerStatePersistence()
   );
-  private bridge?: LayerControlBridge;
+  private binding?: LeafletLayerBinding;
 
   /** Connects the registry to a newly built main map; a previous map is let go first. */
-  attach(map: L.Map, layerControl: any): void {
+  attach(map: L.Map): void {
     this.detach();
-    this.bridge = new LayerControlBridge(
-      new LeafletLayerBinding(map, this.registry),
-      layerControl,
-      map,
-      this.registry
-    );
-    this.registry.attach(this.bridge);
+    this.binding = new LeafletLayerBinding(map, this.registry);
+    this.registry.attach(this.binding);
   }
 
   /** The Leaflet layer the map shows for `id`; undefined while there is no map or it is not bound. */
   layerFor(id: LayerId): L.Layer | undefined {
-    return this.bridge?.layerFor(id);
+    return this.binding?.layerFor(id);
   }
 
   /** Lets go of the map, e.g. when the map component is destroyed; the registry keeps its entries. */
   detach(): void {
-    this.bridge?.dispose();
-    this.bridge = undefined;
+    this.binding?.dispose();
+    this.binding = undefined;
     this.registry.detach();
   }
 }

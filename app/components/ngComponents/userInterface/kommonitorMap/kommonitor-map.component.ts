@@ -211,14 +211,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   filteredStyle;
 
-  // central map object
-  layerControl: any = undefined;
   showLegend = true;
   overlays: any[] = [];
 
   propertyName;
-
-  sortableLayers = ['Web Map Services (WMS)'];
 
   highlightTimeout;
 
@@ -421,21 +417,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       case 'toggleExpertControls':
         this.mapControlsService.toggleExpertControls();
         break;
-      case 'openLayerControl':
-        this.mapControlsService.openLayerControl();
-        break;
     }
   }
 
   ngAfterViewInit(): void {
     this.initMap();
     this.initializeLayerManagers();
-
-    if (this.envConfigService.sortableLayers) {
-      this.sortableLayers = this.envConfigService.sortableLayers;
-    } else {
-      this.sortableLayers = ['Web Map Services (WMS)'];
-    }
 
     this.mapControlsService.initSearchControls();
     this.mapControlsService.initMeasureControl();
@@ -455,7 +442,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
    * with the spatial units and drops the layers of reloaded catalogues.
    */
   private onMetadataLoaded() {
-    if (!this.layerControl) return;
+    if (!this.map) return;
     if (this.metadataBootstrap.metadataLoadingState !== MetadataLoadingState.COMPLETE) return;
 
     this.refreshSpatialUnitOutlines();
@@ -468,7 +455,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private initializeLayerManagers() {
     const context: MapContext = {
       map: this.map,
-      layerControl: this.layerControl,
       layers: this.mainMapLayers.registry,
       hideLoadingIcon: () => this.hideLoadingIconOnMap(),
     };
@@ -522,11 +508,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.map.on('zoomend', () => this.syncViewportState());
     this.map.on('moveend', () => this.syncViewportState());
 
-    this.layerControl = this.mapControlsService.initializeLayerControl(
-      this.map,
-      this.sortableLayers
-    );
-    this.mainMapLayers.attach(this.map, this.layerControl);
+    this.mapControlsService.initialize(this.map);
+    this.mainMapLayers.attach(this.map);
     this.mainMapLayers.registry.setBaseLayers(
       createBaseLayerRegistrations(this.envConfigService.baseLayers, center)
     );
@@ -786,8 +769,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   /**
    * Registers one outline entry per spatial unit, hidden at first. The
-   * (potentially large) geometry is fetched only when the user shows it; the
-   * empty placeholder lets the old layer control list it before (until H1).
+   * (potentially large) geometry is fetched only when the user shows it, into
+   * an empty placeholder layer that is bound from the start.
    *
    * Runs again after every metadata reload: entries of spatial units that are
    * gone are dropped, the others are registered anew. That keeps their

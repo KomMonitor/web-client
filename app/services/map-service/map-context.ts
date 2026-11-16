@@ -9,25 +9,8 @@ import type { MapLayerRegistry } from 'services/map-layer-registry-service/map-l
 export interface MapContext {
   /** The Leaflet map instance of the main map. */
   map: any;
-  /** The grouped layer control of the main map; goes once the layer panel replaces it. */
-  layerControl: any;
   /** The layer registry of the main map: sources register their layers here. */
   layers: MapLayerRegistry;
   /** Hides the map loading spinner. */
   hideLoadingIcon(): void;
 }
-
-/** Display names of the layer groups in the grouped layer control of the main map. */
-export const MAP_LAYER_GROUPS = {
-  spatialUnit: 'Raumebenen',
-  georesource: 'Georessourcen',
-  poi: 'Points of Interest',
-  loi: 'Lines of Interest',
-  aoi: 'Areas of Interest',
-  indicator: 'Indikatoren',
-  reachability: 'Erreichbarkeiten',
-  wms: 'Web Map Services (WMS)',
-  wfs: 'Web Feature Services (WFS)',
-  file: 'Dateilayer',
-  spatialUnitOutline: 'Raumebenen Umringe',
-} as const;

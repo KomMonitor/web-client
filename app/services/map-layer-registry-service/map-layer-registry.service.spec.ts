@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import * as L from 'leaflet';
-import '../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
 import { MAP_LAYERS_PREFERENCES_STORAGE_KEY } from './layer-state-persistence';
 import { MAP_LAYER_REGISTRY, MainMapLayersService } from './map-layer-registry.service';
@@ -14,12 +13,6 @@ function createMap(): L.Map {
     [51.5, 7.4],
     10
   );
-}
-
-function createControl(map: L.Map): any {
-  const control = (L.control as any).groupedLayers({}, {}, { collapsed: false });
-  map.addControl(control);
-  return control;
 }
 
 describe('MainMapLayersService', () => {
@@ -70,29 +63,28 @@ describe('MainMapLayersService', () => {
     expect(TestBed.inject(MAP_LAYER_REGISTRY)).toBe(service.registry);
   });
 
-  it('puts registered layers on the attached map and lists them in the old control', () => {
+  it('puts registered layers on the attached map and hands them out by id', () => {
     const map = newMap();
-    const control = createControl(map);
     const before = register('georesource:1');
 
-    service.attach(map, control);
+    service.attach(map);
     const after = register('georesource:2');
 
     expect(map.hasLayer(before)).toBe(true);
     expect(map.hasLayer(after)).toBe(true);
-    expect(control._layers.map((item: any) => item.name)).toEqual([
-      'georesource:1',
-      'georesource:2',
-    ]);
+    expect(service.layerFor('georesource:2')).toBe(after);
+    expect(service.layerFor('georesource:404')).toBeUndefined();
+    // no layer control on the map any more: the layer panel lists the layers
+    expect(map.getContainer().querySelector('.leaflet-control-layers')).toBeNull();
   });
 
   it('moves the layers to a rebuilt map', () => {
     const oldMap = newMap();
-    service.attach(oldMap, createControl(oldMap));
+    service.attach(oldMap);
     const layer = register('georesource:1');
 
     const newMapInstance = newMap();
-    service.attach(newMapInstance, createControl(newMapInstance));
+    service.attach(newMapInstance);
 
     expect(oldMap.hasLayer(layer)).toBe(false);
     expect(newMapInstance.hasLayer(layer)).toBe(true);
@@ -101,7 +93,7 @@ describe('MainMapLayersService', () => {
 
   it('lets go of the map on detach and keeps the entries', () => {
     const map = newMap();
-    service.attach(map, createControl(map));
+    service.attach(map);
     const layer = register('georesource:1');
 
     service.detach();
@@ -111,6 +103,7 @@ describe('MainMapLayersService', () => {
     expect(map.hasLayer(layer)).toBe(false);
     expect(service.registry.entry('georesource:1')?.visible).toBe(true);
   });
+
   it('shows the base layers on the map and remembers the choice in localStorage', () => {
     const tiles = () => L.tileLayer('https://tiles.example/{z}/{x}/{y}.png', { maxZoom: 18 });
     const bases = [
@@ -118,7 +111,7 @@ describe('MainMapLayersService', () => {
       { id: 'base:B', title: 'B', thumbnail: null, layer: tiles() },
     ];
     const map = newMap();
-    service.attach(map, createControl(map));
+    service.attach(map);
 
     service.registry.setBaseLayers(bases);
     expect(map.hasLayer(bases[0].layer)).toBe(true);

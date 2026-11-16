@@ -175,7 +175,10 @@ export class LeafletLayerBinding implements MapLayerBinding {
     }
   }
 
-  /** For a base layer the old control added before the range was cleared, which Leaflet then did not clamp to. */
+  /**
+   * Keeps the zoom within the new base layer's range, should Leaflet not have
+   * clamped it, e.g. when the layer was on the map before the range was cleared.
+   */
   private clampZoom(): void {
     const zoom = this.map.getZoom();
     const clamped = Math.min(Math.max(zoom, this.map.getMinZoom()), this.map.getMaxZoom());

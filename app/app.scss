@@ -1273,12 +1273,6 @@ a.kommonitor-theme:focus {
   z-index: 1003;
 }
 
-#openLayerControlButton {
-  left: 220px;
-  top: 60px;
-  z-index: 1003;
-}
-
 /* chrome might display feature Accessibility box on click ; see https://github.com/Leaflet/Leaflet/issues/8659 */
 .leaflet-container :focus:not(:focus-visible) {
   outline: 0;
@@ -2750,14 +2744,6 @@ fieldset[disabled] .btn-primary.focus {
   background-clip: padding-box;
   position: absolute;
   z-index: 1003;
-}
-
-.btn-leaflet-custom.expertButton {
-  visibility: hidden !important;
-}
-
-.btn-leaflet-custom.expertButton.visible {
-  visibility: visible !important;
 }
 
 /* CUSTOM RANGE SLIDER  */

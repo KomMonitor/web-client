@@ -47,8 +47,8 @@ export interface LayerRegistration {
    * ... or one created on first show. A rejection marks the entry 'error' and
    * hides it again; the source tells the user why. With both, `layer` is a
    * placeholder that is bound right away and `load` fills it (or replaces it)
-   * on first show, e.g. outlines that the old layer control must list before
-   * their data is there.
+   * on first show, e.g. the outlines, whose style and pane the placeholder
+   * already carries.
    */
   load?: () => Promise<L.Layer>;
   initial?: { visible?: boolean; opacity?: number };
