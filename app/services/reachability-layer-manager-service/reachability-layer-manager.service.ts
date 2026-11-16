@@ -3,6 +3,8 @@ import { MapOverlayStateService } from 'services/map-overlay-state-service/map-o
 import { MapContext } from 'services/map-service/map-context';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 
+import { reachabilityLayerInfo } from './reachability-layer-info';
+
 const SCENARIO_ISOCHRONES_ID = 'reachability:scenario:isochrones';
 const SCENARIO_START_ID = 'reachability:scenario:start';
 
@@ -34,12 +36,13 @@ export class ReachabilityLayerManagerService {
 
   replaceScenario(reachabilityScenario) {
     const layers = this.context.layers;
-    const owner = { remove: () => this.removeScenario() };
     const settings = reachabilityScenario.reachabilitySettings;
     const poiDataset = settings.selectedStartPointLayer;
     const locationsArray = poiDataset.geoJSON.features.map(
       (feature: any) => feature.geometry.coordinates
     );
+    const owner = { remove: () => this.removeScenario() };
+    const details = reachabilityLayerInfo(settings, poiDataset.datasetName, locationsArray.length);
 
     const isochroneLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
       poiDataset.datasetName,
@@ -69,6 +72,7 @@ export class ReachabilityLayerManagerService {
       layer: isochroneLayer,
       capabilities: { remove: true },
       owner,
+      info: () => details,
     });
     layers.register({
       id: SCENARIO_START_ID,
@@ -81,6 +85,7 @@ export class ReachabilityLayerManagerService {
       layer: markerLayer,
       capabilities: { remove: true },
       owner,
+      info: () => details,
     });
     // showing a scenario on the map is an explicit action: bring it back if it was hidden
     layers.setVisible(SCENARIO_ISOCHRONES_ID, true);

@@ -157,6 +157,19 @@ describe('FileLayerManagerService', () => {
     expect(owner.remove).toHaveBeenCalledWith('file:Schulen');
   });
 
+  it('gives origin, file name and feature count as details, for this session only', async () => {
+    service.addFileLayer(poiFile('Schulen'), 1);
+
+    expect(await layers.info('file:Schulen')).toEqual({
+      items: [
+        { labelKey: 'MAP_LAYERS.INFO.ORIGIN', valueKey: 'MAP_LAYERS.INFO.ORIGINS.FILE' },
+        { labelKey: 'MAP_LAYERS.INFO.FILE', value: 'Schulen' },
+        { labelKey: 'MAP_LAYERS.INFO.FEATURES', value: 2 },
+      ],
+      noteKey: 'MAP_LAYERS.INFO.SESSION_NOTE',
+    });
+  });
+
   it('removes only its own file, not one whose name merely contains it', () => {
     service.addFileLayer(areaFile('Schulen'), 1);
     service.addFileLayer(areaFile('Schulen_2'), 1);

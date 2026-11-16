@@ -238,6 +238,19 @@ describe('KommonitorMapComponent', () => {
       expect(registry().drawOrder()).toEqual([ISOCHRONES, START]);
     });
 
+    it('gives the live layers the settings of their calculation as details', async () => {
+      const settings = (component as any).reachabilityStateService.settings;
+      settings.locationsArray = [[7.45, 51.52]];
+      component.addSingleMarker([point(7.45, 51.52)]);
+      component.addIsochrones(isochrones());
+      settings.rangeArray = [1, 2];
+
+      const details = await registry().info(ISOCHRONES);
+      expect(details!.items[2].params).toEqual({ values: '500, 1000' });
+      expect(details!.items[3].params).toEqual({ name: 'Manuelle Eingabe', count: 1 });
+      expect((await registry().info(START))!.items[3].params).toMatchObject({ count: 1 });
+    });
+
     it('removes the isochrones', () => {
       component.addIsochrones(isochrones());
 
@@ -273,6 +286,25 @@ describe('KommonitorMapComponent', () => {
 
       expect(outlineIds().sort()).toEqual(['outline:a', 'outline:b']);
       expect(registry().entry('outline:a')).toMatchObject({ visible: false, status: 'idle' });
+    });
+
+    it('gives spatial unit, number of areas once loaded and source as details', async () => {
+      TestBed.inject(SpatialUnitMetadataStoreService).availableSpatialUnits = [
+        { ...spatialUnit('a'), metadata: { datasource: 'Stadt Essen' } },
+      ];
+      component.refreshSpatialUnitOutlines();
+
+      expect((await registry().info('outline:a'))!.items).toEqual([
+        { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: 'Ebene a' },
+        { labelKey: 'MAP_LAYERS.INFO.AREAS', valueKey: 'MAP_LAYERS.INFO.NOT_LOADED' },
+        { labelKey: 'MAP_LAYERS.INFO.SOURCE', value: 'Stadt Essen', html: true },
+      ]);
+
+      registry().reportStatus('outline:a', 'ready');
+      expect((await registry().info('outline:a'))!.items[1]).toEqual({
+        labelKey: 'MAP_LAYERS.INFO.AREAS',
+        value: 0,
+      });
     });
 
     it('drops outlines of vanished spatial units and keeps the state of the others', () => {

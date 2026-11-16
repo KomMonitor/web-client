@@ -37,9 +37,11 @@ import {
   createBaseLayerRegistrations,
   isSupportedBaseLayer,
 } from 'services/map-layer-registry-service/base-layer-factory';
+import type { LayerInfo } from 'services/map-layer-registry-service/map-layer.model';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
+import { reachabilityLayerInfo } from 'services/reachability-layer-manager-service/reachability-layer-info';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
 
 import { NgClass } from '@angular/common';
@@ -608,6 +610,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       layer: L.featureGroup(markers),
       capabilities: { remove: true },
       owner: this.liveReachabilityOwner,
+      info: this.liveReachabilityInfo(locations.length),
     });
     // setting points is an explicit action: bring them back if they were hidden
     layers.setVisible(LIVE_START_LAYER_ID, true);
@@ -648,6 +651,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       layer: isochronesLayer,
       capabilities: { remove: true },
       owner: this.liveReachabilityOwner,
+      info: this.liveReachabilityInfo(settings.locationsArray?.length ?? 0),
     });
     // a new calculation is an explicit action: bring the isochrones back if hidden
     layers.setVisible(LIVE_ISOCHRONES_LAYER_ID, true);
@@ -672,6 +676,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private readonly liveReachabilityOwner = {
     remove: () => this.reachabilityStateService.resetLocations(),
   };
+
+  /** The details of a live reachability layer, taken now: the settings change with the next input. */
+  private liveReachabilityInfo(startCount: number): () => LayerInfo {
+    const details = reachabilityLayerInfo(
+      this.reachabilityStateService.settings,
+      this.liveReachabilityDatasetName(),
+      startCount
+    );
+    return () => details;
+  }
 
   private liveReachabilityDatasetName(): string {
     return (
@@ -817,6 +831,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer: placeholder,
         load: () => this.loadOutline(spatialUnit, placeholder),
         initial: { visible: false },
+        // the number of areas is only known once the outline was loaded
+        info: () => ({
+          items: [
+            { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: spatialUnit.spatialUnitLevel },
+            layers.entry(id)?.status === 'ready'
+              ? { labelKey: 'MAP_LAYERS.INFO.AREAS', value: placeholder.getLayers().length }
+              : { labelKey: 'MAP_LAYERS.INFO.AREAS', valueKey: 'MAP_LAYERS.INFO.NOT_LOADED' },
+            {
+              labelKey: 'MAP_LAYERS.INFO.SOURCE',
+              value: spatialUnit.metadata?.datasource,
+              html: true,
+            },
+          ],
+        }),
       });
     }
   }
@@ -1471,6 +1499,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       selectedDate: this.selectionState.selectedDate,
     });
 
+    const indicatorDetails: LayerInfo = {
+      items: [
+        { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: spatialUnitName },
+        { labelKey: 'MAP_LAYERS.INFO.DATE', value: date },
+        { labelKey: 'MAP_LAYERS.INFO.UNIT', value: indicatorMetadataAndGeoJSON.unit },
+        {
+          labelKey: 'MAP_LAYERS.INFO.SOURCE',
+          value: indicatorMetadataAndGeoJSON.metadata?.datasource,
+          html: true,
+        },
+      ],
+    };
     // replaces the previous indicator layer; the binding puts it on the map right away
     layers.register({
       id: INDICATOR_LAYER_ID,
@@ -1486,6 +1526,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       symbol: { kind: 'fill', color: '#808080' },
       layer,
       capabilities: { searchable: true },
+      info: () => indicatorDetails,
     });
     if (!justRestyling) {
       // a newly chosen indicator is shown even if the user had hidden the previous one

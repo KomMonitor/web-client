@@ -8,6 +8,7 @@ import {
 } from 'services/file-helper-service/file-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import type {
+  LayerInfo,
   LayerSymbol,
   MapLayerOwner,
 } from 'services/map-layer-registry-service/map-layer.model';
@@ -89,6 +90,14 @@ export class FileLayerManagerService {
         });
       }
 
+      const details: LayerInfo = {
+        items: [
+          { labelKey: 'MAP_LAYERS.INFO.ORIGIN', valueKey: 'MAP_LAYERS.INFO.ORIGINS.FILE' },
+          { labelKey: 'MAP_LAYERS.INFO.FILE', value: dataset.datasetName },
+          { labelKey: 'MAP_LAYERS.INFO.FEATURES', value: dataset.geoJSON?.features?.length },
+        ],
+        noteKey: 'MAP_LAYERS.INFO.SESSION_NOTE',
+      };
       this.context.layers.register({
         id,
         groupId: 'temporary',
@@ -99,6 +108,7 @@ export class FileLayerManagerService {
         initial: { opacity },
         capabilities: { searchable: true, remove: !!owner },
         owner,
+        info: () => details,
       });
       this.fileLayers.set(id, fileLayer);
       this.context.layers.zoomTo(id);

@@ -5,7 +5,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import type { MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
+import type { LayerInfo, MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
 import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
 import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 
@@ -46,6 +46,16 @@ export class OgcLayerManagerService {
       pane: this.context.layers.paneFor(id),
     });
 
+    const details: LayerInfo = {
+      items: [
+        {
+          labelKey: 'MAP_LAYERS.INFO.SERVICE',
+          value: (dataset.connectionDetails.serviceType ?? 'wms').toUpperCase(),
+        },
+        { labelKey: 'MAP_LAYERS.INFO.LAYER_NAME', value: dataset.connectionDetails.layerName },
+        { labelKey: 'MAP_LAYERS.INFO.SOURCE', value: dataset.datasource, html: true },
+      ],
+    };
     this.context.layers.register({
       id,
       groupId: 'georesource.service',
@@ -56,6 +66,7 @@ export class OgcLayerManagerService {
       initial: { opacity },
       capabilities: { remove: !!owner },
       owner,
+      info: () => details,
     });
     this.context.map.invalidateSize(true);
     this.context.hideLoadingIcon();
