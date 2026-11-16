@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { ColorPaletteSelectComponent } from 'components/ngComponents/common/colorPaletteSelect/color-palette-select.component';
 import { ColorPaletteSwatchComponent } from 'components/ngComponents/common/colorPaletteSwatch/color-palette-swatch.component';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -30,10 +30,10 @@ export class KommonitorClassificationComponent implements OnInit {
   protected chartDisplayState = inject(ChartDisplayStateService);
   protected selectionState = inject(SelectionStateService);
   protected classificationState = inject(ClassificationStateService);
-  private broadcastService = inject(BroadcastService);
   private mapService = inject(MapService);
   protected envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
+  private destroyRef = inject(DestroyRef);
 
   methodName = 'Klassifizierungsmethode auswählen';
   showMethodSelection = false;
@@ -64,22 +64,8 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // catch broadcast msgs
-    this.mapService.mapEvent$.subscribe((event) => {
+    this.mapService.mapEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event.type === 'legendDisplayUpdated') this.updateClassificationComponent(event.update);
-    });
-
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
-
-      switch (title) {
-        case 'updateShowRegionalDefaultOption':
-          {
-            this.updateShowRegionalDefaultOption(values);
-          }
-          break;
-      }
     });
 
     if (this.envConfigService.disableManualClassification) {
@@ -93,18 +79,6 @@ export class KommonitorClassificationComponent implements OnInit {
     this.containsOutliers_high = update.containsOutliers_high;
     this.containsOutliers_low = update.containsOutliers_low;
     this.containsNoData = update.containsNoDataValues;
-  }
-
-  updateShowRegionalDefaultOption([show]) {
-    if (show) {
-      if (this.hiddenMethodIds.includes('regional_default')) {
-        this.hiddenMethodIds.splice(this.hiddenMethodIds.indexOf('regional_default'), 1);
-      }
-    } else {
-      if (!this.hiddenMethodIds.includes('regional_default')) {
-        this.hiddenMethodIds.push('regional_default');
-      }
-    }
   }
 
   hideManualClassification() {
