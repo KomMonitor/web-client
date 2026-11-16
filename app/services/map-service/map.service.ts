@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
+import type { MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
 
 export interface MapRefreshObject {
   values: MapRefreshValues;
@@ -59,22 +60,27 @@ export type MapCommand =
   | { type: 'switchHighlightFeature'; featureName: any }
   | { type: 'preserveHighlightedFeatures' }
   | { type: 'unselectAllFeatures' }
-  // georesource layers
-  | { type: 'addPoiGeoresource'; georesource: any; date: any; useCluster: any }
+  // georesource layers; an `owner` lets the layer panel remove the layer by deselecting it
+  | {
+      type: 'addPoiGeoresource';
+      georesource: any;
+      date: any;
+      useCluster: any;
+      owner?: MapLayerOwner;
+    }
   | { type: 'removePoiGeoresource'; georesource: any }
-  | { type: 'addLoiGeoresource'; georesource: any; date: any }
+  | { type: 'addLoiGeoresource'; georesource: any; date: any; owner?: MapLayerOwner }
   | { type: 'removeLoiGeoresource'; georesource: any }
-  | { type: 'addAoiGeoresource'; georesource: any; date: any }
+  | { type: 'addAoiGeoresource'; georesource: any; date: any; owner?: MapLayerOwner }
   | { type: 'removeAoiGeoresource'; georesource: any }
   // OGC layers
-  | { type: 'addWmsLayer'; dataset: any; opacity: any }
+  | { type: 'addWmsLayer'; dataset: any; opacity: any; owner?: MapLayerOwner }
   | { type: 'removeWmsLayer'; dataset: any }
   | { type: 'addWfsLayer'; dataset: any; opacity: any; useCluster: any }
   | { type: 'removeWfsLayer'; dataset: any }
   | { type: 'adjustWfsLayerColor'; dataset: any; opacity: any }
   // file layers
-  | { type: 'addFileLayer'; dataset: any }
-  | { type: 'adjustFileLayerOpacity'; dataset: any; opacity: any }
+  | { type: 'addFileLayer'; dataset: any; opacity: number; owner?: MapLayerOwner }
   | { type: 'adjustFileLayerColor'; dataset: any }
   | { type: 'removeFileLayer'; dataset: any }
   // reachability scenario
@@ -85,7 +91,6 @@ export type MapCommand =
   | { type: 'hideLoadingIcon' }
   | { type: 'exportMap' }
   | { type: 'toggleExpertControls' }
-  | { type: 'openLayerControl' }
   | { type: 'onGlobalFilterChange' };
 
 /** Facts about the currently rendered indicator dataset, shown by legend + classification panel. */
@@ -348,24 +353,30 @@ export class MapService {
 
   // --- georesource layers ---
 
-  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
-    this.command({ type: 'addPoiGeoresource', georesource: poiGeoresource, date, useCluster });
+  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, owner?: MapLayerOwner) {
+    this.command({
+      type: 'addPoiGeoresource',
+      georesource: poiGeoresource,
+      date,
+      useCluster,
+      owner,
+    });
   }
 
   removePoiGeoresource(reference) {
     this.command({ type: 'removePoiGeoresource', georesource: reference });
   }
 
-  addLoiGeoresourceGeoJSON(loiGeoresource, date) {
-    this.command({ type: 'addLoiGeoresource', georesource: loiGeoresource, date });
+  addLoiGeoresourceGeoJSON(loiGeoresource, date, owner?: MapLayerOwner) {
+    this.command({ type: 'addLoiGeoresource', georesource: loiGeoresource, date, owner });
   }
 
   removeLoiGeoresource(loiGeoresource) {
     this.command({ type: 'removeLoiGeoresource', georesource: loiGeoresource });
   }
 
-  addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
-    this.command({ type: 'addAoiGeoresource', georesource: aoiGeoresource, date });
+  addAoiGeoresourceGeoJSON(aoiGeoresource, date, owner?: MapLayerOwner) {
+    this.command({ type: 'addAoiGeoresource', georesource: aoiGeoresource, date, owner });
   }
 
   removeAoiGeoresource(aoiGeoresource) {
@@ -374,8 +385,8 @@ export class MapService {
 
   // --- OGC layers ---
 
-  addWmsLayerToMap(dataset, opacity) {
-    this.command({ type: 'addWmsLayer', dataset, opacity });
+  addWmsLayerToMap(dataset, opacity, owner?: MapLayerOwner) {
+    this.command({ type: 'addWmsLayer', dataset, opacity, owner });
   }
 
   removeWmsLayerFromMap(dataset) {
@@ -396,18 +407,12 @@ export class MapService {
 
   // --- file layers ---
 
-  addFileLayerToMap(dataset, _opacity) {
-    // NOTE: the opacity argument was never delivered in the legacy broadcast
-    // either — the file layer is added with its default opacity
-    this.command({ type: 'addFileLayer', dataset });
+  addFileLayerToMap(dataset, opacity: number, owner?: MapLayerOwner) {
+    this.command({ type: 'addFileLayer', dataset, opacity, owner });
   }
 
   removeFileLayerFromMap(dataset) {
     this.command({ type: 'removeFileLayer', dataset });
-  }
-
-  adjustOpacityForFileLayer(dataset, opacity) {
-    this.command({ type: 'adjustFileLayerOpacity', dataset, opacity });
   }
 
   adjustColorForFileLayer(dataset) {
@@ -440,10 +445,6 @@ export class MapService {
 
   toggleExpertControls() {
     this.command({ type: 'toggleExpertControls' });
-  }
-
-  openLayerControl() {
-    this.command({ type: 'openLayerControl' });
   }
 
   onGlobalFilterChange() {

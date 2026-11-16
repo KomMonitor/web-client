@@ -15,6 +15,8 @@ services:
     #restart: unless-stopped
     volumes:
       - ./app/config/config-storage-server.json:/usr/share/nginx/html/config/config-storage-server.json # mount config for client-config-service
+    #environment:
+    #  - BASE_HREF=/v6/ui/ # when served under a sub-path behind a reverse proxy (default: /)
     ports:
       - 8000:80
     networks:

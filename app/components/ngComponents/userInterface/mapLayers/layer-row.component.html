@@ -1,0 +1,175 @@
+<div
+  class="layer-row"
+  [class.layer-row--hidden]="!entry().visible"
+  [title]="fullName()"
+  [cdkContextMenuTriggerFor]="menu"
+  [cdkContextMenuDisabled]="!menuItems().length"
+>
+  @if (movable()) {
+    <!-- mouse only; the keyboard moves layers through the ⋮ menu -->
+    <span
+      class="layer-row__handle"
+      cdkDragHandle
+      aria-hidden="true"
+      [title]="'MAP_LAYERS.ROW.DRAG' | translate"
+    >
+      <i class="fas fa-grip-vertical"></i>
+    </span>
+  }
+  <button
+    type="button"
+    class="layer-row__eye"
+    [attr.aria-pressed]="entry().visible"
+    [attr.aria-label]="'MAP_LAYERS.ROW.TOGGLE' | translate: { title: entry().title }"
+    (click)="toggleVisible()"
+  >
+    <i class="fas" [class.fa-eye]="entry().visible" [class.fa-eye-slash]="!entry().visible"></i>
+  </button>
+  <app-layer-symbol class="layer-row__symbol" [symbol]="entry().symbol" />
+  @if (entry().capabilities.opacity) {
+    <!-- a larger target for the mouse; the keyboard uses the expand button -->
+    <button
+      type="button"
+      class="layer-row__name layer-row__name--toggle"
+      tabindex="-1"
+      [attr.aria-expanded]="expanded()"
+      [attr.aria-controls]="detailsId"
+      (click)="toggleExpanded()"
+    >
+      <ng-container *ngTemplateOutlet="name" />
+    </button>
+  } @else {
+    <span class="layer-row__name"><ng-container *ngTemplateOutlet="name" /></span>
+  }
+  @if (entry().status === 'loading') {
+    <i
+      class="fas fa-spinner fa-spin layer-row__state"
+      role="img"
+      [attr.aria-label]="'MAP_LAYERS.STATUS.LOADING' | translate"
+      [title]="'MAP_LAYERS.STATUS.LOADING' | translate"
+    ></i>
+  }
+  @if (entry().status === 'error') {
+    <i
+      class="fas fa-triangle-exclamation layer-row__state layer-row__state--error"
+      role="img"
+      [attr.aria-label]="'MAP_LAYERS.STATUS.ERROR' | translate"
+      [title]="'MAP_LAYERS.STATUS.ERROR' | translate"
+    ></i>
+  }
+  @if (entry().outOfScale) {
+    <i
+      class="fas fa-magnifying-glass-minus layer-row__state"
+      role="img"
+      [attr.aria-label]="'MAP_LAYERS.STATUS.OUT_OF_SCALE' | translate"
+      [title]="'MAP_LAYERS.STATUS.OUT_OF_SCALE' | translate"
+    ></i>
+  }
+  @if (menuItems().length) {
+    <button
+      #menuTrigger
+      type="button"
+      class="layer-row__menu"
+      [cdkMenuTriggerFor]="menu"
+      [attr.aria-label]="'MAP_LAYERS.ACTIONS.MENU' | translate: { title: entry().title }"
+    >
+      <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+    </button>
+  }
+  @if (entry().capabilities.opacity) {
+    <button
+      type="button"
+      class="layer-row__expand"
+      [attr.aria-expanded]="expanded()"
+      [attr.aria-controls]="detailsId"
+      [attr.aria-label]="'MAP_LAYERS.ROW.EXPAND' | translate: { title: entry().title }"
+      (click)="toggleExpanded()"
+    >
+      <i
+        class="fas"
+        [class.fa-chevron-down]="!expanded()"
+        [class.fa-chevron-up]="expanded()"
+        aria-hidden="true"
+      ></i>
+    </button>
+  }
+</div>
+
+@if (entry().capabilities.opacity && expanded()) {
+  <div class="layer-row__details" [id]="detailsId">
+    <label [for]="detailsId + '-transparency'">{{
+      'MAP_LAYERS.ROW.TRANSPARENCY' | translate
+    }}</label>
+    <input
+      type="range"
+      min="0"
+      max="100"
+      step="1"
+      [id]="detailsId + '-transparency'"
+      [value]="transparency()"
+      [attr.aria-valuetext]="transparency() + ' %'"
+      (input)="setTransparency($any($event.target).value)"
+    />
+    <span class="layer-row__value">{{ transparency() }} %</span>
+  </div>
+}
+
+@if (infoOpen()) {
+  <div
+    #infoBox
+    class="layer-row__info"
+    role="region"
+    tabindex="-1"
+    [attr.aria-label]="'MAP_LAYERS.INFO.TITLE' | translate: { title: entry().title }"
+    (keydown.escape)="closeInfo()"
+  >
+    <button
+      type="button"
+      class="layer-row__info-close"
+      [attr.aria-label]="'MAP_LAYERS.INFO.CLOSE' | translate"
+      (click)="closeInfo()"
+    >
+      <i class="fas fa-xmark" aria-hidden="true"></i>
+    </button>
+    @let state = info();
+    @if (state.status === 'ready') {
+      <dl class="layer-row__info-list">
+        @for (item of state.items; track $index) {
+          <dt>{{ item.labelKey | translate }}</dt>
+          @if (item.valueKey) {
+            <dd>{{ item.valueKey | translate: item.params }}</dd>
+          } @else if (item.html) {
+            <dd [innerHTML]="item.value"></dd>
+          } @else {
+            <dd>{{ item.value }}</dd>
+          }
+        }
+      </dl>
+      @if (state.noteKey) {
+        <p class="layer-row__info-note">{{ state.noteKey | translate }}</p>
+      }
+    } @else {
+      <p class="layer-row__info-status">
+        {{
+          (state.status === 'loading' ? 'MAP_LAYERS.INFO.LOADING' : 'MAP_LAYERS.INFO.EMPTY')
+            | translate
+        }}
+      </p>
+    }
+  </div>
+}
+
+<ng-template #menu>
+  <app-layer-actions-menu
+    [items]="menuItems()"
+    [label]="'MAP_LAYERS.ACTIONS.MENU' | translate: { title: entry().title }"
+    (triggered)="runAction($event)"
+  />
+</ng-template>
+
+<ng-template #name>
+  {{ entry().title }}
+  @if (entry().subtitle) {
+    <span class="layer-row__subtitle">{{ entry().subtitle }}</span>
+  }
+</ng-template>

@@ -7,11 +7,18 @@ import {
   FileUploadState,
 } from 'services/file-helper-service/file-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import type {
+  LayerInfo,
+  LayerSymbol,
+  MapLayerOwner,
+} from 'services/map-layer-registry-service/map-layer.model';
+import { MapContext } from 'services/map-service/map-context';
 
 /**
- * Manages user-uploaded file layers on the main map
- * (map refactoring plan, Phase 3 — extracted from KommonitorMapComponent).
+ * Puts user-imported files on the main map by registering them with its layer
+ * registry as 'file:<datasetName>' among the temporary layers. Adding a file
+ * again (e.g. another marker color) replaces the layer under the same id, so
+ * visibility, opacity and position stay.
  */
 @Injectable({
   providedIn: 'root',
@@ -23,17 +30,28 @@ export class FileLayerManagerService {
   private featurePopupHelperService = inject(FeaturePopupHelperService);
 
   private context!: MapContext;
+  /** The registered layers, for restyling them when their color changes. */
+  private readonly fileLayers = new Map<string, L.Layer>();
 
   initialize(context: MapContext) {
     this.context = context;
   }
 
-  addFileLayer(dataset, opacity) {
+  /**
+   * `opacity` is the start value; the registry fades the layer's pane. The
+   * import list's `owner` deselects the file there, which makes the layer
+   * removable in the panel; the file stays in the list.
+   */
+  addFileLayer(dataset, opacity, owner?: MapLayerOwner) {
+    const id = fileLayerId(dataset);
     try {
+      const pane = this.context.layers.paneFor(id);
       let fileLayer;
+      let symbol: LayerSymbol;
 
       if (dataset.isPOI) {
         fileLayer = L.featureGroup();
+        symbol = { kind: 'point', color: dataset.poiMarkerColor };
 
         dataset.geoJSON.features.forEach((poiFeature) => {
           // index 0 should be longitude and index 1 should be latitude
@@ -44,23 +62,24 @@ export class FileLayerManagerService {
             dataset.poiSymbolColor,
             dataset.poiMarkerColor,
             dataset.poiSymbolBootstrap3Name,
-            dataset
+            dataset,
+            pane
           );
 
           fileLayer = this.genericMapHelperService.addPoiMarker(fileLayer, newMarker);
         });
       } else {
-        const style = {
-          weight: 1,
-          opacity: opacity,
-          color: this.envConfigService.defaultBorderColor,
-          dashArray: '',
-          fillOpacity: 1,
-          fillColor: dataset.displayColor,
-        };
-
+        symbol = { kind: dataset.isLOI ? 'line' : 'fill', color: dataset.displayColor };
         fileLayer = L.geoJSON(dataset.geoJSON, {
-          style: style,
+          pane,
+          style: {
+            weight: 1,
+            opacity: 1,
+            color: this.envConfigService.defaultBorderColor,
+            dashArray: '',
+            fillOpacity: 1,
+            fillColor: dataset.displayColor,
+          },
           onEachFeature: (feature, layer) => {
             this.featurePopupHelperService.bindFeaturePropertiesPopupOnClick(
               feature,
@@ -71,7 +90,31 @@ export class FileLayerManagerService {
         });
       }
 
-      this.showFileLayer(fileLayer, dataset);
+      const details: LayerInfo = {
+        items: [
+          { labelKey: 'MAP_LAYERS.INFO.ORIGIN', valueKey: 'MAP_LAYERS.INFO.ORIGINS.FILE' },
+          { labelKey: 'MAP_LAYERS.INFO.FILE', value: dataset.datasetName },
+          { labelKey: 'MAP_LAYERS.INFO.FEATURES', value: dataset.geoJSON?.features?.length },
+        ],
+        noteKey: 'MAP_LAYERS.INFO.SESSION_NOTE',
+      };
+      this.context.layers.register({
+        id,
+        groupId: 'temporary',
+        title: dataset.datasetName,
+        kind: dataset.isPOI ? 'marker' : 'vector',
+        symbol,
+        layer: fileLayer,
+        initial: { opacity },
+        capabilities: { searchable: true, remove: !!owner },
+        owner,
+        info: () => details,
+      });
+      this.fileLayers.set(id, fileLayer);
+      this.context.layers.zoomTo(id);
+
+      this.fileHelperService.setValue(FileUploadState.SUCCESS, dataset);
+      this.context.map.invalidateSize(true);
     } catch (error) {
       console.error(error);
       // deliver parse errors through the same channel as display errors — the
@@ -81,66 +124,24 @@ export class FileLayerManagerService {
     }
   }
 
-  adjustOpacity(dataset, opacity) {
-    const layerName = dataset.datasetName;
-
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.group.name === MAP_LAYER_GROUPS.file && layer.name.includes(layerName)) {
-        const newStyle = {
-          weight: 1,
-          opacity: opacity,
-          color: this.envConfigService.defaultBorderColor,
-          dashArray: '',
-          fillOpacity: opacity,
-          fillColor: dataset.displayColor,
-        };
-
-        layer.layer.setStyle(newStyle);
-      }
-    });
-  }
-
+  /** Restyles the file's layer; its transparency lives on the pane and stays. */
   adjustColor(dataset) {
-    const layerName = dataset.datasetName;
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.group.name === MAP_LAYER_GROUPS.file && layer.name.includes(layerName)) {
-        const newStyle = {
-          weight: 1,
-          color: this.envConfigService.defaultBorderColor,
-          dashArray: '',
-          fillColor: dataset.displayColor,
-        };
-
-        layer.layer.setStyle(newStyle);
-      }
+    (this.fileLayers.get(fileLayerId(dataset)) as L.GeoJSON | undefined)?.setStyle({
+      weight: 1,
+      color: this.envConfigService.defaultBorderColor,
+      dashArray: '',
+      fillColor: dataset.displayColor,
     });
   }
 
   removeFileLayer(dataset) {
-    const layerName = dataset.datasetName;
-
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.group.name === MAP_LAYER_GROUPS.file && layer.name.includes(layerName)) {
-        this.context.layerControl.removeLayer(layer.layer);
-        this.context.map.removeLayer(layer.layer);
-      }
-    });
+    const id = fileLayerId(dataset);
+    this.context.layers.unregister(id);
+    this.fileLayers.delete(id);
   }
+}
 
-  private showFileLayer(fileLayer, dataset) {
-    try {
-      this.context.layerControl.addOverlay(fileLayer, dataset.datasetName, MAP_LAYER_GROUPS.file);
-      fileLayer.addTo(this.context.map);
-
-      this.context.map.fitBounds(fileLayer.getBounds());
-
-      this.fileHelperService.setValue(FileUploadState.SUCCESS, dataset);
-
-      this.context.updateSearchControl();
-
-      this.context.map.invalidateSize(true);
-    } catch (error) {
-      this.fileHelperService.setValue(FileUploadState.ERROR, [error, dataset]);
-    }
-  }
+/** Stable id of an imported file in the layer registry; the import panel keeps names unique. */
+function fileLayerId(dataset): string {
+  return `file:${dataset.datasetName}`;
 }

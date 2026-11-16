@@ -1228,7 +1228,7 @@ a.kommonitor-theme:focus {
 
 #mapUtilButtons {
   width: 280px;
-  height: 220px;
+  height: 170px;
   position: absolute;
 
   button {
@@ -1242,7 +1242,8 @@ a.kommonitor-theme:focus {
   }
 }
 
-/* MAP UTIL BUTTONS */
+/* MAP UTIL BUTTONS: a row at the top; the expert tools (feature search, geosearch,
+   measure) form a column below the expert button, 50px apart */
 #recenterMapButton {
   left: 70px;
   top: 10px;
@@ -1264,18 +1265,6 @@ a.kommonitor-theme:focus {
 #expertButton {
   left: 220px;
   top: 10px;
-  z-index: 1003;
-}
-
-#testButton {
-  left: 220px;
-  top: 100px;
-  z-index: 1003;
-}
-
-#openLayerControlButton {
-  left: 220px;
-  top: 60px;
   z-index: 1003;
 }
 
@@ -1314,20 +1303,6 @@ a.kommonitor-theme:focus {
   width: auto;
 }
 
-.leaflet-left .leaflet-control-layers {
-  /* display: inline-block; */
-  /* float: none; */
-  left: 270px;
-  position: absolute;
-}
-
-.leaflet-left .leaflet-control-layers-expanded {
-  width: 500px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  max-height: 80vh;
-}
-
 .leaflet-left .leaflet-control-measure-interaction {
   width: 275px;
   height: auto;
@@ -1339,7 +1314,7 @@ a.kommonitor-theme:focus {
   /* float: none; */
   position: absolute;
   left: 220px;
-  top: 160px;
+  top: 110px;
   z-index: 1003;
 }
 
@@ -1347,7 +1322,7 @@ a.kommonitor-theme:focus {
   /* float: none; */
   position: absolute !important;
   left: 220px !important;
-  top: 110px !important;
+  top: 60px !important;
   z-index: 1003;
 }
 
@@ -1356,7 +1331,7 @@ a.kommonitor-theme:focus {
   /* float: none; */
   position: absolute;
   left: 220px;
-  top: 210px;
+  top: 160px;
   z-index: 1003;
 }
 
@@ -1367,16 +1342,6 @@ a.kommonitor-theme:focus {
   left: 60px;
   bottom: 100px;
   z-index: 1003;
-}
-
-.leaflet-control-layers-group-name {
-  font-size: 14px;
-  font-weight: bold;
-  font-style: italic;
-}
-
-.leaflet-control-layers-group {
-  margin-top: 20px;
 }
 
 .leaflet-touch .leaflet-control-layers-toggle {
@@ -2750,14 +2715,6 @@ fieldset[disabled] .btn-primary.focus {
   background-clip: padding-box;
   position: absolute;
   z-index: 1003;
-}
-
-.btn-leaflet-custom.expertButton {
-  visibility: hidden !important;
-}
-
-.btn-leaflet-custom.expertButton.visible {
-  visibility: visible !important;
 }
 
 /* CUSTOM RANGE SLIDER  */

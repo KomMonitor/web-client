@@ -5,6 +5,13 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
+/**
+ * Controls that are shown when the controls config does not mention them, so
+ * that existing installations get them without a config change. Every other
+ * control stays hidden without an entry. With an entry, the usual rules apply.
+ */
+export const VISIBLE_WITHOUT_CONFIG = ['mapLayers'];
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,6 +37,11 @@ export class ElementVisibilityHelperService {
     (this.envConfigService.controlsConfig ?? []).forEach((element) => {
       this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
+    for (const id of VISIBLE_WITHOUT_CONFIG) {
+      if (!(id in this.elementVisibility)) {
+        this.elementVisibility[id] = true;
+      }
+    }
 
     if (this.authService.isAuthenticated() && this.envConfigService.showFavoriteSelection)
       this.elementVisibility['favSelection'] = true;

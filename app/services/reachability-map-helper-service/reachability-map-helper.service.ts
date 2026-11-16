@@ -252,10 +252,11 @@ export class ReachabilityMapHelperService {
     }
   }
 
-  makeIsochroneMarkerLayer(lonLatArray: number[][]): L.FeatureGroup {
+  /** With a pane, the markers and their shadows go into the layer's own pane. */
+  makeIsochroneMarkerLayer(lonLatArray: number[][], pane?: string): L.FeatureGroup {
     const markerLayer = L.featureGroup();
     lonLatArray.forEach((lonLat) => {
-      const layer = L.marker([lonLat[1], lonLat[0]]);
+      const layer = L.marker([lonLat[1], lonLat[0]], pane ? { pane, shadowPane: pane } : {});
       layer.bindPopup('Startpunkt der Isochronenberechnung');
       layer.addTo(markerLayer);
     });
@@ -295,7 +296,8 @@ export class ReachabilityMapHelperService {
     reachMode: string,
     cutOffValues: number[],
     useMultipleStartPoints: boolean,
-    dissolveIsochrones: boolean
+    dissolveIsochrones: boolean,
+    pane?: string
   ): L.FeatureGroup {
     const isochroneLayer = L.featureGroup();
 
@@ -365,6 +367,7 @@ export class ReachabilityMapHelperService {
       L.geoJSON(feature, {
         style,
         onEachFeature: (feat, layer) => this.onEachFeature_isochrones(feat, layer),
+        ...(pane ? { pane } : {}),
       }).addTo(isochroneLayer);
     }
 

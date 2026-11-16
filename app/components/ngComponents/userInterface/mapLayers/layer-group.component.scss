@@ -1,0 +1,157 @@
+:host {
+  display: block;
+}
+
+.layer-group--top {
+  margin-bottom: 6px;
+  border: 1px solid var(--map-layers-border, #dde1e5);
+  border-radius: 6px;
+  background: #fff;
+}
+
+// The toggle and the ⋮ button side by side; a button may not hold another one.
+.layer-group__header {
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--map-layers-hover, #f5f7f9);
+  }
+}
+
+.layer-group__handle {
+  flex: none;
+  width: 18px;
+  margin-left: 4px;
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 11px;
+  text-align: center;
+  cursor: grab;
+
+  &:hover {
+    color: var(--kommonitor-primary, #337ab7);
+  }
+
+  // the toggle keeps the space the handle takes
+  & + .layer-group__toggle {
+    padding-left: 2px;
+  }
+}
+
+.layer-group__toggle {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary, #337ab7);
+    outline-offset: -2px;
+  }
+}
+
+.layer-group__menu {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    color: var(--kommonitor-primary, #337ab7);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kommonitor-primary, #337ab7);
+    outline-offset: 1px;
+  }
+}
+
+.layer-group__chevron {
+  flex: none;
+  width: 12px;
+  font-size: 10px;
+  color: var(--map-layers-text-secondary, #6b7280);
+}
+
+// Font Awesome centres the chevrons on the line box, but the uppercase titles of
+// the top-level groups sit a little higher: lift the chevrons by a whole pixel.
+.layer-group--top > .layer-group__header .layer-group__chevron {
+  translate: 0 -1px;
+}
+
+.layer-group__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+.layer-group--top > .layer-group__header .layer-group__title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.layer-group__badge {
+  flex: none;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--map-layers-surface, #eef1f3);
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.layer-group__body {
+  padding: 0 4px 4px 14px;
+}
+
+.layer-group__hint {
+  margin: 2px 4px 4px;
+  font-size: 11.5px;
+  color: var(--map-layers-text-secondary, #6b7280);
+}
+
+// Dragging a layer by its handle within its group (F2), like the groups in the panel.
+.cdk-drag-preview {
+  // The CDK shows the preview as a popover, whose browser default would add a scrollbar.
+  overflow: visible;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow:
+    0 5px 5px -3px rgb(0 0 0 / 0.2),
+    0 8px 10px 1px rgb(0 0 0 / 0.14),
+    0 3px 14px 2px rgb(0 0 0 / 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-animating,
+.layer-group__rows.cdk-drop-list-dragging app-layer-row:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

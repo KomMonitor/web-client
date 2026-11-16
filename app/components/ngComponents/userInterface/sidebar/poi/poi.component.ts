@@ -20,7 +20,6 @@ import {
   POI_SIZES,
   PoiPresentationService,
 } from 'services/poi-presentation-service/poi-presentation.service';
-import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
@@ -48,7 +47,6 @@ type TopicTreeSource = 'list' | 'favs';
 })
 export class PoiComponent implements OnInit {
   protected poiPresentationService = inject(PoiPresentationService);
-  private topicHierarchyStore = inject(TopicHierarchyStoreService);
   protected georesourceStore = inject(GeoresourceMetadataStoreService);
   protected layerService = inject(GeoresourceLayerService);
   private georesourceLayerManagerService = inject(GeoresourceLayerManagerService);
@@ -177,50 +175,7 @@ export class PoiComponent implements OnInit {
   }
 
   handleGeoresourceOnMap(resource: GeoresourcesDataset) {
-    this.checkGeoresourcesRecursive(resource);
-
-    if (resource.isSelected) {
-      this.layerService.addGeoresourceLayerToMap(resource);
-    } else {
-      for (const topic of this.topicHierarchyStore.topicGeoresourceHierarchy) {
-        if (topic.topicId === resource.topicReference) topic.isSelected = false;
-      }
-      this.layerService.removeGeoresourceLayerFromMap(resource);
-    }
-  }
-
-  checkGeoresourcesRecursive(georesource: GeoresourcesDataset) {
-    this.searchGeoresourcesRecursive(
-      georesource,
-      this.filterService.preppedTopicGeoresourceHierarchy
-    );
-  }
-
-  searchGeoresourcesRecursive(
-    georesource: GeoresourcesDataset,
-    tree: GeoresourcesTopicsHierarchy[]
-  ): boolean {
-    let match = false;
-
-    tree.forEach((topic) => {
-      const poiMatch = topic.poiData.filter((e) => e.georesourceId == georesource.georesourceId);
-      const aoiMatch = topic.aoiData.filter((e) => e.georesourceId == georesource.georesourceId);
-      const loiMatch = topic.loiData.filter((e) => e.georesourceId == georesource.georesourceId);
-
-      if (poiMatch.length || aoiMatch.length || loiMatch.length) {
-        if (!georesource.isSelected) topic.isSelected = false;
-
-        match = true;
-      } else {
-        if (topic.subTopics.length) {
-          match = this.searchGeoresourcesRecursive(georesource, topic.subTopics);
-
-          if (match && !georesource.isSelected) topic.isSelected = false;
-        }
-      }
-    });
-
-    return match;
+    this.layerService.handleGeoresourceOnMap(resource);
   }
 
   zoomToLayer(georesourceMetadata: GeoresourcesDataset) {

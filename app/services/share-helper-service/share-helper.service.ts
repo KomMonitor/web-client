@@ -103,10 +103,9 @@ export class ShareHelperService {
   }
 
   generateFullUrl(): string {
-    // prepareExternalUrl prepends the base href, so links keep a deployment subpath.
-    const path = this.location.prepareExternalUrl(this.location.path());
-
-    return `${window.location.origin}${path}`;
+    // prepareExternalUrl() prepends the <base href>, so the link keeps the
+    // sub-path the app is deployed under (e.g. /v6/ui/).
+    return window.location.origin + this.location.prepareExternalUrl(this.location.path());
   }
 
   setShareLinkParam(paramName, value) {

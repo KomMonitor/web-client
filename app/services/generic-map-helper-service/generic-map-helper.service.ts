@@ -92,9 +92,12 @@ export class GenericMapHelperService {
     poiSymbolColor,
     poiMarkerColor,
     poiSymbolBootstrap3Name,
-    metadataObject
+    metadataObject,
+    pane?: string
   ) {
     if (poiFeature.properties['geocoder_geocoderank'] == 2) poiMarkerColor = 'green';
+    // With a pane, icon and shadow go into the layer's own pane, so they fade and stack with it.
+    const paneOptions = pane ? { pane, shadowPane: pane } : {};
 
     const customMarker = L.AwesomeMarkers.icon({
       icon: this.iconTranslate.translate(poiSymbolBootstrap3Name),
@@ -110,7 +113,7 @@ export class GenericMapHelperService {
       // LAT LON order
       newMarker = L.marker(
         [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])],
-        { icon: customMarker }
+        { icon: customMarker, ...paneOptions }
       );
 
       //populate the original geoJSOn feature to the marker layer!
@@ -124,7 +127,7 @@ export class GenericMapHelperService {
           Number(poiFeature.geometry.coordinates[0][1]),
           Number(poiFeature.geometry.coordinates[0][0]),
         ],
-        { icon: customMarker }
+        { icon: customMarker, ...paneOptions }
       );
 
       //populate the original geoJSOn feature to the marker layer!
@@ -135,13 +138,14 @@ export class GenericMapHelperService {
     }
 
     if (poiMarkerStyle == 'text' && poiMarkerText) {
-      newMarker = this.bindPOITextStyleTooltip(newMarker, poiMarkerText, poiSymbolColor);
+      newMarker = this.bindPOITextStyleTooltip(newMarker, poiMarkerText, poiSymbolColor, pane);
     }
 
     return newMarker;
   }
 
-  bindPOITextStyleTooltip(marker, poiText, poiSymbolColor) {
+  /** With a pane, the label goes there as well: for this style it is the symbol itself. */
+  bindPOITextStyleTooltip(marker, poiText, poiSymbolColor, pane?: string) {
     marker.options.icon.options.icon = '';
     let fontSize = '13px;';
     let offset = [0, -25];
@@ -197,6 +201,7 @@ export class GenericMapHelperService {
         direction: 'center',
         className: 'poi-text-tooltip',
         offset: offset,
+        ...(pane ? { pane } : {}),
       }
     );
 
@@ -228,7 +233,7 @@ export class GenericMapHelperService {
     return markers;
   }
 
-  createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset) {
+  createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset, pane?: string) {
     for (const layerPropName in wfsLayer._layers) {
       const geoJSONFeature = wfsLayer._layers[layerPropName].feature;
       const latlng = wfsLayer._layers[layerPropName]._latlng;
@@ -245,7 +250,8 @@ export class GenericMapHelperService {
         dataset.poiSymbolColor,
         dataset.poiMarkerColor,
         dataset.poiSymbolBootstrap3Name,
-        dataset
+        dataset,
+        pane
       );
       poiMarkerLayer = this.addPoiMarker(poiMarkerLayer, customMarker);
     }
@@ -331,50 +337,6 @@ export class GenericMapHelperService {
       maxZoom: this.envConfigService.maxZoomLevel,
       attribution: 'Map data \u00a9 OpenStreetMap contributors',
     });
-  }
-
-  /**
-   * Builds the configured base layers (TILE_LAYER, TILE_LAYER_GRAYSCALE, WMS)
-   * for the main map, keyed by their configured name. Entries with an unknown
-   * layer type are skipped (map refactoring plan, Phase 4).
-   */
-  createBaseLayers(baseLayerConfigs: any[]): Map<string, any> {
-    const baseLayersByName = new Map<string, any>();
-
-    for (const baseMapEntry of baseLayerConfigs) {
-      if (baseMapEntry.layerType === 'TILE_LAYER_GRAYSCALE') {
-        baseLayersByName.set(
-          baseMapEntry.name,
-          createGrayscaleTileLayer(baseMapEntry.url, {
-            minZoom: baseMapEntry.minZoomLevel,
-            maxZoom: baseMapEntry.maxZoomLevel,
-            attribution: baseMapEntry.attribution_html,
-          })
-        );
-      } else if (baseMapEntry.layerType === 'TILE_LAYER') {
-        baseLayersByName.set(
-          baseMapEntry.name,
-          L.tileLayer(baseMapEntry.url, {
-            minZoom: baseMapEntry.minZoomLevel,
-            maxZoom: baseMapEntry.maxZoomLevel,
-            attribution: baseMapEntry.attribution_html,
-          })
-        );
-      } else if (baseMapEntry.layerType === 'WMS') {
-        baseLayersByName.set(
-          baseMapEntry.name,
-          L.tileLayer.wms(baseMapEntry.url, {
-            minZoom: baseMapEntry.minZoomLevel,
-            maxZoom: baseMapEntry.maxZoomLevel,
-            attribution: baseMapEntry.attribution_html,
-            layers: baseMapEntry.layerName_WMS,
-            format: 'image/png',
-          })
-        );
-      }
-    }
-
-    return baseLayersByName;
   }
 
   initLayerControl(map, backgroundLayer) {

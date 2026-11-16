@@ -1,0 +1,91 @@
+<section class="layer-group" [class.layer-group--top]="depth() === 0">
+  <div class="layer-group__header">
+    @if (movable()) {
+      <!-- mouse only; the keyboard moves groups through the ⋮ menu -->
+      <span
+        class="layer-group__handle"
+        cdkDragHandle
+        aria-hidden="true"
+        [title]="'MAP_LAYERS.GROUP.DRAG' | translate"
+      >
+        <i class="fas fa-grip-vertical"></i>
+      </span>
+    }
+    <button
+      type="button"
+      class="layer-group__toggle"
+      [attr.aria-expanded]="expanded()"
+      [attr.aria-controls]="bodyId()"
+      (click)="toggle()"
+    >
+      <i
+        class="fas layer-group__chevron"
+        [class.fa-chevron-down]="expanded()"
+        [class.fa-chevron-right]="!expanded()"
+        aria-hidden="true"
+      ></i>
+      <span class="layer-group__title">{{ node().group.i18nKey | translate }}</span>
+      <span
+        class="layer-group__badge"
+        [attr.aria-label]="'MAP_LAYERS.GROUP.COUNT' | translate: { count: node().count }"
+        >{{ node().count }}</span
+      >
+    </button>
+    @if (menuItems().length) {
+      <button
+        #menuTrigger
+        type="button"
+        class="layer-group__menu"
+        [cdkMenuTriggerFor]="menu"
+        [attr.aria-label]="
+          'MAP_LAYERS.ACTIONS.GROUP_MENU' | translate: { title: (node().group.i18nKey | translate) }
+        "
+      >
+        <i class="fas fa-ellipsis-vertical" aria-hidden="true"></i>
+      </button>
+    }
+  </div>
+
+  @if (expanded()) {
+    <div class="layer-group__body" [id]="bodyId()">
+      @for (child of node().children; track child.group.id) {
+        @if (isGroupShown(child)) {
+          <app-layer-group [node]="child" [depth]="depth() + 1" />
+        }
+      }
+      @if (node().entries.length) {
+        <!-- its own list: layers move within their group only -->
+        <div
+          class="layer-group__rows"
+          cdkDropList
+          cdkDropListLockAxis="y"
+          (cdkDropListDropped)="dropEntry($event)"
+        >
+          @for (entry of node().entries; track entry.id) {
+            <app-layer-row
+              [entry]="entry"
+              [movable]="isMovable(entry)"
+              cdkDrag
+              [cdkDragData]="entry.id"
+              [cdkDragDisabled]="!isMovable(entry)"
+              cdkDragPreviewContainer="parent"
+            />
+          }
+        </div>
+      }
+      @if (node().count === 0 && node().group.emptyHintI18nKey; as hint) {
+        <p class="layer-group__hint">{{ hint | translate }}</p>
+      }
+    </div>
+  }
+</section>
+
+<ng-template #menu>
+  <app-layer-actions-menu
+    [items]="menuItems()"
+    [label]="
+      'MAP_LAYERS.ACTIONS.GROUP_MENU' | translate: { title: (node().group.i18nKey | translate) }
+    "
+    (triggered)="runAction($event)"
+  />
+</ng-template>

@@ -88,8 +88,107 @@
   "MAP_CONTROLS": {
     "CENTER_MAP": "Center Map",
     "CLEAR_SPATIAL_UNIT_SELECTION": "Clear Spatial Unit Selection",
-    "EXPORT_CURRENT_MAP_VIEW": "Export Current Map View",
-    "SHOW_LAYER_CONTROL": "Show Layer Control"
+    "EXPORT_CURRENT_MAP_VIEW": "Export Current Map View"
+  },
+  "MAP_LAYERS": {
+    "GROUPS": {
+      "REACHABILITY": "Reachability Analysis",
+      "TEMPORARY": "Temporary Layers",
+      "OUTLINE": "Spatial Unit Outlines",
+      "GEORESOURCE": "Georesources",
+      "GEORESOURCE_POINT": "Point Data",
+      "GEORESOURCE_LINE": "Line Data",
+      "GEORESOURCE_AREA": "Area Data",
+      "GEORESOURCE_SERVICE": "Geodata Services",
+      "INDICATOR": "Indicators"
+    },
+    "EMPTY_HINTS": {
+      "REACHABILITY": "No layers – compute them under Reachability Analysis",
+      "TEMPORARY": "No layers – load files under Data Import or find a place with the address search",
+      "OUTLINE": "No spatial units available",
+      "GEORESOURCE": "No layers – select them under Infrastructure Data",
+      "INDICATOR": "No indicator – select one under Indicator Selection"
+    },
+    "PANEL": {
+      "TITLE": "Map Layers",
+      "THEMATIC": "Thematic Layers",
+      "THEMATIC_HINT": "Groups further up are drawn on top"
+    },
+    "BASE": {
+      "TITLE": "Base map",
+      "BOTTOM": "bottom layer",
+      "EMPTY": "None",
+      "CHOOSE": "Choose a base map",
+      "TRANSPARENCY": "Transparency"
+    },
+    "GROUP": {
+      "COUNT": "{{count}} layers",
+      "DRAG": "Drag to move the group – with the keyboard via the ⋮ menu"
+    },
+    "ROW": {
+      "TOGGLE": "Show or hide layer: {{title}}",
+      "TRANSPARENCY": "Transparency",
+      "EXPAND": "Adjust transparency: {{title}}",
+      "DRAG": "Drag to move the layer – with the keyboard via the ⋮ menu"
+    },
+    "STATUS": {
+      "LOADING": "Loading",
+      "ERROR": "Loading failed – show the layer again to retry",
+      "OUT_OF_SCALE": "Not visible at this zoom level"
+    },
+    "ACTIONS": {
+      "MENU": "Actions for layer: {{title}}",
+      "GROUP_MENU": "Actions for group: {{title}}",
+      "ZOOM_TO": "Zoom to layer",
+      "INFO": "Details / metadata",
+      "MOVE_UP": "Move up",
+      "MOVE_DOWN": "Move down",
+      "REMOVE": "Remove"
+    },
+    "INFO": {
+      "TITLE": "Details: {{title}}",
+      "CLOSE": "Close details",
+      "LOADING": "Loading details …",
+      "EMPTY": "No details available",
+      "SPATIAL_UNIT": "Spatial unit",
+      "DATE": "Reference date",
+      "UNIT": "Unit",
+      "SOURCE": "Source",
+      "TYPE": "Type",
+      "FEATURES": "Features",
+      "AREAS": "Areas",
+      "AS_OF": "As of",
+      "SERVICE": "Service",
+      "LAYER_NAME": "Layer name",
+      "ORIGIN": "Origin",
+      "FILE": "File",
+      "ADDRESS": "Address",
+      "TRANSIT_MODE": "Mode of transport",
+      "FOCUS": "Measure",
+      "RANGES": "Thresholds",
+      "START_POINTS": "Start points",
+      "ORIGINS": {
+        "FILE": "File import",
+        "SEARCH": "Address search"
+      },
+      "TRANSIT_MODES": {
+        "BUFFER": "Buffer (straight line)",
+        "FOOT_WALKING": "Walking",
+        "CYCLING_REGULAR": "Cycling",
+        "DRIVING_CAR": "Car",
+        "WHEELCHAIR": "Wheelchair"
+      },
+      "FOCUS_VALUES": {
+        "TIME": "Time",
+        "DISTANCE": "Distance"
+      },
+      "RANGES_TIME": "{{values}} min",
+      "RANGES_DISTANCE": "{{values}} m",
+      "START_POINTS_VALUE": "{{name}} ({{count}})",
+      "NOT_LOADED": "not loaded yet – show the layer to load it",
+      "SESSION_NOTE": "This session only – lost when the page is reloaded"
+    },
+    "WFS_UNAVAILABLE": "WFS layers cannot be shown on the map at the moment."
   },
   "USER_INTERFACE": {
     "USER_LOGIN": "User Login",

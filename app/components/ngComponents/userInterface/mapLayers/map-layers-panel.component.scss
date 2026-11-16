@@ -1,0 +1,56 @@
+// Values of the design draft (concept 3.5), as panel-local variables so the
+// child components can share them without global styles.
+:host {
+  --map-layers-surface: #eef1f3;
+  --map-layers-border: #dde1e5;
+  --map-layers-hover: #f5f7f9;
+  --map-layers-text-secondary: #6b7280;
+  --map-layers-text-inactive: #aab1b8;
+  --map-layers-base-surface: #e4e8eb;
+
+  display: block;
+}
+
+.map-layers-panel {
+  padding: 8px;
+  background: var(--map-layers-surface);
+}
+
+.map-layers-panel__section-head {
+  margin: 4px 2px 8px;
+}
+
+.map-layers-panel__section-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--map-layers-text-secondary);
+}
+
+.map-layers-panel__section-hint {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--map-layers-text-secondary);
+}
+
+// Dragging a top-level group by its handle (F1).
+.cdk-drag-preview {
+  // The CDK shows the preview as a popover, whose browser default would add a scrollbar.
+  overflow: visible;
+  border-radius: 6px;
+  box-shadow:
+    0 5px 5px -3px rgb(0 0 0 / 0.2),
+    0 8px 10px 1px rgb(0 0 0 / 0.14),
+    0 3px 14px 2px rgb(0 0 0 / 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-animating,
+.map-layers-panel__groups.cdk-drop-list-dragging app-layer-group:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

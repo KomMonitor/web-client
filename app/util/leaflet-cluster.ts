@@ -17,7 +17,27 @@ import 'leaflet.markercluster';
  * mutate, so we resolve the factory from there and fall back to the imported
  * namespace for non-bundled/test environments.
  */
-export function createMarkerClusterGroup(options?: unknown): any {
+export function createMarkerClusterGroup(options: Record<string, any> = {}, pane?: string): any {
   const leaflet: any = (window as any).L ?? L;
-  return leaflet.markerClusterGroup(options);
+  return leaflet.markerClusterGroup(
+    pane ? { ...options, ...clusterPaneOptions(options, pane) } : options
+  );
+}
+
+/** markercluster's own default; the plugin replaces the whole object, so it is repeated here. */
+const DEFAULT_SPIDER_LEG_OPTIONS = { weight: 1.5, color: '#222', opacity: 0.5 };
+
+/**
+ * Puts cluster icons and spider legs into the layer's own pane, so they fade
+ * and stack with the markers (the markers themselves bring their own pane).
+ */
+function clusterPaneOptions(options: Record<string, any>, pane: string) {
+  return {
+    clusterPane: pane,
+    spiderLegPolylineOptions: {
+      ...DEFAULT_SPIDER_LEG_OPTIONS,
+      ...options['spiderLegPolylineOptions'],
+      pane,
+    },
+  };
 }

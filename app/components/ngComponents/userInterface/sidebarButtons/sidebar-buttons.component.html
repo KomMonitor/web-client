@@ -15,6 +15,21 @@
     </button>
   }
 
+  @if (visibilityHelperService.elementVisibility.mapLayers) {
+    <button
+      type="button"
+      style="display: block; position: relative; margin-top: 5px"
+      (click)="sidebarState.toggleActive('sidebarMapLayersCollapse')"
+      class="btn btn-custom btn-circle"
+      [ngClass]="{
+        'btn-docked btn-custom-docked': sidebarState.activeElement() === 'sidebarMapLayersCollapse',
+      }"
+      [title]="'MAP_LAYERS.PANEL.TITLE' | translate"
+    >
+      <i class="fas fa-layer-group"></i>
+    </button>
+  }
+
   @if (visibilityHelperService.elementVisibility.poi) {
     <button
       type="button"

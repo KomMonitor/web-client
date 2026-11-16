@@ -15,6 +15,13 @@
   <app-kommonitor-data-setup
     [hidden]="element !== 'sidebarIndicatorConfigCollapse'"
   ></app-kommonitor-data-setup>
+  @if (element === 'sidebarMapLayersCollapse') {
+    <div id="mapLayers">
+      <expandable-box [title]="'MAP_LAYERS.PANEL.TITLE' | translate" [collapsed]="false">
+        <app-map-layers-panel />
+      </expandable-box>
+    </div>
+  }
   @if (element === 'sidebarPoiCollapse') {
     <app-poi></app-poi>
   }

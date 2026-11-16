@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
@@ -31,9 +32,16 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import { MapContext } from 'services/map-service/map-context';
+import {
+  createBaseLayerRegistrations,
+  isSupportedBaseLayer,
+} from 'services/map-layer-registry-service/base-layer-factory';
+import type { LayerInfo } from 'services/map-layer-registry-service/map-layer.model';
+import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
+import { reachabilityLayerInfo } from 'services/reachability-layer-manager-service/reachability-layer-info';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
 
 import { NgClass } from '@angular/common';
@@ -43,6 +51,12 @@ import {
   GeoJSONFeature,
   ReachabilityStateService,
 } from 'services/reachability-state-service/reachability-state.service';
+
+/** The single indicator layer of the main map in the layer registry. */
+const INDICATOR_LAYER_ID = 'indicator';
+/** The live reachability result of the main map in the layer registry. */
+const LIVE_START_LAYER_ID = 'reachability:live:start';
+const LIVE_ISOCHRONES_LAYER_ID = 'reachability:live:isochrones';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -75,18 +89,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private fileLayerManager = inject(FileLayerManagerService);
   private reachabilityLayerManager = inject(ReachabilityLayerManagerService);
   private mapControlsService = inject(MapControlsService);
+  private mainMapLayers = inject(MainMapLayersService);
+
+  // The indicator's transparency lives on its pane (layer registry); the legend
+  // swatches show the resulting fill opacity.
+  private readonly legendOpacitySync = effect(() => {
+    const opacity = this.mainMapLayers.registry.entry(INDICATOR_LAYER_ID)?.opacity ?? 1;
+    this.classificationState.currentIndicatorOpacity =
+      this.envConfigService.defaultFillOpacity * opacity;
+  });
   private mapViewportState = inject(MapViewportStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
 
   private readonly destroyRef = inject(DestroyRef);
 
   private map;
-  private spatialUnitOutlineLayerInitialized = false;
-  // Lazily-populated outline overlays: placeholder layer -> its spatial unit + load state.
-  // The (potentially large) geometry is fetched only when the overlay is first enabled.
-  private outlineLayerRegistry = new Map<L.Layer, { spatialUnit: any; loaded: boolean }>();
-
-  private singleMarkers: L.Marker[] = [];
 
   datasetContainsNegativeValues: any;
 
@@ -172,7 +189,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   customPropertyName;
 
   currentCustomIndicatorLayer;
-  isochronesLayer: any = undefined;
   isochroneMarkerLayer = undefined;
 
   showOutlierInfoAlert = false;
@@ -195,15 +211,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   filteredStyle;
 
-  // central map object
-  layerControl: any = undefined;
   showLegend = true;
   overlays: any[] = [];
-  baseMaps: any[] = [];
 
   propertyName;
-
-  sortableLayers = ['Web Map Services (WMS)'];
 
   highlightTimeout;
 
@@ -233,12 +244,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // add the spatial unit outline layers once the initial metadata bootstrap
-    // is complete (replaces the former blind setTimeout(2000))
+    // after the initial bootstrap and after every reload (global filter change)
     this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) this.tryInitSpatialUnitOutlineLayer();
+        if (state === MetadataLoadingState.COMPLETE) this.onMetadataLoaded();
       });
 
     // single render channel for indicator layers (selection changes as well as
@@ -333,27 +343,36 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.georesourceLayerManager.addPoiGeoresource(
           command.georesource,
           command.date,
-          command.useCluster
+          command.useCluster,
+          command.owner
         );
         break;
       case 'removePoiGeoresource':
         this.georesourceLayerManager.removePoiGeoresource(command.georesource);
         break;
       case 'addLoiGeoresource':
-        this.georesourceLayerManager.addLoiGeoresource(command.georesource, command.date);
+        this.georesourceLayerManager.addLoiGeoresource(
+          command.georesource,
+          command.date,
+          command.owner
+        );
         break;
       case 'removeLoiGeoresource':
         this.georesourceLayerManager.removeLoiGeoresource(command.georesource);
         break;
       case 'addAoiGeoresource':
-        this.georesourceLayerManager.addAoiGeoresource(command.georesource, command.date);
+        this.georesourceLayerManager.addAoiGeoresource(
+          command.georesource,
+          command.date,
+          command.owner
+        );
         break;
       case 'removeAoiGeoresource':
         this.georesourceLayerManager.removeAoiGeoresource(command.georesource);
         break;
       // OGC layers
       case 'addWmsLayer':
-        this.ogcLayerManager.addWmsLayer(command.dataset, command.opacity);
+        this.ogcLayerManager.addWmsLayer(command.dataset, command.opacity, command.owner);
         break;
       case 'removeWmsLayer':
         this.ogcLayerManager.removeWmsLayer(command.dataset);
@@ -369,10 +388,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         break;
       // file layers
       case 'addFileLayer':
-        this.fileLayerManager.addFileLayer(command.dataset, undefined);
-        break;
-      case 'adjustFileLayerOpacity':
-        this.fileLayerManager.adjustOpacity(command.dataset, command.opacity);
+        this.fileLayerManager.addFileLayer(command.dataset, command.opacity, command.owner);
         break;
       case 'adjustFileLayerColor':
         this.fileLayerManager.adjustColor(command.dataset);
@@ -401,12 +417,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       case 'toggleExpertControls':
         this.mapControlsService.toggleExpertControls();
         break;
-      case 'openLayerControl':
-        this.mapControlsService.openLayerControl();
-        break;
-      case 'onGlobalFilterChange':
-        this.onGlobalFilterChange();
-        break;
     }
   }
 
@@ -414,17 +424,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.initMap();
     this.initializeLayerManagers();
 
-    if (this.envConfigService.sortableLayers) {
-      this.sortableLayers = this.envConfigService.sortableLayers;
-    } else {
-      this.sortableLayers = ['Web Map Services (WMS)'];
-    }
-
     this.mapControlsService.initSearchControls();
     this.mapControlsService.initMeasureControl();
 
     // covers the case that the metadata bootstrap completed before the map view existed
-    this.tryInitSpatialUnitOutlineLayer();
+    this.onMetadataLoaded();
   }
 
   private syncViewportState() {
@@ -432,14 +436,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.mapViewportState.setViewport(latLng.lat, latLng.lng, this.map.getZoom());
   }
 
-  // runs once, as soon as both the map view and the metadata bootstrap are ready
-  private tryInitSpatialUnitOutlineLayer() {
-    if (this.spatialUnitOutlineLayerInitialized) return;
-    if (!this.layerControl) return;
+  /**
+   * Runs once the map view exists and the metadata are loaded: at startup and
+   * after every reload (global filter change). Brings the outlines in line
+   * with the spatial units and drops the layers of reloaded catalogues.
+   */
+  private onMetadataLoaded() {
+    if (!this.map) return;
     if (this.metadataBootstrap.metadataLoadingState !== MetadataLoadingState.COMPLETE) return;
 
-    this.spatialUnitOutlineLayerInitialized = true;
-    this.initSpatialUnitOutlineLayer();
+    this.refreshSpatialUnitOutlines();
+    this.georesourceLayerManager.clearAfterCatalogReload();
+    this.ogcLayerManager.clearWmsAfterCatalogReload();
   }
 
   // hands the layer managers a narrow context; the Leaflet instance itself
@@ -447,8 +455,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private initializeLayerManagers() {
     const context: MapContext = {
       map: this.map,
-      layerControl: this.layerControl,
-      updateSearchControl: () => this.mapControlsService.updateSearchControl(),
+      layers: this.mainMapLayers.registry,
       hideLoadingIcon: () => this.hideLoadingIconOnMap(),
     };
 
@@ -461,9 +468,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private initMap(): void {
     this.loadingData = true;
 
-    const baseLayersByName = this.genericMapHelperService.createBaseLayers(
-      this.envConfigService.baseLayers
-    );
+    const center = {
+      lat: this.envConfigService.initialLatitude,
+      lng: this.envConfigService.initialLongitude,
+    };
 
     this.mapOverlayState.baseLayerDefinitionsArray = [
       {
@@ -478,16 +486,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         },
       },
       ...this.envConfigService.baseLayers
-        .filter((baseMapEntry) => baseLayersByName.has(baseMapEntry.name))
+        .filter((baseMapEntry) => isSupportedBaseLayer(baseMapEntry))
         .map((baseMapEntry) => ({ layerConfig: baseMapEntry })),
     ];
 
+    // Without a layer: the layer registry shows the remembered or the first base layer.
     this.map = L.map('ngMap', {
-      center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
+      center: [center.lat, center.lng],
       zoom: this.envConfigService.initialZoomLevel,
       zoomDelta: 0.5,
       zoomSnap: 0.5,
-      layers: [baseLayersByName.get(this.envConfigService.baseLayers[0].name)],
     });
 
     this.mapViewportState.setViewport(
@@ -500,20 +508,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.map.on('zoomend', () => this.syncViewportState());
     this.map.on('moveend', () => this.syncViewportState());
 
-    // lazily fetch outline geometry the first time an outline overlay is enabled
-    this.map.on('overlayadd', (e: any) => this.onOutlineOverlayAdded(e));
-
-    this.baseMaps = [];
-
-    baseLayersByName.forEach((value, key) => {
-      this.baseMaps[key] = value;
-    });
-
-    this.layerControl = this.mapControlsService.initializeLayerControl(
-      this.map,
-      this.baseMaps,
-      this.sortableLayers
+    this.mapControlsService.initialize(this.map);
+    this.mainMapLayers.attach(this.map);
+    this.mainMapLayers.registry.setBaseLayers(
+      createBaseLayerRegistrations(this.envConfigService.baseLayers, center)
     );
+    this.destroyRef.onDestroy(() => this.mainMapLayers.detach());
 
     this.outlierFillPattern_low = this.visualStyleHelperService.outlierFillPattern_low;
     this.outlierFillPattern_low.addTo(this.map);
@@ -540,11 +540,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Shows the start points of the live reachability analysis; an empty list removes them. */
   addSingleMarker(locations: GeoJSONFeature[]) {
-    this.singleMarkers.forEach((m) => this.map.removeLayer(m));
-    this.singleMarkers = [];
+    const layers = this.mainMapLayers.registry;
+    if (locations.length === 0) {
+      layers.unregister(LIVE_START_LAYER_ID);
+      return;
+    }
 
-    locations.forEach((location) => {
+    const pane = layers.paneFor(LIVE_START_LAYER_ID);
+    const markers: L.Marker[] = locations.map((location) => {
       // Create a GeoJSON feature for the location
       const poiFeature: any = {
         type: 'Feature',
@@ -565,56 +570,111 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         poiSymbolBootstrap3Name: 'home',
       };
 
-      const newMarker = this.genericMapHelperService.createCustomMarker(
+      return this.genericMapHelperService.createCustomMarker(
         poiFeature,
         defaultMarkerStyle.poiMarkerStyle,
         defaultMarkerStyle.poiMarkerText,
         defaultMarkerStyle.poiSymbolColor,
         defaultMarkerStyle.poiMarkerColor,
         defaultMarkerStyle.poiSymbolBootstrap3Name,
-        defaultMarkerStyle
+        defaultMarkerStyle,
+        pane
       );
-      newMarker.addTo(this.map);
-
-      // track to enable deletion
-      this.singleMarkers.push(newMarker);
     });
 
-    if (this.singleMarkers.length > 0) {
-      const bounds = L.latLngBounds(this.singleMarkers.map((m) => m.getLatLng()));
-      // only zoom out to fit all features, never zoom in beyond the current level
-      const targetZoom = Math.min(this.map.getZoom(), this.map.getBoundsZoom(bounds));
-      this.map.setView(bounds.getCenter(), targetZoom);
-    }
+    layers.register({
+      id: LIVE_START_LAYER_ID,
+      groupId: 'reachability',
+      title: 'Startpunkte (live)',
+      subtitle: this.liveReachabilityDatasetName(),
+      kind: 'marker',
+      // awesome-markers blue, as the markers are drawn
+      symbol: { kind: 'point', color: '#38aadd' },
+      layer: L.featureGroup(markers),
+      capabilities: { remove: true },
+      owner: this.liveReachabilityOwner,
+      info: this.liveReachabilityInfo(locations.length),
+    });
+    // setting points is an explicit action: bring them back if they were hidden
+    layers.setVisible(LIVE_START_LAYER_ID, true);
+
+    const bounds = L.latLngBounds(markers.map((m) => m.getLatLng()));
+    // only zoom out to fit all features, never zoom in beyond the current level
+    const targetZoom = Math.min(this.map.getZoom(), this.map.getBoundsZoom(bounds));
+    this.map.setView(bounds.getCenter(), targetZoom);
   }
 
   removeIsochrones() {
-    if (this.isochronesLayer) {
-      this.map.removeLayer(this.isochronesLayer);
-      this.layerControl.removeLayer(this.isochronesLayer);
+    this.mainMapLayers.registry.unregister(LIVE_ISOCHRONES_LAYER_ID);
+  }
+
+  /** Shows the isochrones of the live reachability analysis, replacing earlier ones. */
+  addIsochrones(isochrones: any) {
+    const layers = this.mainMapLayers.registry;
+    const settings = this.reachabilityStateService.settings;
+    const isNew = !layers.entry(LIVE_ISOCHRONES_LAYER_ID);
+    const isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
+      this.liveReachabilityDatasetName(),
+      isochrones,
+      settings.transitMode,
+      settings.focus,
+      settings.rangeArray,
+      settings.useMultipleStartPoints,
+      settings.dissolveIsochrones,
+      layers.paneFor(LIVE_ISOCHRONES_LAYER_ID)
+    );
+
+    layers.register({
+      id: LIVE_ISOCHRONES_LAYER_ID,
+      groupId: 'reachability',
+      title: 'Isochronen (live)',
+      subtitle: `${this.liveReachabilityDatasetName()} · ${settings.transitMode}`,
+      kind: 'vector',
+      symbol: { kind: 'isochrone' },
+      layer: isochronesLayer,
+      capabilities: { remove: true },
+      owner: this.liveReachabilityOwner,
+      info: this.liveReachabilityInfo(settings.locationsArray?.length ?? 0),
+    });
+    // a new calculation is an explicit action: bring the isochrones back if hidden
+    layers.setVisible(LIVE_ISOCHRONES_LAYER_ID, true);
+
+    if (isNew) {
+      // New entries go on top of their list, which would put the isochrones above
+      // the start points that came first. Only when they are new, so that an order
+      // the user chose survives the next calculation.
+      const list = layers.drawOrder().filter((id) => id.startsWith('reachability:'));
+      const isochronesIndex = list.indexOf(LIVE_ISOCHRONES_LAYER_ID);
+      if (list.indexOf(LIVE_START_LAYER_ID) > isochronesIndex) {
+        layers.moveEntry(LIVE_START_LAYER_ID, isochronesIndex);
+      }
     }
   }
 
-  addIsochrones(isochrones: any) {
-    this.removeIsochrones();
+  /**
+   * Removing the live start points or isochrones in the layer panel discards
+   * the whole live result, like "Zurücksetzen" in the reachability sidebar;
+   * the subscription to the reachability state then takes both off the map.
+   */
+  private readonly liveReachabilityOwner = {
+    remove: () => this.reachabilityStateService.resetLocations(),
+  };
 
-    this.isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
-      this.reachabilityStateService.settings.selectedStartPointLayer?.datasetName ||
-        'Manuelle Eingabe',
-      isochrones,
-      this.reachabilityStateService.settings.transitMode,
-      this.reachabilityStateService.settings.focus,
-      this.reachabilityStateService.settings.rangeArray,
-      this.reachabilityStateService.settings.useMultipleStartPoints,
-      this.reachabilityStateService.settings.dissolveIsochrones
+  /** The details of a live reachability layer, taken now: the settings change with the next input. */
+  private liveReachabilityInfo(startCount: number): () => LayerInfo {
+    const details = reachabilityLayerInfo(
+      this.reachabilityStateService.settings,
+      this.liveReachabilityDatasetName(),
+      startCount
     );
-
-    this.isochronesLayer.addTo(this.map);
+    return () => details;
   }
 
-  onGlobalFilterChange() {
-    // reset custom layers when global filters change. otherwise douplicates might be added
-    this.layerControl._layers = this.layerControl._layers.filter((e) => e.overlay === undefined);
+  private liveReachabilityDatasetName(): string {
+    return (
+      this.reachabilityStateService.settings.selectedStartPointLayer?.datasetName ||
+      'Manuelle Eingabe'
+    );
   }
 
   onCloseOutlierAlert() {
@@ -707,14 +767,28 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.filteredStyle = this.visualStyleHelperService.filteredStyle;
   }
 
-  initSpatialUnitOutlineLayer() {
-    for (const spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
-      if (!spatialUnit.isOutlineLayer) continue;
+  /**
+   * Registers one outline entry per spatial unit, hidden at first. The
+   * (potentially large) geometry is fetched only when the user shows it, into
+   * an empty placeholder layer that is bound from the start.
+   *
+   * Runs again after every metadata reload: entries of spatial units that are
+   * gone are dropped, the others are registered anew. That keeps their
+   * visibility, opacity and position, and a visible one loads its geometry
+   * again, matching the new filter.
+   */
+  refreshSpatialUnitOutlines() {
+    const layers = this.mainMapLayers.registry;
+    const outlineUnits = this.spatialUnitStore.availableSpatialUnits.filter(
+      (spatialUnit) => spatialUnit.isOutlineLayer
+    );
+    const ids = new Set(outlineUnits.map((spatialUnit) => `outline:${spatialUnit.spatialUnitId}`));
+    layers.unregisterWhere((entry) => entry.groupId === 'outline' && !ids.has(entry.id));
 
-      // Register an empty placeholder overlay only. The geometry is fetched
-      // lazily in onOutlineOverlayAdded() the first time the user enables it,
-      // so the app start no longer downloads every outline layer up front.
-      const layer = L.geoJSON(undefined, {
+    for (const spatialUnit of outlineUnits) {
+      const id = `outline:${spatialUnit.spatialUnitId}`;
+      const placeholder = L.geoJSON(undefined, {
+        pane: layers.paneFor(id),
         style: () => ({
           color: spatialUnit.outlineColor,
           weight: spatialUnit.outlineWidth,
@@ -726,44 +800,58 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         onEachFeature: this.onEachFeatureSpatialUnit,
       });
 
-      this.outlineLayerRegistry.set(layer, { spatialUnit, loaded: false });
-
-      this.layerControl.addOverlay(
-        layer,
-        spatialUnit.spatialUnitLevel + '_Umringe',
-        MAP_LAYER_GROUPS.spatialUnitOutline
-      );
+      layers.register({
+        id,
+        groupId: 'outline',
+        title: spatialUnit.spatialUnitLevel,
+        kind: 'vector',
+        symbol: {
+          kind: 'outline',
+          // Leaflet's default stroke, which an outline without a color is drawn in
+          color: spatialUnit.outlineColor ?? '#3388ff',
+          dashed: !!spatialUnit.outlineDashArrayString,
+        },
+        layer: placeholder,
+        load: () => this.loadOutline(spatialUnit, placeholder),
+        initial: { visible: false },
+        // the number of areas is only known once the outline was loaded
+        info: () => ({
+          items: [
+            { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: spatialUnit.spatialUnitLevel },
+            layers.entry(id)?.status === 'ready'
+              ? { labelKey: 'MAP_LAYERS.INFO.AREAS', value: placeholder.getLayers().length }
+              : { labelKey: 'MAP_LAYERS.INFO.AREAS', valueKey: 'MAP_LAYERS.INFO.NOT_LOADED' },
+            {
+              labelKey: 'MAP_LAYERS.INFO.SOURCE',
+              value: spatialUnit.metadata?.datasource,
+              html: true,
+            },
+          ],
+        }),
+      });
     }
   }
 
-  // Lazily fetch the outline geometry the first time its overlay is enabled.
-  private onOutlineOverlayAdded(event: { layer: L.Layer }): void {
-    const entry = this.outlineLayerRegistry.get(event.layer);
-    if (!entry || entry.loaded) return;
-
-    // Guard against a duplicate fetch while the request is in flight.
-    entry.loaded = true;
+  /**
+   * Fills the outline placeholder with the spatial unit's geometry. A failure
+   * is reported here; the registry hides the entry and retries on the next show.
+   */
+  private async loadOutline(spatialUnit, placeholder: L.GeoJSON): Promise<L.Layer> {
     this.showLoadingIconOnMap();
-
     const url =
       this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       '/spatial-units/' +
-      entry.spatialUnit.spatialUnitId +
+      spatialUnit.spatialUnitId +
       '/allFeatures';
-
-    this.http.get(url).subscribe({
-      next: (geoJSON: any) => {
-        (event.layer as L.GeoJSON).addData(geoJSON);
-        this.mapControlsService.updateSearchControl();
-        this.hideLoadingIconOnMap();
-      },
-      error: (error) => {
-        // allow a retry the next time the overlay is toggled on
-        entry.loaded = false;
-        this.hideLoadingIconOnMap();
-        this.mapErrorNotificationService.displayMapApplicationError(error);
-      },
-    });
+    try {
+      placeholder.addData(await firstValueFrom(this.http.get<any>(url)));
+      return placeholder;
+    } catch (error) {
+      this.mapErrorNotificationService.displayMapApplicationError(error);
+      throw error;
+    } finally {
+      this.hideLoadingIconOnMap();
+    }
   }
 
   filterForScreenshot(node) {
@@ -995,7 +1083,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     layer.on({
       mouseover: (l) => this.highlightFeature(l),
       mouseout: (l) => this.resetHighlight(l),
-      click: (l) => this.switchHighlightFeature(l),
+      click: (e) => this.switchHighlightFeature(e.target),
       // while picking a single point for reachability analysis, hovering the map
       // must not also reveal the indicator area's label tooltip
       tooltipopen: () => {
@@ -1006,6 +1094,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Selects or deselects an indicator feature, by a map click or from a diagram. */
   switchHighlightFeature(layer) {
     // while picking a single point for reachability analysis, clicks on the map
     // must not also toggle indicator area selection
@@ -1017,17 +1106,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // those shall be treated specially, i.e. keep being highlighted
     if (
       !this.filterHelperService.featureIsCurrentlySelected(
-        layer.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+        layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
       )
     ) {
-      this.filterHelperService.addFeatureToSelection(layer.target.feature);
-      this.highlightClickedFeature(layer.target);
+      this.filterHelperService.addFeatureToSelection(layer.feature);
+      this.highlightClickedFeature(layer);
     } else {
       //remove from array
       this.filterHelperService.removeFeatureFromSelection(
-        layer.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+        layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
       );
-      this.resetHighlightClickedFeature(layer.target);
+      this.resetHighlightClickedFeature(layer);
     }
   }
 
@@ -1038,10 +1127,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const layer = e.target;
-    this.visualStyleHelperService.setOpacity(layer.options.fillOpacity);
-
-    this.highlightFeatureForLayer(layer);
+    this.highlightFeatureForLayer(e.target);
   }
 
   highlightFeatureForLayer(layer) {
@@ -1073,18 +1159,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     clearTimeout(this.highlightTimeout);
 
-    this.highlightTimeout = setTimeout(() => {
-      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        if (layer._map) {
-          layer.bringToFront();
-          // also bring possible isochrone layer to front
-          // so it will not disapper behing indicator layer
-          if (this.isochronesLayer) {
-            this.isochronesLayer.bringToFront();
-          }
-        }
-      }
-    }, 150);
+    this.highlightTimeout = setTimeout(() => this.bringHighlightToFront(layer), 150);
   }
 
   setTemporarilyHighlightedStyle(layer) {
@@ -1102,35 +1177,49 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     clearTimeout(this.highlightTimeout);
 
-    this.highlightTimeout = setTimeout(() => {
-      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        if (layer._map) {
-          layer.bringToFront();
-          // also bring possible isochrone layer to front
-          // so it will not disapper behing indicator layer
-          if (this.isochronesLayer) {
-            this.isochronesLayer.bringToFront();
-          }
-        }
-      }
-    }, 150);
+    this.highlightTimeout = setTimeout(() => this.bringHighlightToFront(layer), 150);
+  }
+
+  /**
+   * Raises the feature within the indicator's own pane; layers in other panes,
+   * such as isochrones, keep their stacking.
+   */
+  private bringHighlightToFront(layer) {
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge && layer._map) {
+      layer.bringToFront();
+    }
   }
 
   preserveHighlightedFeatures() {
-    this.map.eachLayer((layer) => {
-      if (layer.feature) {
-        if (
-          this.filterHelperService.featureIsCurrentlySelected(
-            layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
-          )
-        ) {
-          this.setPermanentlyHighlightedStyle(layer);
-          // the legacy broadcast passed the properties unwrapped, so the
-          // receivers' array destructuring got undefined — fixed by the typed event
-          this.mapService.notifyFeatureHovered(layer.feature.properties);
-        }
+    for (const layer of this.indicatorFeatures()) {
+      if (
+        this.filterHelperService.featureIsCurrentlySelected(
+          layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+        )
+      ) {
+        this.setPermanentlyHighlightedStyle(layer);
+        // the legacy broadcast passed the properties unwrapped, so the
+        // receivers' array destructuring got undefined — fixed by the typed event
+        this.mapService.notifyFeatureHovered(layer.feature.properties);
       }
-    });
+    }
+  }
+
+  /**
+   * The features of the indicator layer. Highlighting looks only there: the
+   * whole map also holds outline features of the same spatial unit, with the
+   * same names and ids.
+   */
+  private indicatorFeatures(): any[] {
+    return this.currentIndicatorLayer?.getLayers() ?? [];
+  }
+
+  private findIndicatorFeature(spatialFeatureName): any {
+    return this.indicatorFeatures().find(
+      (layer) =>
+        layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
+        spatialFeatureName
+    );
   }
 
   resetHighlight(e) {
@@ -1335,19 +1424,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     justRestyling = false
   ) {
     this.classificationState.isCustomComputation = !!isCustomComputation;
-    //reset opacity
-    this.visualStyleHelperService.setOpacity(this.envConfigService.defaultFillOpacity);
+    // the transparency is no longer reset: it lives on the indicator's pane and
+    // survives a new indicator, spatial unit or date
 
     this.refreshFilteredStyle();
     this.refreshOutliersStyle();
     this.refreshNoDataStyle();
 
     this.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
-
-    if (this.currentIndicatorLayer) {
-      this.layerControl.removeLayer(this.currentIndicatorLayer);
-      this.map.removeLayer(this.currentIndicatorLayer);
-    }
 
     this.date = date;
     this.indicatorPropertyName = this.envConfigService.indicatorDatePrefix + date;
@@ -1377,7 +1461,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.indicatorPropertyName
     );
 
+    const layers = this.mainMapLayers.registry;
     const layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+      pane: layers.paneFor(INDICATOR_LAYER_ID),
       style: (feature) => result.styleFor(feature),
       onEachFeature: (e, l) => {
         this.onEachFeatureIndicator(e, l);
@@ -1396,15 +1482,39 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       selectedDate: this.selectionState.selectedDate,
     });
 
-    let layerName = indicatorMetadataAndGeoJSON.indicatorName + '_' + spatialUnitName + '_' + date;
-
-    if (isCustomComputation) {
-      layerName += ' - individuelles Berechnungsergebnis';
+    const indicatorDetails: LayerInfo = {
+      items: [
+        { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: spatialUnitName },
+        { labelKey: 'MAP_LAYERS.INFO.DATE', value: date },
+        { labelKey: 'MAP_LAYERS.INFO.UNIT', value: indicatorMetadataAndGeoJSON.unit },
+        {
+          labelKey: 'MAP_LAYERS.INFO.SOURCE',
+          value: indicatorMetadataAndGeoJSON.metadata?.datasource,
+          html: true,
+        },
+      ],
+    };
+    // replaces the previous indicator layer; the binding puts it on the map right away
+    layers.register({
+      id: INDICATOR_LAYER_ID,
+      groupId: 'indicator',
+      title: indicatorMetadataAndGeoJSON.indicatorName,
+      subtitle: [
+        spatialUnitName,
+        date,
+        ...(isCustomComputation ? ['individuelles Berechnungsergebnis'] : []),
+      ].join(' · '),
+      kind: 'vector',
+      // placeholder until the panel derives a swatch from the classification (D2)
+      symbol: { kind: 'fill', color: '#808080' },
+      layer,
+      capabilities: { searchable: true },
+      info: () => indicatorDetails,
+    });
+    if (!justRestyling) {
+      // a newly chosen indicator is shown even if the user had hidden the previous one
+      layers.setVisible(INDICATOR_LAYER_ID, true);
     }
-
-    this.layerControl.addOverlay(layer, layerName, MAP_LAYER_GROUPS.indicator);
-    layer.addTo(this.map);
-    this.mapControlsService.updateSearchControl();
 
     this.fitBounds();
 
@@ -1566,62 +1676,25 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   highlightFeatureOnMap(spatialFeatureName) {
-    if (!spatialFeatureName) {
-      return;
+    const layer = spatialFeatureName && this.findIndicatorFeature(spatialFeatureName);
+    if (layer) {
+      this.highlightFeatureForLayer(layer);
     }
-    let done = false;
-
-    this.map.eachLayer((layer) => {
-      if (!done && layer.feature) {
-        if (
-          layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
-          spatialFeatureName
-        ) {
-          this.highlightFeatureForLayer(layer);
-          done = true;
-        }
-      }
-    });
   }
 
   unhighlightFeatureOnMap(spatialFeatureName) {
-    if (!spatialFeatureName) {
-      return;
+    const layer = spatialFeatureName && this.findIndicatorFeature(spatialFeatureName);
+    if (layer) {
+      this.resetHighlightForLayer(layer);
     }
-
-    let done = false;
-
-    this.map.eachLayer((layer) => {
-      if (!done && layer.feature) {
-        if (
-          layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
-          spatialFeatureName
-        ) {
-          this.resetHighlightForLayer(layer);
-          done = true;
-        }
-      }
-    });
   }
 
+  /** E.g. a click on a bar of a diagram. */
   switchHighlightFeatureOnMap(spatialFeatureName) {
-    if (!spatialFeatureName) {
-      return;
+    const layer = spatialFeatureName && this.findIndicatorFeature(spatialFeatureName);
+    if (layer) {
+      this.switchHighlightFeature(layer);
     }
-
-    let done = false;
-
-    this.map.eachLayer((layer) => {
-      if (!done && layer.feature) {
-        if (
-          layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
-          spatialFeatureName
-        ) {
-          this.switchHighlightFeature(layer);
-          done = true;
-        }
-      }
-    });
   }
 
   unselectAllFeatures() {

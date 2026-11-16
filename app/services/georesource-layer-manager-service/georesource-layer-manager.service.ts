@@ -3,12 +3,26 @@ import * as turf from '@turf/turf';
 import * as L from 'leaflet';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import {
+  MAIN_MAP_LAYER_GROUPS,
+  resolveLeafGroup,
+} from 'services/map-layer-registry-service/layer-group-catalog';
+import type {
+  LayerInfo,
+  LayerKind,
+  LayerSymbol,
+  MapLayerOwner,
+} from 'services/map-layer-registry-service/map-layer.model';
+import { MapContext } from 'services/map-service/map-context';
 import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 
 /**
- * Manages the POI/LOI/AOI georesource layers on the main map
- * (map refactoring plan, Phase 3 — extracted from KommonitorMapComponent).
+ * Puts the POI/LOI/AOI georesource layers on the main map by registering them
+ * with its layer registry as 'georesource:<georesourceId>'. Adding a dataset
+ * again (other date, clustering switched) replaces the layer under the same id,
+ * so visibility, opacity and position stay. The catalogue hands over an
+ * `owner` that deselects the dataset, which makes the layer removable in the
+ * layer panel.
  */
 @Injectable({
   providedIn: 'root',
@@ -23,54 +37,47 @@ export class GeoresourceLayerManagerService {
     this.context = context;
   }
 
-  addPoiGeoresource(georesourceMetadataAndGeoJSON, date, useCluster) {
-    let markers: any;
-    if (useCluster) {
-      markers = createMarkerClusterGroup();
+  addPoiGeoresource(georesourceMetadataAndGeoJSON, date, useCluster, owner?: MapLayerOwner) {
+    const pane = this.context.layers.paneFor(georesourceLayerId(georesourceMetadataAndGeoJSON));
+    let markers: any = useCluster ? createMarkerClusterGroup({}, pane) : L.featureGroup();
 
-      georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
-        // index 0 should be longitude and index 1 should be latitude
-        const newMarker = this.createPoiMarker(poiFeature, georesourceMetadataAndGeoJSON);
-        markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker));
-      });
-    } else {
-      markers = L.featureGroup();
+    georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
+      const newMarker = this.createPoiMarker(poiFeature, georesourceMetadataAndGeoJSON, pane);
+      // binds the popup and adds the marker to the group
+      markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
+    });
 
-      georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
-        // index 0 should be longitude and index 1 should be latitude
-        const newMarker = this.createPoiMarker(poiFeature, georesourceMetadataAndGeoJSON);
-        markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
-      });
-    }
-
-    this.context.layerControl.addOverlay(
-      markers,
-      georesourceMetadataAndGeoJSON.datasetName + '_' + date,
-      MAP_LAYER_GROUPS.poi
-    );
-    markers.addTo(this.context.map);
-    this.context.updateSearchControl();
-    this.context.map.invalidateSize(true);
-
-    this.context.hideLoadingIcon();
+    this.register(georesourceMetadataAndGeoJSON, date, markers, owner, {
+      groupId: 'georesource.point',
+      kind: useCluster ? 'cluster' : 'marker',
+      symbol: { kind: 'point', color: georesourceMetadataAndGeoJSON.poiMarkerColor },
+    });
   }
 
   removePoiGeoresource(georesourceMetadataAndGeoJSON) {
-    this.removeLayersByDatasetName(georesourceMetadataAndGeoJSON.datasetName);
+    this.unregister(georesourceMetadataAndGeoJSON);
   }
 
-  /** Fits the map to the bounds of the dataset's currently displayed layer, if any. */
+  /**
+   * After the catalogue was reloaded (global filter change), nothing in it is
+   * selected any more, so a georesource still on the map could not be
+   * deselected there. Drops them all; should the store ever keep the
+   * selection across reloads, this has to keep the selected ones.
+   */
+  clearAfterCatalogReload() {
+    this.context.layers.unregisterWhere((entry) => entry.id.startsWith('georesource:'));
+  }
+
+  /** Fits the map to the bounds of the dataset's layer, if it is registered. */
   zoomToLayer(georesourceMetadataAndGeoJSON) {
-    const layer = this.getLayersByDatasetName(georesourceMetadataAndGeoJSON.datasetName)[0];
-    if (layer) {
-      this.genericMapHelperService.zoomToLayer(this.context.map, layer);
-    }
+    this.context.layers.zoomTo(georesourceLayerId(georesourceMetadataAndGeoJSON));
   }
 
-  addAoiGeoresource(georesourceMetadataAndGeoJSON, date) {
+  addAoiGeoresource(georesourceMetadataAndGeoJSON, date, owner?: MapLayerOwner) {
     const color = georesourceMetadataAndGeoJSON.aoiColor;
 
     const layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
+      pane: this.context.layers.paneFor(georesourceLayerId(georesourceMetadataAndGeoJSON)),
       style: () => {
         return {
           fillColor: color,
@@ -83,24 +90,19 @@ export class GeoresourceLayerManagerService {
       onEachFeature: this.onEachFeatureGeoresource,
     });
 
-    this.context.layerControl.addOverlay(
-      layer,
-      georesourceMetadataAndGeoJSON.datasetName + '_' + date,
-      MAP_LAYER_GROUPS.aoi
-    );
-    layer.addTo(this.context.map);
-    this.context.updateSearchControl();
-
-    this.context.map.invalidateSize(true);
-
-    this.context.hideLoadingIcon();
+    this.register(georesourceMetadataAndGeoJSON, date, layer, owner, {
+      groupId: 'georesource.area',
+      kind: 'vector',
+      symbol: { kind: 'fill', color },
+    });
   }
 
   removeAoiGeoresource(georesourceMetadataAndGeoJSON) {
-    this.removeLayersByDatasetName(georesourceMetadataAndGeoJSON.datasetName);
+    this.unregister(georesourceMetadataAndGeoJSON);
   }
 
-  addLoiGeoresource(georesourceMetadataAndGeoJSON, date) {
+  addLoiGeoresource(georesourceMetadataAndGeoJSON, date, owner?: MapLayerOwner) {
+    const pane = this.context.layers.paneFor(georesourceLayerId(georesourceMetadataAndGeoJSON));
     const featureGroup = L.featureGroup();
 
     const style = {
@@ -112,38 +114,73 @@ export class GeoresourceLayerManagerService {
 
     georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item) => {
       const type = item.geometry.type;
+      const lines = type === 'Polygon' || type === 'MultiPolygon' ? turf.polygonToLine(item) : item;
 
-      if (type === 'Polygon' || type === 'MultiPolygon') {
-        const lines = turf.polygonToLine(item);
-
-        L.geoJSON(lines, {
-          style: style,
-          onEachFeature: this.onEachFeatureGeoresource,
-        }).addTo(featureGroup);
-      } else {
-        L.geoJSON(item, {
-          style: style,
-          onEachFeature: this.onEachFeatureGeoresource,
-        }).addTo(featureGroup);
-      }
+      L.geoJSON(lines, {
+        pane,
+        style: style,
+        onEachFeature: this.onEachFeatureGeoresource,
+      }).addTo(featureGroup);
     });
 
-    this.context.layerControl.addOverlay(
-      featureGroup,
-      georesourceMetadataAndGeoJSON.datasetName + '_' + date,
-      MAP_LAYER_GROUPS.loi
-    );
-    featureGroup.addTo(this.context.map);
-    this.context.updateSearchControl();
-
-    this.context.map.invalidateSize(true);
+    this.register(georesourceMetadataAndGeoJSON, date, featureGroup, owner, {
+      groupId: 'georesource.line',
+      kind: 'vector',
+      symbol: { kind: 'line', color: georesourceMetadataAndGeoJSON.loiColor },
+    });
   }
 
   removeLoiGeoresource(georesourceMetadataAndGeoJSON) {
-    this.removeLayersByDatasetName(georesourceMetadataAndGeoJSON.datasetName);
+    this.unregister(georesourceMetadataAndGeoJSON);
   }
 
-  private createPoiMarker(poiFeature, georesourceMetadataAndGeoJSON) {
+  /** The date becomes the subtitle of the entry. */
+  private register(
+    georesourceMetadataAndGeoJSON,
+    date: string,
+    layer: L.Layer,
+    owner: MapLayerOwner | undefined,
+    entry: { groupId: string; kind: LayerKind; symbol: LayerSymbol }
+  ) {
+    // taken now: the dataset's GeoJSON is replaced when it is loaded for another date
+    const details: LayerInfo = {
+      items: [
+        {
+          labelKey: 'MAP_LAYERS.INFO.TYPE',
+          valueKey: resolveLeafGroup(MAIN_MAP_LAYER_GROUPS, entry.groupId)?.leaf.i18nKey,
+        },
+        {
+          labelKey: 'MAP_LAYERS.INFO.FEATURES',
+          value: georesourceMetadataAndGeoJSON.geoJSON?.features?.length,
+        },
+        { labelKey: 'MAP_LAYERS.INFO.AS_OF', value: date },
+        {
+          labelKey: 'MAP_LAYERS.INFO.SOURCE',
+          value: georesourceMetadataAndGeoJSON.metadata?.datasource,
+          html: true,
+        },
+      ],
+    };
+    this.context.layers.register({
+      id: georesourceLayerId(georesourceMetadataAndGeoJSON),
+      title: georesourceMetadataAndGeoJSON.datasetName,
+      subtitle: date,
+      layer,
+      capabilities: { searchable: true, remove: !!owner },
+      owner,
+      info: () => details,
+      ...entry,
+    });
+    this.context.map.invalidateSize(true);
+    this.context.hideLoadingIcon();
+  }
+
+  private unregister(georesourceMetadataAndGeoJSON) {
+    this.context.layers.unregister(georesourceLayerId(georesourceMetadataAndGeoJSON));
+    this.context.hideLoadingIcon();
+  }
+
+  private createPoiMarker(poiFeature, georesourceMetadataAndGeoJSON, pane: string) {
     return this.genericMapHelperService.createCustomMarker(
       poiFeature,
       georesourceMetadataAndGeoJSON.poiMarkerStyle,
@@ -151,29 +188,9 @@ export class GeoresourceLayerManagerService {
       georesourceMetadataAndGeoJSON.poiSymbolColor,
       georesourceMetadataAndGeoJSON.poiMarkerColor,
       georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name,
-      georesourceMetadataAndGeoJSON
+      georesourceMetadataAndGeoJSON,
+      pane
     );
-  }
-
-  private removeLayersByDatasetName(datasetName: string) {
-    this.getLayersByDatasetName(datasetName).forEach((layer) => {
-      this.context.layerControl.removeLayer(layer);
-      this.context.map.removeLayer(layer);
-      this.context.updateSearchControl();
-    });
-
-    this.context.hideLoadingIcon();
-  }
-
-  // matches by layer name only (not by group), mirroring the legacy behavior
-  private getLayersByDatasetName(datasetName: string): any[] {
-    const matches: any[] = [];
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.name.includes(datasetName + '_')) {
-        matches.push(layer.layer);
-      }
-    });
-    return matches;
   }
 
   private onEachFeatureGeoresource = (feature, layer) => {
@@ -183,4 +200,9 @@ export class GeoresourceLayerManagerService {
       'georesourceInfoPopupContent'
     );
   };
+}
+
+/** Stable id of a georesource in the layer registry, independent of its date. */
+function georesourceLayerId(georesource): string {
+  return `georesource:${georesource.georesourceId}`;
 }

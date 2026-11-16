@@ -1,0 +1,108 @@
+<section class="base-layer-section">
+  <button
+    type="button"
+    class="base-layer-section__header"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="instanceId + '-body'"
+    (click)="toggle()"
+  >
+    <i
+      class="fas base-layer-section__chevron"
+      [class.fa-chevron-down]="expanded()"
+      [class.fa-chevron-right]="!expanded()"
+      aria-hidden="true"
+    ></i>
+    <span class="base-layer-section__mini" aria-hidden="true">
+      <ng-container
+        *ngTemplateOutlet="
+          preview;
+          context: { $implicit: active()?.thumbnail ?? null, empty: !active() }
+        "
+      />
+    </span>
+    <span class="base-layer-section__title">{{ 'MAP_LAYERS.BASE.TITLE' | translate }}</span>
+    <span class="base-layer-section__name">{{
+      active()?.title ?? ('MAP_LAYERS.BASE.EMPTY' | translate)
+    }}</span>
+    <span class="base-layer-section__badge">
+      <i class="fas fa-lock" aria-hidden="true"></i>
+      {{ 'MAP_LAYERS.BASE.BOTTOM' | translate }}
+    </span>
+  </button>
+
+  @if (expanded()) {
+    <div class="base-layer-section__body" [id]="instanceId + '-body'">
+      <div
+        class="base-layer-section__gallery"
+        role="radiogroup"
+        [attr.aria-label]="'MAP_LAYERS.BASE.CHOOSE' | translate"
+      >
+        <label class="base-tile" [title]="'MAP_LAYERS.BASE.EMPTY' | translate">
+          <input
+            type="radio"
+            class="base-tile__input visually-hidden"
+            [name]="instanceId"
+            [checked]="!active()"
+            (change)="choose(null)"
+          />
+          <span class="base-tile__thumb">
+            <ng-container *ngTemplateOutlet="preview; context: { $implicit: null, empty: true }" />
+          </span>
+          <span class="base-tile__label">{{ 'MAP_LAYERS.BASE.EMPTY' | translate }}</span>
+        </label>
+        @for (base of registry.baseLayers(); track base.id) {
+          <label class="base-tile" [title]="base.title">
+            <input
+              type="radio"
+              class="base-tile__input visually-hidden"
+              [name]="instanceId"
+              [checked]="active()?.id === base.id"
+              (change)="choose(base.id)"
+            />
+            <span class="base-tile__thumb">
+              <ng-container
+                *ngTemplateOutlet="preview; context: { $implicit: base.thumbnail, empty: false }"
+              />
+            </span>
+            <span class="base-tile__label">{{ base.title }}</span>
+          </label>
+        }
+      </div>
+
+      <div class="base-layer-section__transparency">
+        <label [for]="instanceId + '-transparency'">{{
+          'MAP_LAYERS.BASE.TRANSPARENCY' | translate
+        }}</label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          [id]="instanceId + '-transparency'"
+          [value]="transparency()"
+          [disabled]="!active()"
+          [attr.aria-valuetext]="transparency() + ' %'"
+          (input)="setTransparency($any($event.target).value)"
+        />
+        <span class="base-layer-section__value">{{ transparency() }} %</span>
+      </div>
+    </div>
+  }
+</section>
+
+<ng-template #preview let-thumbnail let-empty="empty">
+  @if (empty) {
+    <i class="fas fa-ban base-preview__icon" aria-hidden="true"></i>
+  } @else if (image(thumbnail); as shown) {
+    <img
+      class="base-preview__image"
+      [class.base-preview__image--grayscale]="shown.grayscale"
+      [src]="shown.url"
+      alt=""
+      loading="lazy"
+      (error)="thumbnailFailed(shown.url)"
+    />
+  } @else {
+    <i class="fas fa-map base-preview__icon" aria-hidden="true"></i>
+  }
+</ng-template>

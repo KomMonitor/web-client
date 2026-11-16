@@ -181,22 +181,34 @@ export class KommonitorDataImportComponent implements OnInit {
 
   toggleDataLayer(dataset) {
     if (dataset.isSelected) {
-      //display on Map
-      const opacity = 1 - dataset.transparency;
-      this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
+      this.addDataLayer(dataset);
     } else {
-      //remove WMS layer from map
       this.kommonitorMapService.removeFileLayerFromMap(dataset);
     }
   }
 
+  // Adding it again replaces the layer under the same id and keeps its
+  // visibility, opacity and position; removing it first would lose them.
   refreshDataLayer(dataset) {
     if (dataset.isSelected) {
-      this.kommonitorMapService.removeFileLayerFromMap(dataset);
-      //display on Map
-      const opacity = 1 - dataset.transparency;
-      this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
+      this.addDataLayer(dataset);
     }
+  }
+
+  /**
+   * The layer panel removes the layer as unticking it here would; the file
+   * stays in the list. `FileLayerSuccess` lists a copy of the dataset, so the
+   * entry is looked up by name when it is removed.
+   */
+  private addDataLayer(dataset) {
+    this.kommonitorMapService.addFileLayerToMap(dataset, 1 - (dataset.transparency ?? 0), {
+      remove: () => {
+        const listed =
+          this.fileDatasets.find((file) => file.datasetName === dataset.datasetName) ?? dataset;
+        listed.isSelected = false;
+        this.toggleDataLayer(listed);
+      },
+    });
   }
 
   GeoJSONFromFileFinished(tmpKommonitorGeoresource: GeoresourcesDataset) {
@@ -505,12 +517,6 @@ export class KommonitorDataImportComponent implements OnInit {
     } finally {
       // no-op
     }
-  }
-
-  adjustFileLayerTransparency(dataset) {
-    const opacity = 1 - dataset.transparency;
-
-    this.kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
   }
 
   adjustFileLayerColor(color, dataset) {

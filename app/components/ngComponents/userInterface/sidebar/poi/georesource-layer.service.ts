@@ -1,17 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import {
+  GeoresourcesDataset,
+  GeoresourcesTopicsHierarchy,
+} from 'components/ngComponents/models/georesources.models';
 import { GeoressourceExportModalComponent } from 'components/ngComponents/userInterface/exporting/georessource-export-modal/georessource-export-modal.component';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import type { MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapService } from 'services/map-service/map.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { GeoresourceExportModeService } from './georesource-export-mode.service';
+import { GeoresourceFilterService } from './georesource-filter.service';
 
 /**
  * Leaflet's own default path colour. `aoiColor` and `loiColor` are optional keys
@@ -48,8 +54,10 @@ export function setWfsColor(dataset: any, color: string): void {
  * export download, the loading-spinner flag, the cluster setting and the date
  * (validity timestamp) selection used to query layers.
  *
- * Tree/selection bookkeeping (which topic is selected, fav handling) remains in
- * the component; this service only performs the actual map interactions.
+ * Toggling a single dataset includes unticking its topics, so that the layer
+ * panel can deselect a dataset while the sidebar section is closed: the layers
+ * this service adds carry an owner that does exactly that. Selecting whole
+ * topics and fav handling remain in the components.
  */
 @Injectable({ providedIn: 'root' })
 export class GeoresourceLayerService {
@@ -63,6 +71,8 @@ export class GeoresourceLayerService {
   private modalService = inject(NgbModal);
   private exportMode = inject(GeoresourceExportModeService);
   private broadcastService = inject(BroadcastService);
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
+  private filterService = inject(GeoresourceFilterService);
 
   constructor() {
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
@@ -158,10 +168,12 @@ export class GeoresourceLayerService {
     }, 250);
   }
 
+  // Reloading registers the layer again under the same id, which replaces it on
+  // the map and keeps its visibility, opacity and position; removing it first
+  // would lose them. Until the new data is there, the old layer stays.
   refreshSelectedGeoresources() {
     for (const georesource of this.georesourceStore.displayableGeoresources_keywordFiltered) {
       if (georesource.isSelected && (georesource.isPOI || georesource.isLOI || georesource.isAOI)) {
-        this.removeGeoresourceLayerFromMap(georesource);
         this.addGeoresourceLayerToMap(georesource);
       }
     }
@@ -172,14 +184,12 @@ export class GeoresourceLayerService {
     georesourceDataset.selectedDate =
       georesourceDataset.availablePeriodsOfValidity[event.srcElement.value];
     if (georesourceDataset.isSelected) {
-      this.removeGeoresourceLayerFromMap(georesourceDataset);
       this.addGeoresourceLayerToMap(georesourceDataset);
     }
   }
 
   onChangeSelectedDate(georesourceDataset: GeoresourcesDataset) {
     if (georesourceDataset.isSelected) {
-      this.removeGeoresourceLayerFromMap(georesourceDataset);
       this.addGeoresourceLayerToMap(georesourceDataset);
     }
   }
@@ -207,11 +217,18 @@ export class GeoresourceLayerService {
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
     this.http.get(url).subscribe({
       next: (response) => {
+        // deselected while loading: do not bring it back
+        if (!resource.isSelected) {
+          this.loadingData = false;
+          this.mapService.hideLoadingIcon();
+          return;
+        }
         resource.geoJSON = response;
+        const owner = this.georesourceOwner(resource);
         if (resource.isPOI)
-          this.mapService.addPoiGeoresourceGeoJSON(resource, date, this.useCluster);
-        else if (resource.isLOI) this.mapService.addLoiGeoresourceGeoJSON(resource, date);
-        else if (resource.isAOI) this.mapService.addAoiGeoresourceGeoJSON(resource, date);
+          this.mapService.addPoiGeoresourceGeoJSON(resource, date, this.useCluster, owner);
+        else if (resource.isLOI) this.mapService.addLoiGeoresourceGeoJSON(resource, date, owner);
+        else if (resource.isAOI) this.mapService.addAoiGeoresourceGeoJSON(resource, date, owner);
         this.loadingData = false;
       },
       error: (error) => {
@@ -219,6 +236,72 @@ export class GeoresourceLayerService {
         this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
+  }
+
+  /**
+   * Shows or hides a POI/LOI/AOI dataset after its checkbox changed. Unticking
+   * one also unticks the topics above it, which are then no longer complete.
+   */
+  handleGeoresourceOnMap(resource: GeoresourcesDataset) {
+    this.searchGeoresourcesRecursive(resource, this.filterService.preppedTopicGeoresourceHierarchy);
+
+    if (resource.isSelected) {
+      this.addGeoresourceLayerToMap(resource);
+    } else {
+      for (const topic of this.topicHierarchyStore.topicGeoresourceHierarchy) {
+        if (topic.topicId === resource.topicReference) topic.isSelected = false;
+      }
+      this.removeGeoresourceLayerFromMap(resource);
+    }
+  }
+
+  /**
+   * Unticks a dataset as its checkbox would. The keyword filter re-clones the
+   * catalogue, so the dataset shown now may be another object than the one
+   * whose layer was added; both are unticked.
+   */
+  deselectGeoresource(resource: GeoresourcesDataset) {
+    const shown = this.georesourceStore.displayableGeoresources_keywordFiltered.find(
+      (dataset) => dataset.georesourceId === resource.georesourceId
+    );
+    resource.isSelected = false;
+    if (shown) {
+      shown.isSelected = false;
+    }
+    this.handleGeoresourceOnMap(shown ?? resource);
+  }
+
+  /** Lets the layer panel remove the dataset's layer by deselecting the dataset. */
+  private georesourceOwner(resource: GeoresourcesDataset): MapLayerOwner {
+    return { remove: () => this.deselectGeoresource(resource) };
+  }
+
+  /** Unticks every topic of the tree that holds the dataset, unless it is selected. */
+  private searchGeoresourcesRecursive(
+    georesource: GeoresourcesDataset,
+    tree: GeoresourcesTopicsHierarchy[]
+  ): boolean {
+    let match = false;
+
+    tree.forEach((topic) => {
+      const poiMatch = topic.poiData.filter((e) => e.georesourceId == georesource.georesourceId);
+      const aoiMatch = topic.aoiData.filter((e) => e.georesourceId == georesource.georesourceId);
+      const loiMatch = topic.loiData.filter((e) => e.georesourceId == georesource.georesourceId);
+
+      if (poiMatch.length || aoiMatch.length || loiMatch.length) {
+        if (!georesource.isSelected) topic.isSelected = false;
+
+        match = true;
+      } else {
+        if (topic.subTopics.length) {
+          match = this.searchGeoresourcesRecursive(georesource, topic.subTopics);
+
+          if (match && !georesource.isSelected) topic.isSelected = false;
+        }
+      }
+    });
+
+    return match;
   }
 
   removeGeoresourceLayerFromMap(resource: GeoresourcesDataset) {
@@ -233,7 +316,6 @@ export class GeoresourceLayerService {
   refreshPoiLayers() {
     for (const poi of this.georesourceStore.displayableGeoresources_keywordFiltered) {
       if (poi.isSelected) {
-        this.removeGeoresourceLayerFromMap(poi);
         this.addGeoresourceLayerToMap(poi);
       }
     }
@@ -262,7 +344,13 @@ export class GeoresourceLayerService {
     if (dataset.isSelected) {
       //display on Map
       const opacity = 1 - dataset.transparency;
-      this.mapService.addWmsLayerToMap(dataset, opacity);
+      this.mapService.addWmsLayerToMap(dataset, opacity, {
+        // the layer panel removes it as unticking it here would
+        remove: () => {
+          dataset.isSelected = false;
+          this.handleWmsOnMap(dataset);
+        },
+      });
     } else {
       //remove WMS layer from map
       this.mapService.removeWmsLayerFromMap(dataset);

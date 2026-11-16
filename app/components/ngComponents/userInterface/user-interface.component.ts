@@ -77,8 +77,6 @@ export class UserInterfaceComponent implements OnInit {
   markerPosition!: Date[];
   sliderDisabled: boolean = false;
 
-  expertToolbarVisible = false;
-
   showUserLogin = false;
   showAdminLogin = false;
 
@@ -141,12 +139,7 @@ export class UserInterfaceComponent implements OnInit {
     this.mapService.unselectAllFeatures();
   }
 
-  onOpenLayerControlButtonClick() {
-    this.mapService.openLayerControl();
-  }
-
   onExpertButtonClick() {
-    this.expertToolbarVisible = !this.expertToolbarVisible;
     this.mapService.toggleExpertControls();
   }
 

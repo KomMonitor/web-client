@@ -173,8 +173,9 @@ try {
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
 
-  // Controls, which layers will be sortable via drag&drop in Leaflet's layer control
-  // Possible values ["Raumebenen", "Georessourcen", "Points of Interest", "Lines of Interest", "Areas of Interest", "Indikatoren", "Erreichbarkeiten", "Web Map Services (WMS)", "Web Feature Services (WFS)"]
+  // DEPRECATED, no effect: listed the layers that were sortable in the former Leaflet layer control.
+  // The layer panel sorts every group and every layer list (except the single indicator) by drag & drop.
+  // Kept so that existing configurations stay valid; can be removed from them.
   window.__env.sortableLayers = ["Web Map Services (WMS)"];
 
   window.__env.baseLayers = [ // baseLayers of instance; first will be set as default starting layer
@@ -185,7 +186,8 @@ try {
     //   layerName_WMS: "", // only relevant for layers of type WMS - multiple layers comma-separated
     //   attribution_html: "", // attribution info displayed at the bottom of the map as HTML string
     //   minZoomLevel: window.__env.minZoomLevel, // min zoom level for this layer (number between 1-20)
-    //   maxZoomLevel: window.__env.maxZoomLevel // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
+    //   maxZoomLevel: window.__env.maxZoomLevel, // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
+    //   thumbnailUrl: "" // optional - URL of a preview image for the base map gallery; if omitted, a tile (or WMS GetMap) at the initial map position is used
     // },
     {
       name: "Open Street Map - Graustufen", 
