@@ -7,11 +7,13 @@ const PREFERENCES_VERSION = 1;
 
 /**
  * What the layer panel remembers across reloads: the base layer and its
- * opacity (E2), later the order of the groups (F1). Visibility, opacity and
- * order of the thematic layers are not remembered on purpose.
+ * opacity (E2) and the order of the top-level groups (G2). Visibility, opacity
+ * and order of the thematic layers are not remembered on purpose.
  */
 export interface LayerPreferences {
   baseLayer?: BaseLayerSelection;
+  /** Ids of the top-level groups, top to bottom. */
+  groupOrder?: string[];
 }
 
 /** Port for remembering the preferences: localStorage today, a URL or a server later. */
@@ -34,7 +36,15 @@ export class LocalStorageLayerStatePersistence implements LayerStatePersistence 
       if (stored?.version !== PREFERENCES_VERSION) {
         return {};
       }
-      return isBaseLayerSelection(stored.baseLayer) ? { baseLayer: stored.baseLayer } : {};
+      // Each part on its own, so a broken one does not cost the other.
+      const preferences: LayerPreferences = {};
+      if (isBaseLayerSelection(stored.baseLayer)) {
+        preferences.baseLayer = stored.baseLayer;
+      }
+      if (isGroupOrder(stored.groupOrder)) {
+        preferences.groupOrder = stored.groupOrder;
+      }
+      return preferences;
     } catch {
       return {};
     }
@@ -50,6 +60,10 @@ export class LocalStorageLayerStatePersistence implements LayerStatePersistence 
       // no storage: the preferences live for this session only
     }
   }
+}
+
+function isGroupOrder(value: any): value is string[] {
+  return Array.isArray(value) && value.every((id) => typeof id === 'string');
 }
 
 function isBaseLayerSelection(value: any): value is BaseLayerSelection {

@@ -125,7 +125,8 @@ describe('MainMapLayersService', () => {
 
     service.registry.setBaseLayer('base:B');
     expect(map.hasLayer(bases[1].layer)).toBe(true);
-    expect(JSON.parse(localStorage.getItem(MAP_LAYERS_PREFERENCES_STORAGE_KEY)!)).toEqual({
+    // the group order is stored along with it
+    expect(JSON.parse(localStorage.getItem(MAP_LAYERS_PREFERENCES_STORAGE_KEY)!)).toMatchObject({
       version: 1,
       baseLayer: { id: 'base:B', opacity: 1 },
     });

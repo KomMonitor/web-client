@@ -207,6 +207,8 @@ export interface MapLayerBinding {
   /** A factor (0..1) on the layer's own style; the binding applies it to the layer's pane. */
   setOpacity(id: LayerId, opacity: number): void;
   zoomTo(id: LayerId): void;
+  /** Whether the layer of `id` is bound and has a known extent, so `zoomTo` would go anywhere. */
+  canZoomTo(id: LayerId): boolean;
   /**
    * All registered ids, top to bottom; the binding derives the stacking of the
    * layers from it. It includes entries whose layer is not bound yet, so the

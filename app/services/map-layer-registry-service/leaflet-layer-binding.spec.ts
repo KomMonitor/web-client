@@ -227,6 +227,26 @@ describe('LeafletLayerBinding', () => {
       expect(fitBounds).toHaveBeenCalledTimes(1);
       expect(fitBounds).toHaveBeenCalledWith(extent, { maxZoom: 17 });
     });
+
+    it('tells whether a layer has bounds to zoom to', () => {
+      const wms = { layers: 'a', pane: 'mapLayer2' };
+      binding.bind(bound('georesource:1', square('mapLayer1')));
+      binding.bind(
+        bound('wms:2', L.tileLayer.wms('https://example.org/wms', wms), {
+          kind: 'raster',
+          visible: false,
+        })
+      );
+      binding.bind(
+        bound('outline:3', L.geoJSON(undefined, { pane: 'mapLayer3' }), { visible: false })
+      );
+
+      expect(binding.canZoomTo('georesource:1')).toBe(true);
+      expect(binding.canZoomTo('wms:2')).toBe(false);
+      // an empty placeholder, e.g. an outline before its data is loaded
+      expect(binding.canZoomTo('outline:3')).toBe(false);
+      expect(binding.canZoomTo('wms:404')).toBe(false);
+    });
   });
 
   describe('status', () => {

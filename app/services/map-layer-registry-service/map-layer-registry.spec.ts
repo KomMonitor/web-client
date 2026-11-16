@@ -34,6 +34,13 @@ class FakeBinding implements MapLayerBinding {
     this.calls.push(['zoomTo', id]);
   }
 
+  /** Ids whose layer has a known extent. */
+  readonly zoomable = new Set<LayerId>();
+
+  canZoomTo(id: LayerId): boolean {
+    return this.zoomable.has(id);
+  }
+
   /** Kept apart from `calls`, so specs about other commands need not list every order. */
   readonly orders: LayerId[][] = [];
 
@@ -401,6 +408,73 @@ describe('MapLayerRegistry', () => {
     });
   });
 
+  describe('remove', () => {
+    it('lets the owner deselect the entry and makes sure it is gone', () => {
+      const owner = { remove: jest.fn() };
+      registry.register(poi('georesource:1', { owner }));
+      registry.attach(binding);
+      binding.calls.length = 0;
+
+      registry.remove('georesource:1');
+
+      expect(owner.remove).toHaveBeenCalledWith('georesource:1');
+      expect(registry.entry('georesource:1')).toBeUndefined();
+      expect(binding.calls).toEqual([['unbind', 'georesource:1']]);
+    });
+
+    it('is the same as unregistering when the owner unregisters itself', () => {
+      const owner = { remove: jest.fn((id: LayerId) => registry.unregister(id)) };
+      registry.register(poi('georesource:1', { owner }));
+      registry.attach(binding);
+      binding.calls.length = 0;
+
+      registry.remove('georesource:1');
+
+      expect(binding.calls).toEqual([['unbind', 'georesource:1']]);
+    });
+
+    it('removes entries without an owner and ignores unknown ids', () => {
+      registry.register(poi('georesource:1'));
+
+      registry.remove('georesource:1');
+      registry.remove('georesource:404');
+
+      expect(registry.entry('georesource:1')).toBeUndefined();
+    });
+  });
+
+  describe('canZoomTo', () => {
+    beforeEach(() => {
+      registry.register(poi('georesource:1'));
+      binding.zoomable.add('georesource:1');
+    });
+
+    it('asks the binding once there is one', () => {
+      expect(registry.canZoomTo('georesource:1')).toBe(false);
+
+      registry.attach(binding);
+
+      expect(registry.canZoomTo('georesource:1')).toBe(true);
+      expect(registry.canZoomTo('georesource:404')).toBe(false);
+    });
+
+    it('is false for an entry that may not zoom or has no layer yet', () => {
+      registry.register(poi('georesource:2', { capabilities: { zoomTo: false } }));
+      registry.register(
+        poi('outline:3', {
+          groupId: 'outline',
+          layer: undefined,
+          load: () => new Promise(() => {}),
+        })
+      );
+      binding.zoomable.add('georesource:2').add('outline:3');
+      registry.attach(binding);
+
+      expect(registry.canZoomTo('georesource:2')).toBe(false);
+      expect(registry.canZoomTo('outline:3')).toBe(false);
+    });
+  });
+
   describe('visibility and opacity', () => {
     beforeEach(() => {
       registry.register(poi('georesource:1'));
@@ -591,6 +665,76 @@ describe('MapLayerRegistry', () => {
       registry.moveGroup('reachability', 42);
 
       expect(registry.tree().at(-1)?.group.id).toBe('reachability');
+    });
+
+    describe('remembered', () => {
+      const topLevel = () => registry.tree().map((node) => node.group.id);
+
+      it('remembers the order with the base layer choice', () => {
+        const persistence = new MemoryPersistence();
+        registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS, persistence);
+        registry.setBaseLayers(BASES);
+
+        registry.moveGroup('indicator', 0);
+
+        expect(persistence.preferences).toEqual({
+          baseLayer: { id: 'base:Grau', opacity: 1 },
+          groupOrder: ['indicator', 'reachability', 'temporary', 'outline', 'georesource'],
+        });
+      });
+
+      it('keeps the remembered base layer while the map has not handed over its own', () => {
+        const persistence = new MemoryPersistence({
+          baseLayer: { id: 'base:Luftbild', opacity: 0.5 },
+        });
+        registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS, persistence);
+
+        registry.moveGroup('indicator', 0);
+
+        expect(persistence.preferences.baseLayer).toEqual({ id: 'base:Luftbild', opacity: 0.5 });
+      });
+
+      it('saves nothing for a move that changes nothing', () => {
+        const persistence = new MemoryPersistence();
+        registry = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS, persistence);
+
+        registry.moveGroup('reachability', 0);
+        registry.moveGroup('drawing', 0);
+
+        expect(persistence.saves).toBe(0);
+      });
+
+      it('starts with the remembered order', () => {
+        registry = new MapLayerRegistry(
+          MAIN_MAP_LAYER_GROUPS,
+          new MemoryPersistence({
+            groupOrder: ['indicator', 'georesource', 'outline', 'temporary', 'reachability'],
+          })
+        );
+
+        expect(topLevel()).toEqual([
+          'indicator',
+          'georesource',
+          'outline',
+          'temporary',
+          'reachability',
+        ]);
+      });
+
+      it('drops unknown groups and appends groups the order does not know yet', () => {
+        registry = new MapLayerRegistry(
+          MAIN_MAP_LAYER_GROUPS,
+          new MemoryPersistence({ groupOrder: ['drawing', 'indicator', 'georesource.point'] })
+        );
+
+        expect(topLevel()).toEqual([
+          'indicator',
+          'reachability',
+          'temporary',
+          'outline',
+          'georesource',
+        ]);
+      });
     });
 
     it('keeps sub groups fixed and ignores unknown groups', () => {
@@ -1233,11 +1377,11 @@ describe('MapLayerRegistry', () => {
 
         registry.setBaseLayers(BASES);
         registry.setBaseLayer('base:Farbe');
-        expect(persistence.preferences).toEqual({ baseLayer: { id: 'base:Farbe', opacity: 0.2 } });
+        expect(persistence.preferences.baseLayer).toEqual({ id: 'base:Farbe', opacity: 0.2 });
 
         registry.setBaseLayerOpacity(0.6);
         registry.setBaseLayer(null);
-        expect(persistence.preferences).toEqual({ baseLayer: { id: null, opacity: 0.6 } });
+        expect(persistence.preferences.baseLayer).toEqual({ id: null, opacity: 0.6 });
         expect(persistence.saves).toBe(3);
       });
     });

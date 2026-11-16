@@ -106,11 +106,14 @@ export class LeafletLayerBinding implements MapLayerBinding {
   }
 
   zoomTo(id: LayerId): void {
-    const bound = this.bound.get(id);
-    const bounds = bound && resolveLayerAdapter(bound.adapter).getBounds(bound.layer);
+    const bounds = this.boundsOf(id);
     if (bounds) {
       this.map.fitBounds(bounds, { maxZoom: ZOOM_TO_MAX_ZOOM });
     }
+  }
+
+  canZoomTo(id: LayerId): boolean {
+    return !!this.boundsOf(id);
   }
 
   /** The Leaflet layer bound under `id`, for code that needs the layer itself (feature search). */
@@ -179,6 +182,11 @@ export class LeafletLayerBinding implements MapLayerBinding {
     if (clamped !== zoom) {
       this.map.setZoom(clamped);
     }
+  }
+
+  private boundsOf(id: LayerId): L.LatLngBounds | undefined {
+    const bound = this.bound.get(id);
+    return bound && resolveLayerAdapter(bound.adapter).getBounds(bound.layer);
   }
 
   /** Ids without a place in the order yet go to the bottom; Leaflet's CSS would put them at 400. */

@@ -41,9 +41,9 @@ interface LayerSlot {
 
 /**
  * Single source of truth for the layers of one map: which exist, whether they
- * are visible, their opacity and order, and the base layer below them all,
- * which an optional `LayerStatePersistence` remembers. Sources register their layers here
- * instead of adding them to the map. Every command changes the state first and
+ * are visible, their opacity and order, and the base layer below them all.
+ * An optional `LayerStatePersistence` remembers the base layer and the group
+ * order. Sources register their layers here instead of adding them to the map. Every command changes the state first and
  * then calls the attached `MapLayerBinding` synchronously; before `attach()`
  * the registry only buffers. Plain class with signals, so tests and further
  * maps simply create their own instance.
@@ -105,8 +105,9 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     private readonly catalog: readonly LayerGroupDef[],
     private readonly persistence?: LayerStatePersistence
   ) {
-    this._groupOrder = signal(catalog);
-    this._baseLayerOpacity = signal(persistence?.load().baseLayer?.opacity ?? 1);
+    const remembered = persistence?.load();
+    this._groupOrder = signal(orderGroups(catalog, remembered?.groupOrder));
+    this._baseLayerOpacity = signal(remembered?.baseLayer?.opacity ?? 1);
     this.baseLayerOpacity = this._baseLayerOpacity.asReadonly();
   }
 
@@ -179,7 +180,7 @@ export class MapLayerRegistry implements MapLayerStatusSink {
       const overflow = this._entries()
         .filter((existing) => existing.groupId === groupId)
         .slice(group.maxEntries);
-      overflow.forEach((evicted) => this.evict(evicted.id));
+      overflow.forEach((evicted) => this.remove(evicted.id));
     }
     this.syncOrder();
   }
@@ -195,6 +196,16 @@ export class MapLayerRegistry implements MapLayerStatusSink {
       this.binding?.unbind(id);
     }
     this.syncOrder();
+  }
+
+  /**
+   * Removes an entry the way its source would: its owner deselects it in its
+   * catalogue, which normally unregisters it, and it is gone either way. For
+   * "Remove" in the panel and for entries that lose their place (`maxEntries`).
+   */
+  remove(id: LayerId): void {
+    this.slots.get(id)?.registration.owner?.remove?.(id);
+    this.unregister(id);
   }
 
   /** E.g. drops every entry of a source that is no longer in its reloaded catalogue. */
@@ -255,6 +266,19 @@ export class MapLayerRegistry implements MapLayerStatusSink {
   }
 
   /**
+   * Whether `zoomTo` would go anywhere: the entry allows it and the map knows
+   * an extent for its layer, which e.g. a WMS without bounds or an outline that
+   * was never loaded lack. Not reactive to the map side; ask when needed.
+   */
+  canZoomTo(id: LayerId): boolean {
+    return (
+      !!this.entry(id)?.capabilities.zoomTo &&
+      !!this.slots.get(id)?.layer &&
+      !!this.binding?.canZoomTo(id)
+    );
+  }
+
+  /**
    * Moves an entry to position `toIndex` (0 = top) of its own list; it never
    * changes groups. Ignored for groups that are not sortable and for entries
    * that may not be reordered.
@@ -284,7 +308,10 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     this.syncOrder();
   }
 
-  /** Moves a top-level group to position `toIndex` (0 = top); sub groups keep their order. */
+  /**
+   * Moves a top-level group to position `toIndex` (0 = top); sub groups keep
+   * their order. The new order is remembered.
+   */
   moveGroup(groupId: string, toIndex: number): void {
     const groups = this._groupOrder();
     const from = groups.findIndex((group) => group.id === groupId);
@@ -298,6 +325,7 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     const others = groups.filter((group) => group.id !== groupId);
     this._groupOrder.set([...others.slice(0, to), groups[from], ...others.slice(to)]);
     this.syncOrder();
+    this.savePreferences();
   }
 
   /**
@@ -340,7 +368,7 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
     this._activeBaseLayerId.set(id);
     this.binding?.showBaseLayer(id);
-    this.savePreferences();
+    this.saveBaseLayerChoice();
   }
 
   /** `value` (0..1) applies to the base layer itself; values outside are clamped. */
@@ -354,7 +382,7 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
     this._baseLayerOpacity.set(opacity);
     this.binding?.setBaseLayerOpacity(opacity);
-    this.savePreferences();
+    this.saveBaseLayerChoice();
   }
 
   /**
@@ -452,13 +480,6 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     }
   }
 
-  /** Drops an entry that lost its place; its owner deselects it in its catalogue. */
-  private evict(id: LayerId): void {
-    this.slots.get(id)?.registration.owner?.remove?.(id);
-    // The owner normally unregisters it; make sure it is gone either way.
-    this.unregister(id);
-  }
-
   /** Hands the draw order to the binding if it changed since it was last sent. */
   private syncOrder(force = false): void {
     if (!this.binding) {
@@ -485,12 +506,25 @@ export class MapLayerRegistry implements MapLayerStatusSink {
    * Remembers the base layer choice. Not before the map handed over its base
    * layers, or an early change would remember the empty map.
    */
-  private savePreferences(): void {
+  private saveBaseLayerChoice(): void {
     if (this.baseLayersKnown) {
-      this.persistence?.save({
-        baseLayer: { id: this._activeBaseLayerId(), opacity: this._baseLayerOpacity() },
-      });
+      this.savePreferences();
     }
+  }
+
+  /**
+   * Remembers the base layer choice and the group order. Until the map handed
+   * over its base layers, the remembered base layer stays as it is.
+   */
+  private savePreferences(): void {
+    if (!this.persistence) {
+      return;
+    }
+    const groupOrder = this._groupOrder().map((group) => group.id);
+    const baseLayer = this.baseLayersKnown
+      ? { id: this._activeBaseLayerId(), opacity: this._baseLayerOpacity() }
+      : this.persistence.load().baseLayer;
+    this.persistence.save(baseLayer ? { baseLayer, groupOrder } : { groupOrder });
   }
 
   /** Changes one entry; false if there is none under `id`. */
@@ -503,6 +537,23 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     );
     return true;
   }
+}
+
+/**
+ * The top-level groups in a remembered order: unknown ids are dropped, groups
+ * the order does not know yet (new in the catalogue) follow in catalogue order.
+ */
+function orderGroups(
+  catalog: readonly LayerGroupDef[],
+  remembered: readonly string[] | undefined
+): readonly LayerGroupDef[] {
+  if (!remembered?.length) {
+    return catalog;
+  }
+  const known = catalog
+    .filter((group) => remembered.includes(group.id))
+    .sort((a, b) => remembered.indexOf(a.id) - remembered.indexOf(b.id));
+  return [...known, ...catalog.filter((group) => !known.includes(group))];
 }
 
 function treeNode(group: LayerGroupDef, byGroup: Map<string, LayerEntryState[]>): LayerTreeNode {

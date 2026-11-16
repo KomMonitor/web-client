@@ -136,6 +136,10 @@ export class LayerControlBridge implements MapLayerBinding {
     this.inner.zoomTo(id);
   }
 
+  canZoomTo(id: LayerId): boolean {
+    return this.inner.canZoomTo(id);
+  }
+
   setOrder(order: LayerId[]): void {
     this.inner.setOrder(order);
   }

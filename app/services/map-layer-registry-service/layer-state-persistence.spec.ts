@@ -32,6 +32,32 @@ describe('LocalStorageLayerStatePersistence', () => {
     });
   });
 
+  it('stores the group order next to the base layer', () => {
+    persistence.save({
+      baseLayer: { id: 'base:Farbe', opacity: 1 },
+      groupOrder: ['indicator', 'reachability'],
+    });
+
+    expect(new LocalStorageLayerStatePersistence().load()).toEqual({
+      baseLayer: { id: 'base:Farbe', opacity: 1 },
+      groupOrder: ['indicator', 'reachability'],
+    });
+  });
+
+  it('keeps the base layer when the group order is broken, and the other way round', () => {
+    localStorage.setItem(
+      MAP_LAYERS_PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ version: 1, baseLayer: { id: null, opacity: 1 }, groupOrder: [1, 2] })
+    );
+    expect(persistence.load()).toEqual({ baseLayer: { id: null, opacity: 1 } });
+
+    localStorage.setItem(
+      MAP_LAYERS_PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ version: 1, baseLayer: 'Farbe', groupOrder: ['indicator'] })
+    );
+    expect(persistence.load()).toEqual({ groupOrder: ['indicator'] });
+  });
+
   it('keeps the empty map as a choice', () => {
     persistence.save({ baseLayer: { id: null, opacity: 1 } });
 
