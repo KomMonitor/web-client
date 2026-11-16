@@ -197,6 +197,19 @@ Zu entscheiden:
   Kommentar und Verweis auf diesen Punkt in den Code.
 - **Nichts tun** — dann bleibt eine Fehlermeldung stehen, die bei fast jedem Datensatz falsch ist.
 
+### A11. WFS-Ebenen erscheinen nicht auf der Hauptkarte (2026-11-16)
+
+Der Katalog unter „Infrastrukturdaten“ listet konfigurierte WFS (`window.__env.wfsDatasets`, die
+Ersatz-Konfiguration `env_backup.js` bringt einen mit), die Karte kann sie aber nicht zeigen:
+`leaflet-wfst` wird nirgends geladen (`master` band `customizedExternalLibs/leaflet-wfst.src_custom.js`
+per `<script>` ein; die Kopie ist unverdrahtet), `L.WFS` ist `undefined`. Bis 2026-11-16 warf ein
+Klick deshalb einen `TypeError` und der Eintrag blieb angehakt.
+
+Seit dem Abbau des alten Layer-Controls zeigt der Klick eine Meldung und wählt den Eintrag wieder ab
+(`OgcLayerManagerService.addWfsLayer()`); der alte Kartencode ist entfernt (Git-Historie). Offen ist
+der Neubau: die vendorte Lib laden und WFS wie WMS über die Layer-Registry der Hauptkarte
+registrieren (eigene Pane, Laden beim ersten Einblenden, Farbwechsel als Restyle).
+
 ---
 
 ## B. Laufende / begonnene Refactorings

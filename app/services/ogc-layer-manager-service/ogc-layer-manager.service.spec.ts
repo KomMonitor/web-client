@@ -1,12 +1,14 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import * as L from 'leaflet';
 
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { MAIN_MAP_LAYER_GROUPS } from 'services/map-layer-registry-service/layer-group-catalog';
 import { MapLayerRegistry } from 'services/map-layer-registry-service/map-layer-registry';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
+import { MapContext } from 'services/map-service/map-context';
 
 import { OgcLayerManagerService } from './ogc-layer-manager.service';
 
@@ -15,6 +17,7 @@ describe('OgcLayerManagerService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(OgcLayerManagerService);
@@ -40,7 +43,6 @@ describe('OgcLayerManagerService', () => {
       layers = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS);
       context = {
         map: { invalidateSize: jest.fn() },
-        layerControl: { addOverlay: jest.fn(), removeLayer: jest.fn(), _layers: [] },
         layers,
         hideLoadingIcon: jest.fn(),
       };
@@ -58,7 +60,6 @@ describe('OgcLayerManagerService', () => {
         visible: true,
         opacity: 0.6,
       });
-      expect(context.layerControl.addOverlay).not.toHaveBeenCalled();
       expect(context.map.invalidateSize).toHaveBeenCalledWith(true);
       expect(context.hideLoadingIcon).toHaveBeenCalled();
     });
@@ -152,37 +153,28 @@ describe('OgcLayerManagerService', () => {
       service.removeWmsLayer(dataset());
 
       expect(layers.drawOrder()).toEqual(['georesource:1']);
-      expect(context.layerControl.removeLayer).not.toHaveBeenCalled();
     });
   });
 
   describe('WFS', () => {
-    it('removes only WFS entries of the old control, not namesakes in other groups', () => {
-      const wfsLayer = { id: 'wfs' };
-      const georesourceLayer = { id: 'georesource' };
-      const context: MapContext = {
-        map: { removeLayer: jest.fn() },
-        layerControl: {
-          removeLayer: jest.fn(),
-          _layers: [
-            { name: 'Schulen', layer: wfsLayer, group: { name: MAP_LAYER_GROUPS.wfs } },
-            {
-              name: 'Schulen_2024-01-01',
-              layer: georesourceLayer,
-              group: { name: MAP_LAYER_GROUPS.poi },
-            },
-          ],
-        },
-        layers: new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS),
-        hideLoadingIcon: jest.fn(),
-      };
+    it('tells the user that WFS cannot be shown and unticks the dataset', () => {
+      const showError = jest.spyOn(TestBed.inject(NotificationService), 'showError');
+      const layers = new MapLayerRegistry(MAIN_MAP_LAYER_GROUPS);
+      const context = { map: {}, layers, hideLoadingIcon: jest.fn() } as unknown as MapContext;
       service.initialize(context);
+      const dataset: any = { title: 'Bebauungspläne', isSelected: true };
 
-      service.removeWfsLayer({ title: 'Schulen' });
+      service.addWfsLayer(dataset, 1, true);
 
-      expect(context.layerControl.removeLayer).toHaveBeenCalledTimes(1);
-      expect(context.layerControl.removeLayer).toHaveBeenCalledWith(wfsLayer);
-      expect(context.map.removeLayer).toHaveBeenCalledWith(wfsLayer);
+      expect(showError).toHaveBeenCalledWith('MAP_LAYERS.WFS_UNAVAILABLE');
+      expect(dataset.isSelected).toBe(false);
+      expect(context.hideLoadingIcon).toHaveBeenCalled();
+      expect(layers.drawOrder()).toEqual([]);
+    });
+
+    it('has nothing to remove or restyle', () => {
+      expect(() => service.removeWfsLayer({ title: 'Bebauungspläne' })).not.toThrow();
+      expect(() => service.adjustWfsColor({ title: 'Bebauungspläne' }, 1)).not.toThrow();
     });
   });
 });

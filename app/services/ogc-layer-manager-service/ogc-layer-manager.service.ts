@@ -1,26 +1,24 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import * as L from 'leaflet';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
-import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import type { LayerInfo, MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
-import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
-import { createMarkerClusterGroup } from 'util/leaflet-cluster';
+import { MapContext } from 'services/map-service/map-context';
 
 /**
- * Manages the WMS/WFS layers on the main map
- * (map refactoring plan, Phase 3 — extracted from KommonitorMapComponent).
+ * Manages the OGC service layers on the main map: WMS through the layer
+ * registry; WFS cannot be shown at the moment (see `addWfsLayer`).
  */
 @Injectable({
   providedIn: 'root',
 })
 export class OgcLayerManagerService {
   private envConfigService = inject(EnvConfigService);
-  private genericMapHelperService = inject(GenericMapHelperService);
-  private mapErrorNotificationService = inject(MapErrorNotificationService);
-  private featurePopupHelperService = inject(FeaturePopupHelperService);
+  private notificationService = inject(NotificationService);
+  /** Resolves the TranslateService only for the WFS notice, so the map works without it. */
+  private injector = inject(Injector);
 
   private context!: MapContext;
 
@@ -30,7 +28,7 @@ export class OgcLayerManagerService {
 
   /**
    * Registers the WMS with the map's layer registry, which puts it on the map
-   * and into the layer control. Both catalogues (georesources and indicator
+   * and into the layer panel. Both catalogues (georesources and indicator
    * selection) end up here. `opacity` is the start value; the registry fades
    * the layer's pane, so the tile layer itself stays opaque. The catalogue's
    * `owner` deselects the WMS there, which makes it removable in the panel.
@@ -86,204 +84,25 @@ export class OgcLayerManagerService {
     this.context.hideLoadingIcon();
   }
 
-  addWfsLayer(dataset, opacity, useCluster) {
-    const wfsLayerOptions = {
-      url: dataset.url,
-      typeNS: dataset.featureTypeNamespace,
-      namespaceUri: 'http://mapserver.gis.umn.edu/mapserver',
-      typeName: dataset.featureTypeName,
-      geometryField: dataset.featureTypeGeometryName,
-      style: this.getWfsStyle(dataset, opacity),
-      filter: undefined,
-    };
-
-    const filterEncoding = this.getFilterEncoding(dataset);
-    if (filterEncoding) {
-      wfsLayerOptions.filter = filterEncoding;
-    }
-
-    let wfsLayer;
-    let poiMarkerLayer;
-
-    if (dataset.geometryType === 'POI') {
-      if (useCluster) {
-        poiMarkerLayer = createMarkerClusterGroup({
-          iconCreateFunction: function (cluster) {
-            const childCount = cluster.getChildCount();
-
-            let c = 'cluster-';
-            if (childCount < 10) {
-              c += 'small';
-            } else if (childCount < 30) {
-              c += 'medium';
-            } else {
-              c += 'large';
-            }
-
-            const className =
-              'marker-cluster ' +
-              c +
-              ' awesome-marker-legend-TransparentIcon-' +
-              dataset.poiMarkerColor;
-
-            return new L.DivIcon({
-              html:
-                '<div class="awesome-marker-legend-icon-' +
-                dataset.poiMarkerColor +
-                '" ><span>' +
-                childCount +
-                '</span></div>',
-              className: className,
-              iconSize: new L.Point(40, 40),
-            });
-          },
-        });
-      } else {
-        poiMarkerLayer = L.featureGroup();
-      }
-
-      wfsLayer = new L.WFS(wfsLayerOptions);
-    } else {
-      wfsLayer = new L.WFS(wfsLayerOptions);
-    }
-
-    try {
-      wfsLayer.once('load', () => {
-        if (dataset.geometryType === 'POI') {
-          poiMarkerLayer = this.genericMapHelperService.createCustomMarkersFromWfsPoints(
-            wfsLayer,
-            poiMarkerLayer,
-            dataset
-          );
-        }
-
-        this.context.map.fitBounds(wfsLayer.getBounds());
-
-        this.context.map.invalidateSize(true);
-      });
-
-      wfsLayer.on('click', (event) => {
-        const popupContent = this.featurePopupHelperService.buildFeaturePropertiesPopup(
-          event.layer.feature.properties,
-          'wfsInfoPopupContent'
-        );
-
-        const popup: any = L.popup();
-        popup.setLatLng(event.latlng).setContent(popupContent).openOn(this.context.map);
-      });
-      if (poiMarkerLayer) {
-        this.context.layerControl.addOverlay(poiMarkerLayer, dataset.title, MAP_LAYER_GROUPS.wfs);
-        poiMarkerLayer.addTo(this.context.map);
-      } else {
-        this.context.layerControl.addOverlay(wfsLayer, dataset.title, MAP_LAYER_GROUPS.wfs);
-        wfsLayer.addTo(this.context.map);
-      }
-    } catch (error) {
-      this.mapErrorNotificationService.displayMapApplicationError(error);
-    }
-
-    this.context.hideLoadingIcon();
-  }
-
-  removeWfsLayer(dataset) {
-    this.removeLayersByTitle(dataset.title);
-  }
-
   /**
-   * Restyles a displayed WFS layer after its configured colors changed.
-   * NOTE (legacy behavior): for POI WFS layers the overlay is a marker feature
-   * group — FeatureGroup.setStyle only reaches children that support setStyle,
-   * so markers keep their color (it lives in awesome-marker CSS classes).
+   * WFS layers cannot be shown on the main map for now: leaflet-wfst is not
+   * loaded, and the former code relied on the old layer control. Choosing one
+   * in the catalogue tells the user so and unticks it again; showing WFS
+   * through the layer registry is still to be done.
    */
-  adjustWfsColor(dataset, opacity) {
-    const newStyle = this.getWfsStyle(dataset, opacity);
-
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.group.name === MAP_LAYER_GROUPS.wfs && layer.name.includes(dataset.title)) {
-        layer.layer.setStyle(newStyle);
-      }
-    });
+  addWfsLayer(dataset, _opacity?, _useCluster?) {
+    dataset.isSelected = false;
+    const translate = this.injector.get(TranslateService);
+    this.notificationService.showError(translate.instant('MAP_LAYERS.WFS_UNAVAILABLE'));
+    this.context?.hideLoadingIcon();
   }
 
-  // WFS only, until it moves to the registry (B4). Limited to the WFS group:
-  // matching the name alone also hit layers of other groups, among them
-  // those the layer registry manages.
-  private removeLayersByTitle(title: string) {
-    this.context.layerControl._layers.forEach((layer) => {
-      if (layer.group.name === MAP_LAYER_GROUPS.wfs && layer.name.includes(title)) {
-        this.context.layerControl.removeLayer(layer.layer);
-        this.context.map.removeLayer(layer.layer);
-      }
-    });
-    this.context.hideLoadingIcon();
+  removeWfsLayer(_dataset) {
+    // nothing to do: no WFS reaches the map, see addWfsLayer()
   }
 
-  private getWfsStyle(dataset, opacity) {
-    if (dataset.geometryType === 'POI') {
-      return {
-        weight: 1,
-        opacity: opacity,
-        color: dataset.poiMarkerColor,
-        dashArray: '',
-        fillOpacity: opacity,
-        fillColor: dataset.poiMarkerColor,
-      };
-    } else if (dataset.geometryType === 'LOI') {
-      return {
-        weight: dataset.loiWidth,
-        opacity: opacity,
-        color: dataset.loiColor,
-        dashArray: dataset.loiDashArrayString,
-        fillOpacity: opacity,
-        fillColor: dataset.loiColor,
-      };
-    } else {
-      return {
-        weight: 1,
-        opacity: opacity,
-        color: dataset.aoiColor,
-        dashArray: '',
-        fillOpacity: opacity,
-        fillColor: dataset.aoiColor,
-      };
-    }
-  }
-
-  private getFilterEncoding(dataset) {
-    const filterExpressions: any[] = [];
-
-    if (
-      dataset.filterEncoding.PropertyIsEqualTo &&
-      dataset.filterEncoding.PropertyIsEqualTo.propertyName &&
-      dataset.filterEncoding.PropertyIsEqualTo.propertyValue
-    ) {
-      filterExpressions.push(
-        new L.Filter.EQ(
-          dataset.filterEncoding.PropertyIsEqualTo.propertyName,
-          dataset.filterEncoding.PropertyIsEqualTo.propertyValue
-        )
-      );
-    }
-
-    if (dataset.filterFeaturesToMapBBOX) {
-      filterExpressions.push(
-        new L.Filter.BBox(
-          dataset.featureTypeGeometryName,
-          this.context.map.getBounds(),
-          L.CRS.EPSG3857
-        )
-      );
-    }
-
-    if (filterExpressions.length == 0) {
-      return undefined;
-    }
-
-    if (filterExpressions.length < 2) {
-      return filterExpressions;
-    } else {
-      return new L.Filter.And(...filterExpressions);
-    }
+  adjustWfsColor(_dataset, _opacity) {
+    // nothing to do: no WFS reaches the map, see addWfsLayer()
   }
 }
 

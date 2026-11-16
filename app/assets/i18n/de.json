@@ -88,8 +88,7 @@
   "MAP_CONTROLS": {
     "CENTER_MAP": "Karte zentrieren",
     "CLEAR_SPATIAL_UNIT_SELECTION": "Raumeinheits-Selektion aufheben",
-    "EXPORT_CURRENT_MAP_VIEW": "aktuellen Kartenausschnitt exportieren",
-    "SHOW_LAYER_CONTROL": "Layer Control anzeigen"
+    "EXPORT_CURRENT_MAP_VIEW": "aktuellen Kartenausschnitt exportieren"
   },
   "MAP_LAYERS": {
     "GROUPS": {
@@ -188,7 +187,8 @@
       "START_POINTS_VALUE": "{{name}} ({{count}})",
       "NOT_LOADED": "noch nicht geladen – zum Laden einblenden",
       "SESSION_NOTE": "Nur in dieser Sitzung – geht beim Neuladen der Seite verloren"
-    }
+    },
+    "WFS_UNAVAILABLE": "WFS-Ebenen können derzeit nicht auf der Karte angezeigt werden."
   },
   "USER_INTERFACE": {
     "USER_LOGIN": "User Login",

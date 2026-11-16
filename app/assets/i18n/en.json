@@ -88,8 +88,7 @@
   "MAP_CONTROLS": {
     "CENTER_MAP": "Center Map",
     "CLEAR_SPATIAL_UNIT_SELECTION": "Clear Spatial Unit Selection",
-    "EXPORT_CURRENT_MAP_VIEW": "Export Current Map View",
-    "SHOW_LAYER_CONTROL": "Show Layer Control"
+    "EXPORT_CURRENT_MAP_VIEW": "Export Current Map View"
   },
   "MAP_LAYERS": {
     "GROUPS": {
@@ -188,7 +187,8 @@
       "START_POINTS_VALUE": "{{name}} ({{count}})",
       "NOT_LOADED": "not loaded yet – show the layer to load it",
       "SESSION_NOTE": "This session only – lost when the page is reloaded"
-    }
+    },
+    "WFS_UNAVAILABLE": "WFS layers cannot be shown on the map at the moment."
   },
   "USER_INTERFACE": {
     "USER_LOGIN": "User Login",
