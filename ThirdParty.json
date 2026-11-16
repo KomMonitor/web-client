@@ -6143,13 +6143,6 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-geosearch",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-geosearch\\LICENSE"
   },
-  "leaflet-groupedlayercontrol@0.6.1": {
-    "licenses": "MIT",
-    "repository": "https://github.com/ismyrnow/leaflet-groupedlayercontrol",
-    "publisher": "Ishmael Smyrnow",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-groupedlayercontrol",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-groupedlayercontrol\\LICENSE.txt"
-  },
   "leaflet-measure@3.1.0": {
     "licenses": "MIT",
     "repository": "https://github.com/ljagis/leaflet-measure",

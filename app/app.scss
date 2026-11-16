@@ -1308,20 +1308,6 @@ a.kommonitor-theme:focus {
   width: auto;
 }
 
-.leaflet-left .leaflet-control-layers {
-  /* display: inline-block; */
-  /* float: none; */
-  left: 270px;
-  position: absolute;
-}
-
-.leaflet-left .leaflet-control-layers-expanded {
-  width: 500px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  max-height: 80vh;
-}
-
 .leaflet-left .leaflet-control-measure-interaction {
   width: 275px;
   height: auto;
@@ -1361,16 +1347,6 @@ a.kommonitor-theme:focus {
   left: 60px;
   bottom: 100px;
   z-index: 1003;
-}
-
-.leaflet-control-layers-group-name {
-  font-size: 14px;
-  font-weight: bold;
-  font-style: italic;
-}
-
-.leaflet-control-layers-group {
-  margin-top: 20px;
 }
 
 .leaflet-touch .leaflet-control-layers-toggle {
