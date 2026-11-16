@@ -1,3 +1,4 @@
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CdkContextMenuTrigger, CdkMenuTrigger } from '@angular/cdk/menu';
 import { NgTemplateOutlet } from '@angular/common';
 import {
@@ -53,6 +54,7 @@ type InfoState =
   imports: [
     NgTemplateOutlet,
     TranslateModule,
+    CdkDragHandle,
     CdkMenuTrigger,
     CdkContextMenuTrigger,
     LayerActionsMenuComponent,
@@ -61,6 +63,8 @@ type InfoState =
 })
 export class LayerRowComponent {
   readonly entry = input.required<LayerEntryState>();
+  /** Shows the drag handle; the group sets it where layers can be reordered. */
+  readonly movable = input(false);
 
   private readonly registry = inject(MAP_LAYER_REGISTRY);
   private readonly uiState = inject(MapLayersPanelUiState);

@@ -5,6 +5,17 @@
   [cdkContextMenuTriggerFor]="menu"
   [cdkContextMenuDisabled]="!menuItems().length"
 >
+  @if (movable()) {
+    <!-- mouse only; the keyboard moves layers through the ⋮ menu -->
+    <span
+      class="layer-row__handle"
+      cdkDragHandle
+      aria-hidden="true"
+      [title]="'MAP_LAYERS.ROW.DRAG' | translate"
+    >
+      <i class="fas fa-grip-vertical"></i>
+    </span>
+  }
   <button
     type="button"
     class="layer-row__eye"

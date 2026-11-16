@@ -129,7 +129,8 @@
     "ROW": {
       "TOGGLE": "Ebene ein- oder ausblenden: {{title}}",
       "TRANSPARENCY": "Transparenz",
-      "EXPAND": "Transparenz einstellen: {{title}}"
+      "EXPAND": "Transparenz einstellen: {{title}}",
+      "DRAG": "Ziehen, um die Ebene zu verschieben – per Tastatur über das ⋮-Menü"
     },
     "STATUS": {
       "LOADING": "Wird geladen",

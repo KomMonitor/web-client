@@ -18,6 +18,19 @@
   }
 }
 
+.layer-row__handle {
+  flex: none;
+  width: 14px;
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 11px;
+  text-align: center;
+  cursor: grab;
+
+  &:hover {
+    color: var(--kommonitor-primary, #337ab7);
+  }
+}
+
 .layer-row__eye {
   flex: none;
   width: 24px;

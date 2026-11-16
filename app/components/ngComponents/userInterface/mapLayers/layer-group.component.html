@@ -53,8 +53,25 @@
           <app-layer-group [node]="child" [depth]="depth() + 1" />
         }
       }
-      @for (entry of node().entries; track entry.id) {
-        <app-layer-row [entry]="entry" />
+      @if (node().entries.length) {
+        <!-- its own list: layers move within their group only -->
+        <div
+          class="layer-group__rows"
+          cdkDropList
+          cdkDropListLockAxis="y"
+          (cdkDropListDropped)="dropEntry($event)"
+        >
+          @for (entry of node().entries; track entry.id) {
+            <app-layer-row
+              [entry]="entry"
+              [movable]="isMovable(entry)"
+              cdkDrag
+              [cdkDragData]="entry.id"
+              [cdkDragDisabled]="!isMovable(entry)"
+              cdkDragPreviewContainer="parent"
+            />
+          }
+        </div>
       }
       @if (node().count === 0 && node().group.emptyHintI18nKey; as hint) {
         <p class="layer-group__hint">{{ hint | translate }}</p>

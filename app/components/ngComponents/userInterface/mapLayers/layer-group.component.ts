@@ -1,4 +1,4 @@
-import { CdkDragHandle } from '@angular/cdk/drag-drop';
+import { CdkDrag, type CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import { CdkMenuTrigger } from '@angular/cdk/menu';
 import {
   ChangeDetectionStrategy,
@@ -14,7 +14,10 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import { injectLayerGroupActions } from 'services/map-layer-registry-service/layer-actions';
-import type { LayerTreeNode } from 'services/map-layer-registry-service/map-layer.model';
+import type {
+  LayerEntryState,
+  LayerTreeNode,
+} from 'services/map-layer-registry-service/map-layer.model';
 import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
 
 import { LayerActionsMenuComponent, type LayerMenuItem } from './layer-actions-menu.component';
@@ -26,7 +29,8 @@ import { MapLayersPanelUiState } from './map-layers-panel-ui-state.service';
  * One group of the panel with its sub groups or layers. Recursive, so it
  * carries deeper trees too; `depth` 0 is a top-level group. A group whose
  * actions apply (by default: moving top-level groups) gets a ⋮ menu next to
- * its header; a movable one a drag handle in front of it.
+ * its header; a movable one a drag handle in front of it. The layers of a
+ * group are a list of their own, sorted by dragging their handles.
  */
 @Component({
   selector: 'app-layer-group',
@@ -36,6 +40,8 @@ import { MapLayersPanelUiState } from './map-layers-panel-ui-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TranslateModule,
+    CdkDropList,
+    CdkDrag,
     CdkDragHandle,
     CdkMenuTrigger,
     LayerActionsMenuComponent,
@@ -73,6 +79,20 @@ export class LayerGroupComponent {
   });
 
   protected readonly isGroupShown = isGroupShown;
+
+  /** The group may be sorted and has something to sort; see also `entryListPosition()`. */
+  private readonly rowsSortable = computed(
+    () => this.node().group.sortable !== false && this.node().entries.length > 1
+  );
+
+  protected isMovable(entry: LayerEntryState): boolean {
+    return this.rowsSortable() && entry.capabilities.reorder;
+  }
+
+  /** Lists show all entries of their group, so the drop index is the position in the list. */
+  protected dropEntry(event: CdkDragDrop<unknown, unknown, string>): void {
+    this.registry.moveEntry(event.item.data, event.currentIndex);
+  }
 
   protected toggle(): void {
     this.uiState.toggle(this.node().group.id);

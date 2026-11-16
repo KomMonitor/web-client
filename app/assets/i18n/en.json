@@ -129,7 +129,8 @@
     "ROW": {
       "TOGGLE": "Show or hide layer: {{title}}",
       "TRANSPARENCY": "Transparency",
-      "EXPAND": "Adjust transparency: {{title}}"
+      "EXPAND": "Adjust transparency: {{title}}",
+      "DRAG": "Drag to move the layer – with the keyboard via the ⋮ menu"
     },
     "STATUS": {
       "LOADING": "Loading",

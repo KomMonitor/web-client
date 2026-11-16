@@ -338,4 +338,102 @@ describe('MapLayersPanelComponent', () => {
       );
     });
   });
+  describe('dragging layers', () => {
+    const rowHandles = (section: HTMLElement) =>
+      [...section.querySelectorAll('.layer-row__handle')].length;
+
+    /** The drop list of the layers in a group; each (sub) group has its own. */
+    function rowList(root: HTMLElement, i18nKey: string): CdkDropList {
+      const section = group(root, i18nKey);
+      return fixture.debugElement
+        .queryAll(By.directive(CdkDropList))
+        .find(
+          (list) =>
+            list.nativeElement.classList.contains('layer-group__rows') &&
+            list.nativeElement.closest('.layer-group') === section
+        )!
+        .injector.get(CdkDropList);
+    }
+
+    it('offers handles only where layers can be reordered', () => {
+      register('georesource:1', 'georesource.point', 'Schulen');
+      register('georesource:2', 'georesource.point', 'Kitas');
+      register('file:a', 'temporary', 'Datei A');
+      register('indicator', 'indicator', 'Indikator');
+      register('outline:1', 'outline', 'Bezirke');
+      registry.register({
+        id: 'outline:2',
+        groupId: 'outline',
+        title: 'Stadtteile',
+        kind: 'vector',
+        symbol: { kind: 'outline', color: '#ff0000' },
+        layer: {} as LayerRegistration['layer'],
+        capabilities: { reorder: false },
+      });
+      const root = render();
+
+      expect(rowHandles(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT'))).toBe(2);
+      expect(rowHandles(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toBe(0);
+      expect(rowHandles(group(root, 'MAP_LAYERS.GROUPS.INDICATOR'))).toBe(0);
+      expect(rowHandles(group(root, 'MAP_LAYERS.GROUPS.OUTLINE'))).toBe(1);
+      // the drags of the rows; the groups have drags of their own with group ids
+      const rowDrag = (id: string) =>
+        fixture.debugElement
+          .queryAll(By.css('app-layer-row'))
+          .map((row) => row.injector.get(CdkDrag))
+          .find((drag) => drag.data === id)!;
+      expect(['file:a', 'indicator', 'outline:2'].map((id) => rowDrag(id).disabled)).toEqual([
+        true,
+        true,
+        true,
+      ]);
+      expect(rowDrag('georesource:1').disabled).toBe(false);
+    });
+
+    it('moves a dropped layer within its list, and panel and draw order follow', () => {
+      register('georesource:1', 'georesource.point', 'Schulen');
+      register('georesource:2', 'georesource.point', 'Kitas');
+      register('georesource:3', 'georesource.point', 'Parks');
+      register('file:a', 'temporary', 'Datei A');
+      register('file:b', 'temporary', 'Datei B');
+      const root = render();
+      expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT'))).toEqual([
+        'Parks',
+        'Kitas',
+        'Schulen',
+      ]);
+
+      rowList(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT').dropped.emit({
+        item: { data: 'georesource:1' },
+        previousIndex: 2,
+        currentIndex: 0,
+      } as unknown as CdkDragDrop<unknown, unknown, string>);
+      fixture.detectChanges();
+
+      expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT'))).toEqual([
+        'Schulen',
+        'Parks',
+        'Kitas',
+      ]);
+      expect(rowTitles(group(root, 'MAP_LAYERS.GROUPS.TEMPORARY'))).toEqual(['Datei B', 'Datei A']);
+      expect(registry.drawOrder()).toEqual([
+        'file:b',
+        'file:a',
+        'georesource:1',
+        'georesource:3',
+        'georesource:2',
+      ]);
+    });
+
+    it('gives every sub group a list of its own', () => {
+      register('georesource:1', 'georesource.point', 'Schulen');
+      register('wms:1', 'georesource.service', 'Luftbild');
+      const root = render();
+
+      expect(rowList(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT')).not.toBe(
+        rowList(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_SERVICE')
+      );
+      expect(rowList(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT').connectedTo).toEqual([]);
+    });
+  });
 });
