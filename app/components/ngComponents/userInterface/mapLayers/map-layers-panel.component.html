@@ -8,9 +8,22 @@
     <p class="map-layers-panel__section-hint">{{ 'MAP_LAYERS.PANEL.THEMATIC_HINT' | translate }}</p>
   </div>
 
-  @for (node of registry.tree(); track node.group.id) {
-    @if (isGroupShown(node)) {
-      <app-layer-group [node]="node" />
+  <div
+    class="map-layers-panel__groups"
+    cdkDropList
+    cdkDropListLockAxis="y"
+    (cdkDropListDropped)="dropGroup($event)"
+  >
+    @for (node of shownGroups(); track node.group.id) {
+      <!-- the preview stays in the panel, which keeps its colour variables -->
+      <app-layer-group
+        [node]="node"
+        [movable]="shownGroups().length > 1"
+        cdkDrag
+        [cdkDragData]="node.group.id"
+        [cdkDragDisabled]="shownGroups().length < 2"
+        cdkDragPreviewContainer="parent"
+      />
     }
-  }
+  </div>
 </div>

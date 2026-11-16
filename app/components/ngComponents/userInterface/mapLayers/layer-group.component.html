@@ -1,5 +1,16 @@
 <section class="layer-group" [class.layer-group--top]="depth() === 0">
   <div class="layer-group__header">
+    @if (movable()) {
+      <!-- mouse only; the keyboard moves groups through the ⋮ menu -->
+      <span
+        class="layer-group__handle"
+        cdkDragHandle
+        aria-hidden="true"
+        [title]="'MAP_LAYERS.GROUP.DRAG' | translate"
+      >
+        <i class="fas fa-grip-vertical"></i>
+      </span>
+    }
     <button
       type="button"
       class="layer-group__toggle"

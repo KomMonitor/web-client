@@ -1,8 +1,13 @@
+import { CdkDrag, type CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { MAIN_MAP_LAYER_GROUPS } from 'services/map-layer-registry-service/layer-group-catalog';
-import type { LayerRegistration } from 'services/map-layer-registry-service/map-layer.model';
+import type {
+  LayerGroupDef,
+  LayerRegistration,
+} from 'services/map-layer-registry-service/map-layer.model';
 import { MapLayerRegistry } from 'services/map-layer-registry-service/map-layer-registry';
 import { MAP_LAYER_REGISTRY } from 'services/map-layer-registry-service/map-layer-registry.service';
 
@@ -254,6 +259,82 @@ describe('MapLayersPanelComponent', () => {
 
       expect(document.activeElement).toBe(
         menuButton(group(root, 'MAP_LAYERS.GROUPS.REACHABILITY'))
+      );
+    });
+  });
+  describe('dragging groups', () => {
+    const handles = (root: HTMLElement) => root.querySelectorAll('.layer-group__handle');
+    const topIds = () => registry.tree().map((node) => node.group.id);
+
+    function drop(id: string, previousIndex: number, currentIndex: number): void {
+      fixture.debugElement
+        .query(By.directive(CdkDropList))
+        .injector.get(CdkDropList)
+        .dropped.emit({ item: { data: id }, previousIndex, currentIndex } as unknown as CdkDragDrop<
+          unknown,
+          unknown,
+          string
+        >);
+      fixture.detectChanges();
+    }
+
+    /** A panel on its own catalogue, e.g. with a top-level group that hides when empty. */
+    function renderWith(catalog: LayerGroupDef[]): HTMLElement {
+      registry = new MapLayerRegistry(catalog);
+      TestBed.overrideProvider(MAP_LAYER_REGISTRY, { useValue: registry });
+      return render();
+    }
+
+    it('offers a handle on top-level groups only', () => {
+      register('wms:1', 'georesource.service', 'Luftbild');
+      const root = render();
+
+      expect(handles(root)).toHaveLength(5);
+      expect(
+        group(root, 'MAP_LAYERS.GROUPS.GEORESOURCE_SERVICE').querySelector(
+          ':scope > .layer-group__header .layer-group__handle'
+        )
+      ).toBeNull();
+      expect(handles(root)[0].getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('moves a dropped group, and panel and draw order follow', () => {
+      register('indicator', 'indicator', 'Indikator');
+      register('file:a', 'temporary', 'Datei A');
+      const root = render();
+
+      drop('indicator', 4, 0);
+
+      expect(topIds()[0]).toBe('indicator');
+      expect(topGroups(root)[0].querySelector('.layer-group__title')!.textContent!.trim()).toBe(
+        'MAP_LAYERS.GROUPS.INDICATOR'
+      );
+      expect(registry.drawOrder()).toEqual(['indicator', 'file:a']);
+    });
+
+    it('finds the target among the shown groups when a top-level group is hidden', () => {
+      renderWith([
+        { id: 'a', i18nKey: 'A' },
+        { id: 'hidden', i18nKey: 'HIDDEN', whenEmpty: 'hide' },
+        { id: 'b', i18nKey: 'B' },
+        { id: 'c', i18nKey: 'C' },
+      ]);
+
+      // shown are a, b, c: dropping a on the second place puts it below b
+      drop('a', 0, 1);
+
+      expect(topIds()).toEqual(['hidden', 'b', 'a', 'c']);
+    });
+
+    it('offers neither a handle nor dragging for a single shown group', () => {
+      const root = renderWith([
+        { id: 'a', i18nKey: 'A' },
+        { id: 'hidden', i18nKey: 'HIDDEN', whenEmpty: 'hide' },
+      ]);
+
+      expect(handles(root)).toHaveLength(0);
+      expect(fixture.debugElement.query(By.directive(CdkDrag)).injector.get(CdkDrag).disabled).toBe(
+        true
       );
     });
   });

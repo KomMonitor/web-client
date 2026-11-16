@@ -123,7 +123,8 @@
       "TRANSPARENCY": "Transparency"
     },
     "GROUP": {
-      "COUNT": "{{count}} layers"
+      "COUNT": "{{count}} layers",
+      "DRAG": "Drag to move the group – with the keyboard via the ⋮ menu"
     },
     "ROW": {
       "TOGGLE": "Show or hide layer: {{title}}",

@@ -20,6 +20,25 @@
   }
 }
 
+.layer-group__handle {
+  flex: none;
+  width: 18px;
+  margin-left: 4px;
+  color: var(--map-layers-text-secondary, #6b7280);
+  font-size: 11px;
+  text-align: center;
+  cursor: grab;
+
+  &:hover {
+    color: var(--kommonitor-primary, #337ab7);
+  }
+
+  // the toggle keeps the space the handle takes
+  & + .layer-group__toggle {
+    padding-left: 2px;
+  }
+}
+
 .layer-group__toggle {
   display: flex;
   flex: 1 1 auto;

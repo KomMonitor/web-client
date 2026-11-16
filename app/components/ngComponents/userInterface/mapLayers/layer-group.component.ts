@@ -1,3 +1,4 @@
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CdkMenuTrigger } from '@angular/cdk/menu';
 import {
   ChangeDetectionStrategy,
@@ -25,7 +26,7 @@ import { MapLayersPanelUiState } from './map-layers-panel-ui-state.service';
  * One group of the panel with its sub groups or layers. Recursive, so it
  * carries deeper trees too; `depth` 0 is a top-level group. A group whose
  * actions apply (by default: moving top-level groups) gets a ⋮ menu next to
- * its header.
+ * its header; a movable one a drag handle in front of it.
  */
 @Component({
   selector: 'app-layer-group',
@@ -35,6 +36,7 @@ import { MapLayersPanelUiState } from './map-layers-panel-ui-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TranslateModule,
+    CdkDragHandle,
     CdkMenuTrigger,
     LayerActionsMenuComponent,
     LayerRowComponent,
@@ -44,6 +46,8 @@ import { MapLayersPanelUiState } from './map-layers-panel-ui-state.service';
 export class LayerGroupComponent {
   readonly node = input.required<LayerTreeNode>();
   readonly depth = input(0);
+  /** Shows the drag handle; the panel sets it on top-level groups, which it makes draggable. */
+  readonly movable = input(false);
 
   private readonly registry = inject(MAP_LAYER_REGISTRY);
   private readonly uiState = inject(MapLayersPanelUiState);

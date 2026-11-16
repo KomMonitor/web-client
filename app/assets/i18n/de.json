@@ -123,7 +123,8 @@
       "TRANSPARENCY": "Transparenz"
     },
     "GROUP": {
-      "COUNT": "{{count}} Ebenen"
+      "COUNT": "{{count}} Ebenen",
+      "DRAG": "Ziehen, um die Gruppe zu verschieben – per Tastatur über das ⋮-Menü"
     },
     "ROW": {
       "TOGGLE": "Ebene ein- oder ausblenden: {{title}}",
