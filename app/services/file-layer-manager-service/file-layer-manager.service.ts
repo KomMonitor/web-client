@@ -7,7 +7,10 @@ import {
   FileUploadState,
 } from 'services/file-helper-service/file-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
-import type { LayerSymbol } from 'services/map-layer-registry-service/map-layer.model';
+import type {
+  LayerSymbol,
+  MapLayerOwner,
+} from 'services/map-layer-registry-service/map-layer.model';
 import { MapContext } from 'services/map-service/map-context';
 
 /**
@@ -33,8 +36,12 @@ export class FileLayerManagerService {
     this.context = context;
   }
 
-  /** `opacity` is the start value; the registry fades the layer's pane. */
-  addFileLayer(dataset, opacity) {
+  /**
+   * `opacity` is the start value; the registry fades the layer's pane. The
+   * import list's `owner` deselects the file there, which makes the layer
+   * removable in the panel; the file stays in the list.
+   */
+  addFileLayer(dataset, opacity, owner?: MapLayerOwner) {
     const id = fileLayerId(dataset);
     try {
       const pane = this.context.layers.paneFor(id);
@@ -90,7 +97,8 @@ export class FileLayerManagerService {
         symbol,
         layer: fileLayer,
         initial: { opacity },
-        capabilities: { searchable: true },
+        capabilities: { searchable: true, remove: !!owner },
+        owner,
       });
       this.fileLayers.set(id, fileLayer);
       this.context.layers.zoomTo(id);

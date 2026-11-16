@@ -4,8 +4,11 @@ import { TestBed } from '@angular/core/testing';
 
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import type { MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
 import { MapService } from 'services/map-service/map.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 
+import { GeoresourceFilterService } from './georesource-filter.service';
 import { GeoresourceLayerService } from './georesource-layer.service';
 
 describe('GeoresourceLayerService', () => {
@@ -13,6 +16,8 @@ describe('GeoresourceLayerService', () => {
   let http: HttpTestingController;
   let mapService: Record<string, jest.Mock>;
   let poi: any;
+  let catalogue: any[];
+  let topic: any;
 
   const url = 'http://dm/georesources/g-1/2024/01/01';
   const geoJSON = { type: 'FeatureCollection', features: [] };
@@ -24,6 +29,16 @@ describe('GeoresourceLayerService', () => {
       isPOI: true,
       isSelected: true,
       selectedDate: { startDate: '2024-01-01' },
+      topicReference: 't-1',
+    };
+    catalogue = [poi];
+    topic = {
+      topicId: 't-1',
+      isSelected: true,
+      poiData: [poi],
+      loiData: [],
+      aoiData: [],
+      subTopics: [],
     };
     mapService = {
       showLoadingIcon: jest.fn(),
@@ -32,6 +47,8 @@ describe('GeoresourceLayerService', () => {
       removePoiGeoresource: jest.fn(),
       addWfsLayerToMap: jest.fn(),
       removeWfsLayerFromMap: jest.fn(),
+      addWmsLayerToMap: jest.fn(),
+      removeWmsLayerFromMap: jest.fn(),
     };
     TestBed.configureTestingModule({
       providers: [
@@ -44,7 +61,20 @@ describe('GeoresourceLayerService', () => {
         },
         {
           provide: GeoresourceMetadataStoreService,
-          useValue: { displayableGeoresources_keywordFiltered: [poi], wfsDatasets: [] },
+          useValue: {
+            get displayableGeoresources_keywordFiltered() {
+              return catalogue;
+            },
+            wfsDatasets: [],
+          },
+        },
+        {
+          provide: GeoresourceFilterService,
+          useValue: { preppedTopicGeoresourceHierarchy: [topic] },
+        },
+        {
+          provide: TopicHierarchyStoreService,
+          useValue: { topicGeoresourceHierarchy: [topic] },
         },
       ],
     });
@@ -61,7 +91,12 @@ describe('GeoresourceLayerService', () => {
 
     expect(mapService['removePoiGeoresource']).not.toHaveBeenCalled();
     http.expectOne(url).flush(geoJSON);
-    expect(mapService['addPoiGeoresourceGeoJSON']).toHaveBeenCalledWith(poi, '2024-01-01', true);
+    expect(mapService['addPoiGeoresourceGeoJSON']).toHaveBeenCalledWith(
+      poi,
+      '2024-01-01',
+      true,
+      expect.objectContaining({ remove: expect.any(Function) })
+    );
   });
 
   it('replaces the layer when the date of a selected georesource changes', () => {
@@ -89,5 +124,43 @@ describe('GeoresourceLayerService', () => {
     service.removeGeoresourceLayerFromMap(poi);
 
     expect(mapService['removePoiGeoresource']).toHaveBeenCalledWith(poi);
+  });
+  describe('removed in the layer panel', () => {
+    /** The owner the dataset's layer was added with. */
+    function addedOwner(): MapLayerOwner {
+      service.addGeoresourceLayerToMap(poi);
+      http.expectOne(url).flush(geoJSON);
+      return mapService['addPoiGeoresourceGeoJSON'].mock.calls[0][3];
+    }
+
+    it('unticks the dataset and its topic and removes the layer', () => {
+      addedOwner().remove!('georesource:g-1');
+
+      expect(poi.isSelected).toBe(false);
+      expect(topic.isSelected).toBe(false);
+      expect(mapService['removePoiGeoresource']).toHaveBeenCalledWith(poi);
+    });
+
+    it('also unticks the copy the catalogue shows after a keyword filter change', () => {
+      const owner = addedOwner();
+      const shown = { ...poi };
+      catalogue = [shown];
+
+      owner.remove!('georesource:g-1');
+
+      expect([poi.isSelected, shown.isSelected]).toEqual([false, false]);
+      expect(mapService['removePoiGeoresource']).toHaveBeenCalledWith(shown);
+    });
+  });
+
+  it('lets the layer panel remove a WMS by unticking it', () => {
+    const wms: any = { id: 'w-1', title: 'Luftbild', isSelected: true, transparency: 0.2 };
+    service.handleWmsOnMap(wms);
+    const owner: MapLayerOwner = mapService['addWmsLayerToMap'].mock.calls[0][2];
+
+    owner.remove!('wms:w-1');
+
+    expect(wms.isSelected).toBe(false);
+    expect(mapService['removeWmsLayerFromMap']).toHaveBeenCalledWith(wms);
   });
 });

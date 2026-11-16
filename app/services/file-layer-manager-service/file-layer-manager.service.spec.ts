@@ -145,6 +145,18 @@ describe('FileLayerManagerService', () => {
     expect(layers.drawOrder()).toEqual(['file:Kitas', 'file:Schulen']);
   });
 
+  it('is removable in the layer panel only with an owner from the import list', () => {
+    const owner = { remove: jest.fn() };
+    service.addFileLayer(areaFile('Schulen'), 1, owner);
+    service.addFileLayer(areaFile('Kitas'), 1);
+
+    expect(layers.entry('file:Schulen')!.capabilities.remove).toBe(true);
+    expect(layers.entry('file:Kitas')!.capabilities.remove).toBe(false);
+
+    layers.remove('file:Schulen');
+    expect(owner.remove).toHaveBeenCalledWith('file:Schulen');
+  });
+
   it('removes only its own file, not one whose name merely contains it', () => {
     service.addFileLayer(areaFile('Schulen'), 1);
     service.addFileLayer(areaFile('Schulen_2'), 1);

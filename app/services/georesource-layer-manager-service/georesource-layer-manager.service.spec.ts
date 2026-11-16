@@ -190,6 +190,22 @@ describe('GeoresourceLayerManagerService', () => {
     expect(layers.drawOrder()).toEqual(['georesource:g-9', 'georesource:g-1']);
   });
 
+  it('is removable in the layer panel only with an owner from its catalogue', () => {
+    const owner = { remove: jest.fn() };
+    const area = { georesourceId: 'g-2', datasetName: 'Parks', aoiColor: 'green' };
+    service.addPoiGeoresource(poiDataset(), '2024-01-01', true, owner);
+    service.addAoiGeoresource({ ...area, geoJSON: polygon() }, '2024-01-01');
+
+    expect(layers.entry('georesource:g-1')!.capabilities).toMatchObject({
+      remove: true,
+      searchable: true,
+    });
+    expect(layers.entry('georesource:g-2')!.capabilities.remove).toBe(false);
+
+    layers.remove('georesource:g-1');
+    expect(owner.remove).toHaveBeenCalledWith('georesource:g-1');
+  });
+
   it('removes only its own entry, not one whose name starts the same', () => {
     service.addPoiGeoresource(poiDataset('g-1', 'Schulen'), '2024-01-01', true);
     service.addPoiGeoresource(poiDataset('g-2', 'Schulen_alt'), '2024-01-01', true);

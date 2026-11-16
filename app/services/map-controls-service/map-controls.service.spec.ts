@@ -80,6 +80,18 @@ describe('MapControlsService', () => {
       expect(pane.querySelectorAll('.leaflet-marker-icon')).toHaveLength(1);
     });
 
+    it('clears the search, input included, when the hit is removed in the layer panel', () => {
+      geosearch.searchElement.input.value = 'Adresse';
+      geosearch.showResult({ x: 7.01, y: 51.45, label: 'Adresse' }, { query: 'Adresse' });
+      expect(mainMapLayers.registry.entry('search:result')!.capabilities.remove).toBe(true);
+
+      mainMapLayers.registry.remove('search:result');
+
+      expect(mainMapLayers.registry.entry('search:result')).toBeUndefined();
+      expect(geosearch.searchElement.input.value).toBe('');
+      expect(geosearch.markers.getLayers()).toHaveLength(0);
+    });
+
     it('removes the hit when the search drops its result, but not on other keys', () => {
       geosearch.showResult({ x: 7.01, y: 51.45, label: 'Adresse' }, { query: 'Adresse' });
       expect(mainMapLayers.registry.entry('search:result')).toBeDefined();

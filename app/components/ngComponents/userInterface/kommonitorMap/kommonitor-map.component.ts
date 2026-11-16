@@ -345,27 +345,36 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.georesourceLayerManager.addPoiGeoresource(
           command.georesource,
           command.date,
-          command.useCluster
+          command.useCluster,
+          command.owner
         );
         break;
       case 'removePoiGeoresource':
         this.georesourceLayerManager.removePoiGeoresource(command.georesource);
         break;
       case 'addLoiGeoresource':
-        this.georesourceLayerManager.addLoiGeoresource(command.georesource, command.date);
+        this.georesourceLayerManager.addLoiGeoresource(
+          command.georesource,
+          command.date,
+          command.owner
+        );
         break;
       case 'removeLoiGeoresource':
         this.georesourceLayerManager.removeLoiGeoresource(command.georesource);
         break;
       case 'addAoiGeoresource':
-        this.georesourceLayerManager.addAoiGeoresource(command.georesource, command.date);
+        this.georesourceLayerManager.addAoiGeoresource(
+          command.georesource,
+          command.date,
+          command.owner
+        );
         break;
       case 'removeAoiGeoresource':
         this.georesourceLayerManager.removeAoiGeoresource(command.georesource);
         break;
       // OGC layers
       case 'addWmsLayer':
-        this.ogcLayerManager.addWmsLayer(command.dataset, command.opacity);
+        this.ogcLayerManager.addWmsLayer(command.dataset, command.opacity, command.owner);
         break;
       case 'removeWmsLayer':
         this.ogcLayerManager.removeWmsLayer(command.dataset);
@@ -381,7 +390,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         break;
       // file layers
       case 'addFileLayer':
-        this.fileLayerManager.addFileLayer(command.dataset, command.opacity);
+        this.fileLayerManager.addFileLayer(command.dataset, command.opacity, command.owner);
         break;
       case 'adjustFileLayerColor':
         this.fileLayerManager.adjustColor(command.dataset);
@@ -597,6 +606,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // awesome-markers blue, as the markers are drawn
       symbol: { kind: 'point', color: '#38aadd' },
       layer: L.featureGroup(markers),
+      capabilities: { remove: true },
+      owner: this.liveReachabilityOwner,
     });
     // setting points is an explicit action: bring them back if they were hidden
     layers.setVisible(LIVE_START_LAYER_ID, true);
@@ -635,6 +646,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       kind: 'vector',
       symbol: { kind: 'isochrone' },
       layer: isochronesLayer,
+      capabilities: { remove: true },
+      owner: this.liveReachabilityOwner,
     });
     // a new calculation is an explicit action: bring the isochrones back if hidden
     layers.setVisible(LIVE_ISOCHRONES_LAYER_ID, true);
@@ -650,6 +663,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     }
   }
+
+  /**
+   * Removing the live start points or isochrones in the layer panel discards
+   * the whole live result, like "Zurücksetzen" in the reachability sidebar;
+   * the subscription to the reachability state then takes both off the map.
+   */
+  private readonly liveReachabilityOwner = {
+    remove: () => this.reachabilityStateService.resetLocations(),
+  };
 
   private liveReachabilityDatasetName(): string {
     return (

@@ -5,6 +5,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import type { MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
 import { MAP_LAYER_GROUPS, MapContext } from 'services/map-service/map-context';
 import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 
@@ -31,9 +32,10 @@ export class OgcLayerManagerService {
    * Registers the WMS with the map's layer registry, which puts it on the map
    * and into the layer control. Both catalogues (georesources and indicator
    * selection) end up here. `opacity` is the start value; the registry fades
-   * the layer's pane, so the tile layer itself stays opaque.
+   * the layer's pane, so the tile layer itself stays opaque. The catalogue's
+   * `owner` deselects the WMS there, which makes it removable in the panel.
    */
-  addWmsLayer(dataset: WmsDataset, opacity: number) {
+  addWmsLayer(dataset: WmsDataset, opacity: number, owner?: MapLayerOwner) {
     const id = wmsLayerId(dataset);
     const wmsLayer = L.tileLayer.wms(dataset.connectionDetails.baseUrl, {
       layers: dataset.connectionDetails.layerName,
@@ -52,6 +54,8 @@ export class OgcLayerManagerService {
       symbol: { kind: 'service', serviceType: 'wms' },
       layer: wmsLayer,
       initial: { opacity },
+      capabilities: { remove: !!owner },
+      owner,
     });
     this.context.map.invalidateSize(true);
     this.context.hideLoadingIcon();

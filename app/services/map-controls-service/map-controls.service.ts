@@ -170,7 +170,8 @@ export class MapControlsService {
 
   /**
    * Shows an address search hit as the layer 'search:result' among the
-   * temporary layers; the next hit replaces it under the same id.
+   * temporary layers; the next hit replaces it under the same id. Removing it
+   * in the layer panel clears the search, input included.
    */
   showSearchResult(location: { x: number; y: number; label: string }) {
     const layers = this.mainMapLayers.registry;
@@ -189,7 +190,9 @@ export class MapControlsService {
       // Leaflet's default marker
       symbol: { kind: 'point', color: '#2a81cb' },
       layer: marker,
-      capabilities: { searchable: false },
+      capabilities: { searchable: false, remove: true },
+      // the wrapper from removeSearchResultWhenCleared() then unregisters it
+      owner: { remove: () => this.geosearchControl.clearResults(null, true) },
     });
   }
 

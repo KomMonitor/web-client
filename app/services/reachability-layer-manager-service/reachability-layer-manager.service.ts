@@ -9,7 +9,8 @@ const SCENARIO_START_ID = 'reachability:scenario:start';
 /**
  * Shows a reachability scenario (isochrones + start points) on the main map by
  * registering both with its layer registry. A new scenario replaces the
- * previous one under the same ids.
+ * previous one under the same ids. Removing either entry in the layer panel
+ * takes the whole scenario off the map.
  */
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,7 @@ export class ReachabilityLayerManagerService {
 
   replaceScenario(reachabilityScenario) {
     const layers = this.context.layers;
+    const owner = { remove: () => this.removeScenario() };
     const settings = reachabilityScenario.reachabilitySettings;
     const poiDataset = settings.selectedStartPointLayer;
     const locationsArray = poiDataset.geoJSON.features.map(
@@ -65,6 +67,8 @@ export class ReachabilityLayerManagerService {
       kind: 'vector',
       symbol: { kind: 'isochrone' },
       layer: isochroneLayer,
+      capabilities: { remove: true },
+      owner,
     });
     layers.register({
       id: SCENARIO_START_ID,
@@ -75,6 +79,8 @@ export class ReachabilityLayerManagerService {
       // Leaflet's default marker
       symbol: { kind: 'point', color: '#2a81cb' },
       layer: markerLayer,
+      capabilities: { remove: true },
+      owner,
     });
     // showing a scenario on the map is an explicit action: bring it back if it was hidden
     layers.setVisible(SCENARIO_ISOCHRONES_ID, true);

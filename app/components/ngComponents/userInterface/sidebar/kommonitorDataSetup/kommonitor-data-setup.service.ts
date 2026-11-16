@@ -224,7 +224,13 @@ export class KommonitorDataSetupService {
 
     if (dataset.isSelected) {
       const opacity = 1 - dataset.transparency;
-      this.mapService.addWmsLayerToMap(dataset, opacity);
+      this.mapService.addWmsLayerToMap(dataset, opacity, {
+        // the layer panel removes it as unticking it here would
+        remove: () => {
+          dataset.isSelected = false;
+          this.handleWmsOnMap(dataset);
+        },
+      });
       this.georesourceStore.setWmsLayerActive(dataset);
     } else {
       this.mapService.removeWmsLayerFromMap(dataset);

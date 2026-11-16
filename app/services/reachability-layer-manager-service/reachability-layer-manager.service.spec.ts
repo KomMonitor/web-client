@@ -142,4 +142,17 @@ describe('ReachabilityLayerManagerService', () => {
     expect(layers.drawOrder()).toEqual([]);
     expect(TestBed.inject(MapOverlayStateService).reachabilityScenarioOnMainMap).toBe(false);
   });
+
+  it.each([ISOCHRONES, START])(
+    'takes the whole scenario off the map when %s is removed in the layer panel',
+    (id) => {
+      service.replaceScenario(scenario());
+      expect(layers.entry(id)!.capabilities.remove).toBe(true);
+
+      layers.remove(id);
+
+      expect(layers.drawOrder()).toEqual([]);
+      expect(TestBed.inject(MapOverlayStateService).reachabilityScenarioOnMainMap).toBe(false);
+    }
+  );
 });

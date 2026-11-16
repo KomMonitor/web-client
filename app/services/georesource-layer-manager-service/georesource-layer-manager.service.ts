@@ -3,7 +3,11 @@ import * as turf from '@turf/turf';
 import * as L from 'leaflet';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
-import type { LayerKind, LayerSymbol } from 'services/map-layer-registry-service/map-layer.model';
+import type {
+  LayerKind,
+  LayerSymbol,
+  MapLayerOwner,
+} from 'services/map-layer-registry-service/map-layer.model';
 import { MapContext } from 'services/map-service/map-context';
 import { createMarkerClusterGroup } from 'util/leaflet-cluster';
 
@@ -11,7 +15,9 @@ import { createMarkerClusterGroup } from 'util/leaflet-cluster';
  * Puts the POI/LOI/AOI georesource layers on the main map by registering them
  * with its layer registry as 'georesource:<georesourceId>'. Adding a dataset
  * again (other date, clustering switched) replaces the layer under the same id,
- * so visibility, opacity and position stay.
+ * so visibility, opacity and position stay. The catalogue hands over an
+ * `owner` that deselects the dataset, which makes the layer removable in the
+ * layer panel.
  */
 @Injectable({
   providedIn: 'root',
@@ -26,7 +32,7 @@ export class GeoresourceLayerManagerService {
     this.context = context;
   }
 
-  addPoiGeoresource(georesourceMetadataAndGeoJSON, date, useCluster) {
+  addPoiGeoresource(georesourceMetadataAndGeoJSON, date, useCluster, owner?: MapLayerOwner) {
     const pane = this.context.layers.paneFor(georesourceLayerId(georesourceMetadataAndGeoJSON));
     let markers: any = useCluster ? createMarkerClusterGroup({}, pane) : L.featureGroup();
 
@@ -36,7 +42,7 @@ export class GeoresourceLayerManagerService {
       markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
     });
 
-    this.register(georesourceMetadataAndGeoJSON, date, markers, {
+    this.register(georesourceMetadataAndGeoJSON, date, markers, owner, {
       groupId: 'georesource.point',
       kind: useCluster ? 'cluster' : 'marker',
       symbol: { kind: 'point', color: georesourceMetadataAndGeoJSON.poiMarkerColor },
@@ -62,7 +68,7 @@ export class GeoresourceLayerManagerService {
     this.context.layers.zoomTo(georesourceLayerId(georesourceMetadataAndGeoJSON));
   }
 
-  addAoiGeoresource(georesourceMetadataAndGeoJSON, date) {
+  addAoiGeoresource(georesourceMetadataAndGeoJSON, date, owner?: MapLayerOwner) {
     const color = georesourceMetadataAndGeoJSON.aoiColor;
 
     const layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
@@ -79,7 +85,7 @@ export class GeoresourceLayerManagerService {
       onEachFeature: this.onEachFeatureGeoresource,
     });
 
-    this.register(georesourceMetadataAndGeoJSON, date, layer, {
+    this.register(georesourceMetadataAndGeoJSON, date, layer, owner, {
       groupId: 'georesource.area',
       kind: 'vector',
       symbol: { kind: 'fill', color },
@@ -90,7 +96,7 @@ export class GeoresourceLayerManagerService {
     this.unregister(georesourceMetadataAndGeoJSON);
   }
 
-  addLoiGeoresource(georesourceMetadataAndGeoJSON, date) {
+  addLoiGeoresource(georesourceMetadataAndGeoJSON, date, owner?: MapLayerOwner) {
     const pane = this.context.layers.paneFor(georesourceLayerId(georesourceMetadataAndGeoJSON));
     const featureGroup = L.featureGroup();
 
@@ -112,7 +118,7 @@ export class GeoresourceLayerManagerService {
       }).addTo(featureGroup);
     });
 
-    this.register(georesourceMetadataAndGeoJSON, date, featureGroup, {
+    this.register(georesourceMetadataAndGeoJSON, date, featureGroup, owner, {
       groupId: 'georesource.line',
       kind: 'vector',
       symbol: { kind: 'line', color: georesourceMetadataAndGeoJSON.loiColor },
@@ -128,6 +134,7 @@ export class GeoresourceLayerManagerService {
     georesourceMetadataAndGeoJSON,
     date: string,
     layer: L.Layer,
+    owner: MapLayerOwner | undefined,
     entry: { groupId: string; kind: LayerKind; symbol: LayerSymbol }
   ) {
     this.context.layers.register({
@@ -135,7 +142,8 @@ export class GeoresourceLayerManagerService {
       title: georesourceMetadataAndGeoJSON.datasetName,
       subtitle: date,
       layer,
-      capabilities: { searchable: true },
+      capabilities: { searchable: true, remove: !!owner },
+      owner,
       ...entry,
     });
     this.context.map.invalidateSize(true);

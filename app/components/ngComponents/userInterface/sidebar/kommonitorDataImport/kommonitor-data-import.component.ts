@@ -181,7 +181,7 @@ export class KommonitorDataImportComponent implements OnInit {
 
   toggleDataLayer(dataset) {
     if (dataset.isSelected) {
-      this.kommonitorMapService.addFileLayerToMap(dataset, 1 - (dataset.transparency ?? 0));
+      this.addDataLayer(dataset);
     } else {
       this.kommonitorMapService.removeFileLayerFromMap(dataset);
     }
@@ -191,8 +191,24 @@ export class KommonitorDataImportComponent implements OnInit {
   // visibility, opacity and position; removing it first would lose them.
   refreshDataLayer(dataset) {
     if (dataset.isSelected) {
-      this.kommonitorMapService.addFileLayerToMap(dataset, 1 - (dataset.transparency ?? 0));
+      this.addDataLayer(dataset);
     }
+  }
+
+  /**
+   * The layer panel removes the layer as unticking it here would; the file
+   * stays in the list. `FileLayerSuccess` lists a copy of the dataset, so the
+   * entry is looked up by name when it is removed.
+   */
+  private addDataLayer(dataset) {
+    this.kommonitorMapService.addFileLayerToMap(dataset, 1 - (dataset.transparency ?? 0), {
+      remove: () => {
+        const listed =
+          this.fileDatasets.find((file) => file.datasetName === dataset.datasetName) ?? dataset;
+        listed.isSelected = false;
+        this.toggleDataLayer(listed);
+      },
+    });
   }
 
   GeoJSONFromFileFinished(tmpKommonitorGeoresource: GeoresourcesDataset) {

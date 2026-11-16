@@ -78,6 +78,19 @@ describe('OgcLayerManagerService', () => {
       expect((layer as any).wmsParams.layers).toBe('schulen');
     });
 
+    it('is removable in the layer panel only with an owner from its catalogue', () => {
+      const owner = { remove: jest.fn((id: string) => layers.unregister(id)) };
+      service.addWmsLayer(dataset(), 1, owner);
+      service.addWmsLayer(dataset({ id: 'wms-8', title: 'Parks' }), 1);
+
+      expect(layers.entry('wms:wms-7')!.capabilities.remove).toBe(true);
+      expect(layers.entry('wms:wms-8')!.capabilities.remove).toBe(false);
+
+      layers.remove('wms:wms-7');
+      expect(owner.remove).toHaveBeenCalledWith('wms:wms-7');
+      expect(layers.drawOrder()).toEqual(['wms:wms-8']);
+    });
+
     it('keeps a single entry when the same WMS is added again, e.g. from the other catalogue', () => {
       service.addWmsLayer(dataset(), 1);
       service.addWmsLayer(dataset(), 1);
