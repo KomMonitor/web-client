@@ -50,6 +50,8 @@ import {
   ReachabilityStateService,
 } from 'services/reachability-state-service/reachability-state.service';
 
+import { indicatorBaseOpacity, relativeToBaseOpacity } from './indicator-opacity';
+
 /** The single indicator layer of the main map in the layer registry. */
 const INDICATOR_LAYER_ID = 'indicator';
 /** The live reachability result of the main map in the layer registry. */
@@ -89,12 +91,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private mapControlsService = inject(MapControlsService);
   private mainMapLayers = inject(MainMapLayersService);
 
-  // The indicator's transparency lives on its pane (layer registry); the legend
-  // swatches show the resulting fill opacity.
+  // The indicator's transparency lives on its pane (layer registry), its features
+  // are drawn opaque inside it (see indicator-opacity.ts); the legend swatches
+  // show the resulting fill opacity.
   private readonly legendOpacitySync = effect(() => {
-    const opacity = this.mainMapLayers.registry.entry(INDICATOR_LAYER_ID)?.opacity ?? 1;
     this.classificationState.currentIndicatorOpacity =
-      this.envConfigService.defaultFillOpacity * opacity;
+      this.mainMapLayers.registry.entry(INDICATOR_LAYER_ID)?.opacity ?? 1;
   });
   private mapViewportState = inject(MapViewportStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -1122,7 +1124,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       fillOpacity = this.envConfigService.defaultFillOpacityForHighlightedFeatures;
     }
 
-    layer.setStyle({
+    this.applyIndicatorStyle(layer, {
       weight: 3,
       color: this.envConfigService.defaultColorForClickedFeatures,
       dashArray: '',
@@ -1140,7 +1142,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       fillOpacity = this.envConfigService.defaultFillOpacity;
     }
 
-    layer.setStyle({
+    this.applyIndicatorStyle(layer, {
       weight: 3,
       color: this.envConfigService.defaultColorForHoveredFeatures,
       dashArray: '',
@@ -1278,7 +1280,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           false
         );
       }
-      layer.setStyle(style);
+      this.applyIndicatorStyle(layer, style);
     } else {
       this.setPermanentlyHighlightedStyle(layer);
     }
@@ -1295,7 +1297,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
       )
     ) {
-      layer.setStyle(this.filteredStyle);
+      this.applyIndicatorStyle(layer, this.filteredStyle);
     } else if (this.isCategoricalLayer) {
       style = this.visualStyleHelperService.styleCategorical(
         layer.feature,
@@ -1305,7 +1307,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         false
       );
 
-      layer.setStyle(style);
+      this.applyIndicatorStyle(layer, style);
     } else if (!this.chartDisplayState.isMeasureOfValueChecked) {
       //this.currentIndicatorLayer.resetStyle(layer);
       if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
@@ -1318,7 +1320,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           false
         );
 
-        layer.setStyle(style);
+        this.applyIndicatorStyle(layer, style);
       } else {
         style = this.visualStyleHelperService.styleDefault(
           layer.feature,
@@ -1331,7 +1333,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           false
         );
 
-        layer.setStyle(style);
+        this.applyIndicatorStyle(layer, style);
       }
     } else {
       style = this.visualStyleHelperService.styleMeasureOfValue(
@@ -1343,9 +1345,23 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         false
       );
 
-      layer.setStyle(style);
+      this.applyIndicatorStyle(layer, style);
     }
   }
+
+  /** Styles a feature of the indicator layer relative to the opacity its pane starts with. */
+  private applyIndicatorStyle(layer, style): void {
+    layer.setStyle(relativeToBaseOpacity(style, this.indicatorBaseOpacity()));
+  }
+
+  /** The opacity the indicator's pane starts with; its features are drawn opaque inside it. */
+  private indicatorBaseOpacity(): number {
+    return indicatorBaseOpacity(
+      this.envConfigService.useTransparencyOnIndicator,
+      this.envConfigService.defaultFillOpacity
+    );
+  }
+
   wait = (ms) => new Promise((r, j) => setTimeout(r, ms));
 
   // dedicated functions
@@ -1436,7 +1452,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     const layers = this.mainMapLayers.registry;
     const layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
       pane: layers.paneFor(INDICATOR_LAYER_ID),
-      style: (feature) => result.styleFor(feature),
+      style: (feature) =>
+        relativeToBaseOpacity(result.styleFor(feature), this.indicatorBaseOpacity()),
       onEachFeature: (e, l) => {
         this.onEachFeatureIndicator(e, l);
       },
@@ -1468,6 +1485,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // placeholder until the panel derives a swatch from the classification (D2)
       symbol: { kind: 'fill', color: '#808080' },
       layer,
+      // the configured transparency is where the slider starts; a replaced
+      // indicator keeps what the user set instead
+      initial: { opacity: this.indicatorBaseOpacity() },
       capabilities: { searchable: true },
     });
     if (!justRestyling) {
@@ -1572,7 +1592,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.currentGeoJSONOfCurrentLayer = this.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
       this.currentIndicatorLayer.eachLayer((layer) => {
-        layer.setStyle(result.styleFor(layer.feature));
+        this.applyIndicatorStyle(layer, result.styleFor(layer.feature));
 
         if (layer.getTooltip()) {
           let label = undefined;
