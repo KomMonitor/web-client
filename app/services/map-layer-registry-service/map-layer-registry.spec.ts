@@ -144,7 +144,6 @@ describe('MapLayerRegistry', () => {
         status: 'ready',
         outOfScale: false,
         capabilities: DEFAULT_LAYER_CAPABILITIES,
-        hasInfo: false,
       });
     });
 
@@ -441,43 +440,6 @@ describe('MapLayerRegistry', () => {
       registry.remove('georesource:404');
 
       expect(registry.entry('georesource:1')).toBeUndefined();
-    });
-  });
-
-  describe('info', () => {
-    const details = { items: [{ labelKey: 'UNIT', value: '%' }] };
-
-    it('tells whether an entry has details and hands them out', async () => {
-      registry.register(poi('georesource:1', { info: () => details }));
-      registry.register(poi('georesource:2', { info: () => Promise.resolve(details) }));
-      registry.register(poi('georesource:3'));
-
-      expect(registry.entry('georesource:1')!.hasInfo).toBe(true);
-      expect(registry.entry('georesource:3')!.hasInfo).toBe(false);
-      await expect(registry.info('georesource:1')).resolves.toBe(details);
-      await expect(registry.info('georesource:2')).resolves.toBe(details);
-      await expect(registry.info('georesource:3')).resolves.toBeUndefined();
-      await expect(registry.info('georesource:404')).resolves.toBeUndefined();
-    });
-
-    it('turns a throwing info into a rejection', async () => {
-      registry.register(
-        poi('georesource:1', {
-          info: () => {
-            throw new Error('broken');
-          },
-        })
-      );
-
-      await expect(registry.info('georesource:1')).rejects.toThrow('broken');
-    });
-
-    it('follows the registration when the entry is replaced', () => {
-      registry.register(poi('georesource:1', { info: () => details }));
-
-      registry.register(poi('georesource:1'));
-
-      expect(registry.entry('georesource:1')!.hasInfo).toBe(false);
     });
   });
 

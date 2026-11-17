@@ -204,21 +204,6 @@ describe('GeoresourceLayerManagerService', () => {
     expect(owner.remove).toHaveBeenCalledWith('georesource:g-1');
   });
 
-  it('gives type, feature count, date and source as details, taken at registration', async () => {
-    const dataset: any = { ...poiDataset(), metadata: { datasource: '<a href="x">Stadt</a>' } };
-    service.addPoiGeoresource(dataset, '2024-01-01', true);
-    dataset.geoJSON = { type: 'FeatureCollection', features: [] };
-
-    expect(await layers.info('georesource:g-1')).toEqual({
-      items: [
-        { labelKey: 'MAP_LAYERS.INFO.TYPE', valueKey: 'MAP_LAYERS.GROUPS.GEORESOURCE_POINT' },
-        { labelKey: 'MAP_LAYERS.INFO.FEATURES', value: 3 },
-        { labelKey: 'MAP_LAYERS.INFO.AS_OF', value: '2024-01-01' },
-        { labelKey: 'MAP_LAYERS.INFO.SOURCE', value: '<a href="x">Stadt</a>', html: true },
-      ],
-    });
-  });
-
   it('removes only its own entry, not one whose name starts the same', () => {
     service.addPoiGeoresource(poiDataset('g-1', 'Schulen'), '2024-01-01', true);
     service.addPoiGeoresource(poiDataset('g-2', 'Schulen_alt'), '2024-01-01', true);

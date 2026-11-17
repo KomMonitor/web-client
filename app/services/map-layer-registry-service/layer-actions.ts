@@ -18,17 +18,7 @@ export interface LayerAction {
   order: number;
   appliesTo(entry: LayerEntryState, registry: MapLayerRegistry): boolean;
   enabled?(entry: LayerEntryState, registry: MapLayerRegistry): boolean;
-  run(
-    entry: LayerEntryState,
-    registry: MapLayerRegistry,
-    panel: LayerPanelContext
-  ): void | Promise<void>;
-}
-
-/** What an action may ask of the panel it runs in, e.g. to show a layer's details. */
-export interface LayerPanelContext {
-  /** Opens the details of a layer below its row; only one is open at a time. */
-  showInfo(id: LayerId): void;
+  run(entry: LayerEntryState, registry: MapLayerRegistry): void | Promise<void>;
 }
 
 /** An entry of the ⋮ menu of a group; the same as `LayerAction`, for a group of the tree. */
@@ -114,14 +104,6 @@ export const DEFAULT_LAYER_ACTIONS: readonly LayerAction[] = [
     appliesTo: (entry) => entry.capabilities.zoomTo,
     enabled: (entry, registry) => registry.canZoomTo(entry.id),
     run: (entry, registry) => registry.zoomTo(entry.id),
-  },
-  {
-    id: 'info',
-    i18nKey: 'MAP_LAYERS.ACTIONS.INFO',
-    icon: 'fas fa-circle-info',
-    order: 20,
-    appliesTo: (entry) => entry.hasInfo,
-    run: (entry, _registry, panel) => panel.showInfo(entry.id),
   },
   {
     id: 'moveUp',

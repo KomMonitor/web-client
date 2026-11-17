@@ -140,53 +140,9 @@
       "MENU": "Aktionen für Ebene: {{title}}",
       "GROUP_MENU": "Aktionen für Gruppe: {{title}}",
       "ZOOM_TO": "Auf Ebene zoomen",
-      "INFO": "Details / Metadaten",
       "MOVE_UP": "Nach oben",
       "MOVE_DOWN": "Nach unten",
       "REMOVE": "Entfernen"
-    },
-    "INFO": {
-      "TITLE": "Details: {{title}}",
-      "CLOSE": "Details schließen",
-      "LOADING": "Details werden geladen …",
-      "EMPTY": "Keine Details verfügbar",
-      "SPATIAL_UNIT": "Raumebene",
-      "DATE": "Stichtag",
-      "UNIT": "Einheit",
-      "SOURCE": "Quelle",
-      "TYPE": "Typ",
-      "FEATURES": "Objekte",
-      "AREAS": "Gebiete",
-      "AS_OF": "Stand",
-      "SERVICE": "Dienst",
-      "LAYER_NAME": "Layername",
-      "ORIGIN": "Herkunft",
-      "FILE": "Datei",
-      "ADDRESS": "Adresse",
-      "TRANSIT_MODE": "Verkehrsmittel",
-      "FOCUS": "Maß",
-      "RANGES": "Schwellen",
-      "START_POINTS": "Startpunkte",
-      "ORIGINS": {
-        "FILE": "Dateiimport",
-        "SEARCH": "Adresssuche"
-      },
-      "TRANSIT_MODES": {
-        "BUFFER": "Puffer (Luftlinie)",
-        "FOOT_WALKING": "Fußgänger",
-        "CYCLING_REGULAR": "Fahrrad",
-        "DRIVING_CAR": "PKW",
-        "WHEELCHAIR": "Barrierefrei"
-      },
-      "FOCUS_VALUES": {
-        "TIME": "Zeit",
-        "DISTANCE": "Distanz"
-      },
-      "RANGES_TIME": "{{values}} min",
-      "RANGES_DISTANCE": "{{values}} m",
-      "START_POINTS_VALUE": "{{name}} ({{count}})",
-      "NOT_LOADED": "noch nicht geladen – zum Laden einblenden",
-      "SESSION_NOTE": "Nur in dieser Sitzung – geht beim Neuladen der Seite verloren"
     },
     "WFS_UNAVAILABLE": "WFS-Ebenen können derzeit nicht auf der Karte angezeigt werden."
   },
