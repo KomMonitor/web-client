@@ -142,7 +142,7 @@
       "ZOOM_TO": "Zoom to layer",
       "MOVE_UP": "Move up",
       "MOVE_DOWN": "Move down",
-      "REMOVE": "Remove"
+      "REMOVE": "Remove from map"
     },
     "WFS_UNAVAILABLE": "WFS layers cannot be shown on the map at the moment."
   },

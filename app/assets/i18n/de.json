@@ -142,7 +142,7 @@
       "ZOOM_TO": "Auf Ebene zoomen",
       "MOVE_UP": "Nach oben",
       "MOVE_DOWN": "Nach unten",
-      "REMOVE": "Entfernen"
+      "REMOVE": "Von der Karte entfernen"
     },
     "WFS_UNAVAILABLE": "WFS-Ebenen können derzeit nicht auf der Karte angezeigt werden."
   },

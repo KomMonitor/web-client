@@ -12,7 +12,7 @@ import type { MapLayerRegistry } from './map-layer-registry';
 export interface LayerAction {
   id: string;
   i18nKey: string;
-  /** Font Awesome classes, e.g. 'fas fa-trash-can'. */
+  /** Font Awesome classes, e.g. 'fas fa-xmark'. */
   icon: string;
   /** Position in the menu, ascending. */
   order: number;
@@ -129,7 +129,7 @@ export const DEFAULT_LAYER_ACTIONS: readonly LayerAction[] = [
   {
     id: 'remove',
     i18nKey: 'MAP_LAYERS.ACTIONS.REMOVE',
-    icon: 'fas fa-trash-can',
+    icon: 'fas fa-xmark',
     order: 90,
     appliesTo: (entry) => entry.capabilities.remove,
     run: (entry, registry) => registry.remove(entry.id),
