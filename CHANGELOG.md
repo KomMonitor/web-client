@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.9]
+> 19 Nov 2026
+
+### Changed
+
+- Update Docker base image ([1af2552](https://github.com/KomMonitor/web-client/commit/1af2552d74e4d060ad5c9c0f12b66869688b7b51))
+
 ## [4.4.8]
-> 23 Oct 2026
+>  5 Nov 2026
 
 ### Changed
 
 - Update nginx base image ([0cb26e7](https://github.com/KomMonitor/web-client/commit/0cb26e71b5911b6a1d8f93a9ce99bec02f0d35ba))
 - Update version info ([0d58ac0](https://github.com/KomMonitor/web-client/commit/0d58ac045329a83fa3389d84be4d879ae9fc2802))
+- Release 4.4.8 ([78470cc](https://github.com/KomMonitor/web-client/commit/78470ccd970532a7d3b6cddaaeaffe2de63b62c8))
+- Update base image ([c66b5e8](https://github.com/KomMonitor/web-client/commit/c66b5e8741483d909a6f39bea8729526cb455d7a))
 
 ### Fixed
 
@@ -4286,6 +4295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raise some dependency version by using npm audit fix ([3b55651](https://github.com/KomMonitor/web-client/commit/3b55651bed28779b895f508f22a742ea2af60b01))
 - Raise some dependency versions by using npm audit fix ([ca220e8](https://github.com/KomMonitor/web-client/commit/ca220e88a9ba951eb4edbfca487d1e0ca192c394))
 
+[4.4.9]: https://github.com/KomMonitor/web-client/compare/4.4.8..4.4.9
 [4.4.8]: https://github.com/KomMonitor/web-client/compare/4.4.7..4.4.8
 [4.4.7]: https://github.com/KomMonitor/web-client/compare/4.4.6..4.4.7
 [4.4.6]: https://github.com/KomMonitor/web-client/compare/4.4.5..4.4.6
