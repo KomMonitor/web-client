@@ -107,18 +107,6 @@ describe('MapControlsService', () => {
       expect(geosearch.markers.getLayers()).toHaveLength(0);
     });
 
-    it('gives origin and address as details, for this session only', async () => {
-      service.showSearchResult(hit('Kettwiger Straße, Essen'));
-
-      expect(await mainMapLayers.registry.info('search:result')).toEqual({
-        items: [
-          { labelKey: 'MAP_LAYERS.INFO.ORIGIN', valueKey: 'MAP_LAYERS.INFO.ORIGINS.SEARCH' },
-          { labelKey: 'MAP_LAYERS.INFO.ADDRESS', value: 'Kettwiger Straße, Essen' },
-        ],
-        noteKey: 'MAP_LAYERS.INFO.SESSION_NOTE',
-      });
-    });
-
     it('removes the hit when the search drops its result, but not on other keys', () => {
       geosearch.showResult({ x: 7.01, y: 51.45, label: 'Adresse' }, { query: 'Adresse' });
       expect(mainMapLayers.registry.entry('search:result')).toBeDefined();

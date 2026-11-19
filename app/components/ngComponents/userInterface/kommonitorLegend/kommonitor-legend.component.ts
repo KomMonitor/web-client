@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnInit, untracked } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import {
   NgbCollapseModule,
@@ -76,6 +77,7 @@ export class KommonitorLegendComponent implements OnInit {
   private dataSetupService = inject(KommonitorDataSetupService);
   private spatialUnitHierarchyService = inject(SpatialUnitHierarchyService);
   private guidedTourService = inject(GuidedTourService);
+  private destroyRef = inject(DestroyRef);
 
   elementVisibilityData: any;
   visualStyleData: any;
@@ -251,16 +253,12 @@ export class KommonitorLegendComponent implements OnInit {
       });
     });
 
-    this.mapService.mapCommand$.subscribe((command) => {
+    this.mapService.mapCommand$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((command) => {
       if (command.type === 'onGlobalFilterChange') this.onGlobalFilterChange();
     });
 
-    this.mapService.mapEvent$.subscribe((event) => {
+    this.mapService.mapEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event.type === 'legendDisplayUpdated') this.updateLegendDisplay(event.update);
-    });
-
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
     });
 
     // todo del timeout
@@ -278,31 +276,33 @@ export class KommonitorLegendComponent implements OnInit {
       };
     }, 2500);
 
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case BroadcastMessage.UpdateDatePickerAvailableDates:
-          {
-            this.onUpdateDatePicker(values);
-          }
-          break;
-        case BroadcastMessage.UpdateDatePickerSelectedDate:
-          {
-            this.onUpdateDatePickerSelectedDate(values);
-          }
-          break;
-        case BroadcastMessage.OnChangeSelectedIndicator:
-          {
-            // fires once the initial indicator/spatial unit selection (from a shared link
-            // or the default startup pick) is in place - the earliest safe point to also
-            // apply a shared link's hierarchy filter.
-            this.tryApplyInitialHierarchy();
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case BroadcastMessage.UpdateDatePickerAvailableDates:
+            {
+              this.onUpdateDatePicker(values);
+            }
+            break;
+          case BroadcastMessage.UpdateDatePickerSelectedDate:
+            {
+              this.onUpdateDatePickerSelectedDate(values);
+            }
+            break;
+          case BroadcastMessage.OnChangeSelectedIndicator:
+            {
+              // fires once the initial indicator/spatial unit selection (from a shared link
+              // or the default startup pick) is in place - the earliest safe point to also
+              // apply a shared link's hierarchy filter.
+              this.tryApplyInitialHierarchy();
+            }
+            break;
+        }
+      });
   }
 
   onGlobalFilterChange() {

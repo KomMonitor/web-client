@@ -4,7 +4,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import * as L from 'leaflet';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import type { LayerInfo, MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
+import type { MapLayerOwner } from 'services/map-layer-registry-service/map-layer.model';
 import { MapContext } from 'services/map-service/map-context';
 
 /**
@@ -44,16 +44,6 @@ export class OgcLayerManagerService {
       pane: this.context.layers.paneFor(id),
     });
 
-    const details: LayerInfo = {
-      items: [
-        {
-          labelKey: 'MAP_LAYERS.INFO.SERVICE',
-          value: (dataset.connectionDetails.serviceType ?? 'wms').toUpperCase(),
-        },
-        { labelKey: 'MAP_LAYERS.INFO.LAYER_NAME', value: dataset.connectionDetails.layerName },
-        { labelKey: 'MAP_LAYERS.INFO.SOURCE', value: dataset.datasource, html: true },
-      ],
-    };
     this.context.layers.register({
       id,
       groupId: 'georesource.service',
@@ -64,7 +54,6 @@ export class OgcLayerManagerService {
       initial: { opacity },
       capabilities: { remove: !!owner },
       owner,
-      info: () => details,
     });
     this.context.map.invalidateSize(true);
     this.context.hideLoadingIcon();

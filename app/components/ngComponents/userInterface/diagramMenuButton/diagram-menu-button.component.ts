@@ -1,6 +1,7 @@
 import { NgClass } from '@angular/common';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import {
@@ -31,22 +32,25 @@ export class DiagramMenuButtonComponent implements OnInit {
   protected readonly chartDisplayState = inject(ChartDisplayStateService);
   protected selectionState = inject(SelectionStateService);
   private broadcastService = inject(BroadcastService);
+  private destroyRef = inject(DestroyRef);
 
   indicatorClassificationType;
 
   ngOnInit(): void {
-    this.broadcastService.currentBroadcastMsg.subscribe((result) => {
-      const msg = result.msg;
-      const val: any = result.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        const msg = result.msg;
+        const val: any = result.values;
 
-      switch (msg) {
-        case BroadcastMessage.OnChangeSelectedIndicator:
-          {
-            this.onChangeSelectedIndicator();
-          }
-          break;
-      }
-    });
+        switch (msg) {
+          case BroadcastMessage.OnChangeSelectedIndicator:
+            {
+              this.onChangeSelectedIndicator();
+            }
+            break;
+        }
+      });
   }
 
   /** Whether the submenu overlay is open. */

@@ -166,20 +166,6 @@ describe('layer actions', () => {
     });
   });
 
-  describe('details', () => {
-    it('is listed for layers with details and asks the panel to show them', () => {
-      registry.register(layer('georesource:1', { info: () => ({ items: [] }) }));
-      registry.register(layer('georesource:2'));
-      const panel = { showInfo: jest.fn() };
-
-      expect(listed('georesource:1')).toContain('info');
-      expect(listed('georesource:2')).not.toContain('info');
-
-      action('info').run(entry('georesource:1'), registry, panel);
-      expect(panel.showInfo).toHaveBeenCalledWith('georesource:1');
-    });
-  });
-
   describe('remove', () => {
     it('is listed only for removable layers and lets the owner deselect the layer', () => {
       const owner = { remove: jest.fn() };
@@ -248,7 +234,6 @@ describe('layer actions', () => {
       expect(TestBed.runInInjectionContext(injectLayerActions).map((a) => a.id)).toEqual([
         'a',
         'zoomTo',
-        'info',
         'moveUp',
         'moveDown',
         'export',

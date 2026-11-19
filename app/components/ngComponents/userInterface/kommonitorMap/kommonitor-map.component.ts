@@ -37,11 +37,9 @@ import {
   createBaseLayerRegistrations,
   isSupportedBaseLayer,
 } from 'services/map-layer-registry-service/base-layer-factory';
-import type { LayerInfo } from 'services/map-layer-registry-service/map-layer.model';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import { MapCommand, MapService } from 'services/map-service/map.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
-import { reachabilityLayerInfo } from 'services/reachability-layer-manager-service/reachability-layer-info';
 import { ReachabilityLayerManagerService } from 'services/reachability-layer-manager-service/reachability-layer-manager.service';
 
 import { NgClass } from '@angular/common';
@@ -51,6 +49,8 @@ import {
   GeoJSONFeature,
   ReachabilityStateService,
 } from 'services/reachability-state-service/reachability-state.service';
+
+import { indicatorBaseOpacity, relativeToBaseOpacity } from './indicator-opacity';
 
 /** The single indicator layer of the main map in the layer registry. */
 const INDICATOR_LAYER_ID = 'indicator';
@@ -91,12 +91,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private mapControlsService = inject(MapControlsService);
   private mainMapLayers = inject(MainMapLayersService);
 
-  // The indicator's transparency lives on its pane (layer registry); the legend
-  // swatches show the resulting fill opacity.
+  // The indicator's transparency lives on its pane (layer registry), its features
+  // are drawn opaque inside it (see indicator-opacity.ts); the legend swatches
+  // show the resulting fill opacity.
   private readonly legendOpacitySync = effect(() => {
-    const opacity = this.mainMapLayers.registry.entry(INDICATOR_LAYER_ID)?.opacity ?? 1;
     this.classificationState.currentIndicatorOpacity =
-      this.envConfigService.defaultFillOpacity * opacity;
+      this.mainMapLayers.registry.entry(INDICATOR_LAYER_ID)?.opacity ?? 1;
   });
   private mapViewportState = inject(MapViewportStateService);
   private metadataBootstrap = inject(MetadataBootstrapService);
@@ -593,7 +593,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       layer: L.featureGroup(markers),
       capabilities: { remove: true },
       owner: this.liveReachabilityOwner,
-      info: this.liveReachabilityInfo(locations.length),
     });
     // setting points is an explicit action: bring them back if they were hidden
     layers.setVisible(LIVE_START_LAYER_ID, true);
@@ -634,7 +633,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       layer: isochronesLayer,
       capabilities: { remove: true },
       owner: this.liveReachabilityOwner,
-      info: this.liveReachabilityInfo(settings.locationsArray?.length ?? 0),
     });
     // a new calculation is an explicit action: bring the isochrones back if hidden
     layers.setVisible(LIVE_ISOCHRONES_LAYER_ID, true);
@@ -659,16 +657,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private readonly liveReachabilityOwner = {
     remove: () => this.reachabilityStateService.resetLocations(),
   };
-
-  /** The details of a live reachability layer, taken now: the settings change with the next input. */
-  private liveReachabilityInfo(startCount: number): () => LayerInfo {
-    const details = reachabilityLayerInfo(
-      this.reachabilityStateService.settings,
-      this.liveReachabilityDatasetName(),
-      startCount
-    );
-    return () => details;
-  }
 
   private liveReachabilityDatasetName(): string {
     return (
@@ -814,20 +802,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer: placeholder,
         load: () => this.loadOutline(spatialUnit, placeholder),
         initial: { visible: false },
-        // the number of areas is only known once the outline was loaded
-        info: () => ({
-          items: [
-            { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: spatialUnit.spatialUnitLevel },
-            layers.entry(id)?.status === 'ready'
-              ? { labelKey: 'MAP_LAYERS.INFO.AREAS', value: placeholder.getLayers().length }
-              : { labelKey: 'MAP_LAYERS.INFO.AREAS', valueKey: 'MAP_LAYERS.INFO.NOT_LOADED' },
-            {
-              labelKey: 'MAP_LAYERS.INFO.SOURCE',
-              value: spatialUnit.metadata?.datasource,
-              html: true,
-            },
-          ],
-        }),
       });
     }
   }
@@ -1150,7 +1124,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       fillOpacity = this.envConfigService.defaultFillOpacityForHighlightedFeatures;
     }
 
-    layer.setStyle({
+    this.applyIndicatorStyle(layer, {
       weight: 3,
       color: this.envConfigService.defaultColorForClickedFeatures,
       dashArray: '',
@@ -1168,7 +1142,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       fillOpacity = this.envConfigService.defaultFillOpacity;
     }
 
-    layer.setStyle({
+    this.applyIndicatorStyle(layer, {
       weight: 3,
       color: this.envConfigService.defaultColorForHoveredFeatures,
       dashArray: '',
@@ -1306,7 +1280,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           false
         );
       }
-      layer.setStyle(style);
+      this.applyIndicatorStyle(layer, style);
     } else {
       this.setPermanentlyHighlightedStyle(layer);
     }
@@ -1323,7 +1297,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
       )
     ) {
-      layer.setStyle(this.filteredStyle);
+      this.applyIndicatorStyle(layer, this.filteredStyle);
     } else if (this.isCategoricalLayer) {
       style = this.visualStyleHelperService.styleCategorical(
         layer.feature,
@@ -1333,7 +1307,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         false
       );
 
-      layer.setStyle(style);
+      this.applyIndicatorStyle(layer, style);
     } else if (!this.chartDisplayState.isMeasureOfValueChecked) {
       //this.currentIndicatorLayer.resetStyle(layer);
       if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
@@ -1346,7 +1320,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           false
         );
 
-        layer.setStyle(style);
+        this.applyIndicatorStyle(layer, style);
       } else {
         style = this.visualStyleHelperService.styleDefault(
           layer.feature,
@@ -1359,7 +1333,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           false
         );
 
-        layer.setStyle(style);
+        this.applyIndicatorStyle(layer, style);
       }
     } else {
       style = this.visualStyleHelperService.styleMeasureOfValue(
@@ -1371,9 +1345,23 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         false
       );
 
-      layer.setStyle(style);
+      this.applyIndicatorStyle(layer, style);
     }
   }
+
+  /** Styles a feature of the indicator layer relative to the opacity its pane starts with. */
+  private applyIndicatorStyle(layer, style): void {
+    layer.setStyle(relativeToBaseOpacity(style, this.indicatorBaseOpacity()));
+  }
+
+  /** The opacity the indicator's pane starts with; its features are drawn opaque inside it. */
+  private indicatorBaseOpacity(): number {
+    return indicatorBaseOpacity(
+      this.envConfigService.useTransparencyOnIndicator,
+      this.envConfigService.defaultFillOpacity
+    );
+  }
+
   wait = (ms) => new Promise((r, j) => setTimeout(r, ms));
 
   // dedicated functions
@@ -1464,7 +1452,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     const layers = this.mainMapLayers.registry;
     const layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
       pane: layers.paneFor(INDICATOR_LAYER_ID),
-      style: (feature) => result.styleFor(feature),
+      style: (feature) =>
+        relativeToBaseOpacity(result.styleFor(feature), this.indicatorBaseOpacity()),
       onEachFeature: (e, l) => {
         this.onEachFeatureIndicator(e, l);
       },
@@ -1482,18 +1471,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       selectedDate: this.selectionState.selectedDate,
     });
 
-    const indicatorDetails: LayerInfo = {
-      items: [
-        { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: spatialUnitName },
-        { labelKey: 'MAP_LAYERS.INFO.DATE', value: date },
-        { labelKey: 'MAP_LAYERS.INFO.UNIT', value: indicatorMetadataAndGeoJSON.unit },
-        {
-          labelKey: 'MAP_LAYERS.INFO.SOURCE',
-          value: indicatorMetadataAndGeoJSON.metadata?.datasource,
-          html: true,
-        },
-      ],
-    };
     // replaces the previous indicator layer; the binding puts it on the map right away
     layers.register({
       id: INDICATOR_LAYER_ID,
@@ -1508,8 +1485,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // placeholder until the panel derives a swatch from the classification (D2)
       symbol: { kind: 'fill', color: '#808080' },
       layer,
+      // the configured transparency is where the slider starts; a replaced
+      // indicator keeps what the user set instead
+      initial: { opacity: this.indicatorBaseOpacity() },
       capabilities: { searchable: true },
-      info: () => indicatorDetails,
     });
     if (!justRestyling) {
       // a newly chosen indicator is shown even if the user had hidden the previous one
@@ -1613,7 +1592,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.currentGeoJSONOfCurrentLayer = this.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
       this.currentIndicatorLayer.eachLayer((layer) => {
-        layer.setStyle(result.styleFor(layer.feature));
+        this.applyIndicatorStyle(layer, result.styleFor(layer.feature));
 
         if (layer.getTooltip()) {
           let label = undefined;

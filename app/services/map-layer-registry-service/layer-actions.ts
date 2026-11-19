@@ -12,23 +12,13 @@ import type { MapLayerRegistry } from './map-layer-registry';
 export interface LayerAction {
   id: string;
   i18nKey: string;
-  /** Font Awesome classes, e.g. 'fas fa-trash-can'. */
+  /** Font Awesome classes, e.g. 'fas fa-xmark'. */
   icon: string;
   /** Position in the menu, ascending. */
   order: number;
   appliesTo(entry: LayerEntryState, registry: MapLayerRegistry): boolean;
   enabled?(entry: LayerEntryState, registry: MapLayerRegistry): boolean;
-  run(
-    entry: LayerEntryState,
-    registry: MapLayerRegistry,
-    panel: LayerPanelContext
-  ): void | Promise<void>;
-}
-
-/** What an action may ask of the panel it runs in, e.g. to show a layer's details. */
-export interface LayerPanelContext {
-  /** Opens the details of a layer below its row; only one is open at a time. */
-  showInfo(id: LayerId): void;
+  run(entry: LayerEntryState, registry: MapLayerRegistry): void | Promise<void>;
 }
 
 /** An entry of the ⋮ menu of a group; the same as `LayerAction`, for a group of the tree. */
@@ -116,14 +106,6 @@ export const DEFAULT_LAYER_ACTIONS: readonly LayerAction[] = [
     run: (entry, registry) => registry.zoomTo(entry.id),
   },
   {
-    id: 'info',
-    i18nKey: 'MAP_LAYERS.ACTIONS.INFO',
-    icon: 'fas fa-circle-info',
-    order: 20,
-    appliesTo: (entry) => entry.hasInfo,
-    run: (entry, _registry, panel) => panel.showInfo(entry.id),
-  },
-  {
     id: 'moveUp',
     i18nKey: 'MAP_LAYERS.ACTIONS.MOVE_UP',
     icon: 'fas fa-arrow-up',
@@ -147,7 +129,7 @@ export const DEFAULT_LAYER_ACTIONS: readonly LayerAction[] = [
   {
     id: 'remove',
     i18nKey: 'MAP_LAYERS.ACTIONS.REMOVE',
-    icon: 'fas fa-trash-can',
+    icon: 'fas fa-xmark',
     order: 90,
     appliesTo: (entry) => entry.capabilities.remove,
     run: (entry, registry) => registry.remove(entry.id),

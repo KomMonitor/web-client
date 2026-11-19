@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build -- --configuration production
 
 # ---- Runtime stage ----
-FROM nginx:1.31.8-alpine3.24
+FROM nginx:1.31.9-alpine3.24
 
 COPY --from=build /kommonitor-webclient/nginx.conf /etc/nginx/nginx.conf
 # Sets <base href> from BASE_HREF at container start (sub-path deployments, e.g. /v6/ui/)

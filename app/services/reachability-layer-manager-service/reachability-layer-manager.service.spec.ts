@@ -153,16 +153,4 @@ describe('ReachabilityLayerManagerService', () => {
       expect(TestBed.inject(MapOverlayStateService).reachabilityScenarioOnMainMap).toBe(false);
     }
   );
-
-  it('gives both layers of the scenario the same details', async () => {
-    service.replaceScenario(scenario('Kitas', 'cycling-regular'));
-
-    const details = await layers.info(ISOCHRONES);
-    expect(await layers.info(START)).toEqual(details);
-    expect(details!.items[0]).toEqual({
-      labelKey: 'MAP_LAYERS.INFO.TRANSIT_MODE',
-      valueKey: 'MAP_LAYERS.INFO.TRANSIT_MODES.CYCLING_REGULAR',
-    });
-    expect(details!.items[3].params).toMatchObject({ name: 'Kitas' });
-  });
 });

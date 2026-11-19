@@ -8,14 +8,20 @@ import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
 
+import { ClassificationStateService } from 'services/classification-state-service/classification-state.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { GeoresourceLayerManagerService } from 'services/georesource-layer-manager-service/georesource-layer-manager.service';
+import {
+  type ClassificationResult,
+  IndicatorClassificationService,
+} from 'services/indicator-classification-service/indicator-classification.service';
 import { MainMapLayersService } from 'services/map-layer-registry-service/map-layer-registry.service';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { OgcLayerManagerService } from 'services/ogc-layer-manager-service/ogc-layer-manager.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 import { KommonitorMapComponent } from './kommonitor-map.component';
@@ -238,19 +244,6 @@ describe('KommonitorMapComponent', () => {
       expect(registry().drawOrder()).toEqual([ISOCHRONES, START]);
     });
 
-    it('gives the live layers the settings of their calculation as details', async () => {
-      const settings = (component as any).reachabilityStateService.settings;
-      settings.locationsArray = [[7.45, 51.52]];
-      component.addSingleMarker([point(7.45, 51.52)]);
-      component.addIsochrones(isochrones());
-      settings.rangeArray = [1, 2];
-
-      const details = await registry().info(ISOCHRONES);
-      expect(details!.items[2].params).toEqual({ values: '500, 1000' });
-      expect(details!.items[3].params).toEqual({ name: 'Manuelle Eingabe', count: 1 });
-      expect((await registry().info(START))!.items[3].params).toMatchObject({ count: 1 });
-    });
-
     it('removes the isochrones', () => {
       component.addIsochrones(isochrones());
 
@@ -286,25 +279,6 @@ describe('KommonitorMapComponent', () => {
 
       expect(outlineIds().sort()).toEqual(['outline:a', 'outline:b']);
       expect(registry().entry('outline:a')).toMatchObject({ visible: false, status: 'idle' });
-    });
-
-    it('gives spatial unit, number of areas once loaded and source as details', async () => {
-      TestBed.inject(SpatialUnitMetadataStoreService).availableSpatialUnits = [
-        { ...spatialUnit('a'), metadata: { datasource: 'Stadt Essen' } },
-      ];
-      component.refreshSpatialUnitOutlines();
-
-      expect((await registry().info('outline:a'))!.items).toEqual([
-        { labelKey: 'MAP_LAYERS.INFO.SPATIAL_UNIT', value: 'Ebene a' },
-        { labelKey: 'MAP_LAYERS.INFO.AREAS', valueKey: 'MAP_LAYERS.INFO.NOT_LOADED' },
-        { labelKey: 'MAP_LAYERS.INFO.SOURCE', value: 'Stadt Essen', html: true },
-      ]);
-
-      registry().reportStatus('outline:a', 'ready');
-      expect((await registry().info('outline:a'))!.items[1]).toEqual({
-        labelKey: 'MAP_LAYERS.INFO.AREAS',
-        value: 0,
-      });
     });
 
     it('drops outlines of vanished spatial units and keeps the state of the others', () => {
@@ -437,6 +411,133 @@ describe('KommonitorMapComponent', () => {
       expect(feature(indicator(), 'A').options.color).toBe('black');
       expect(feature(outline, 'B').options.color).toBe('red');
       expect(map.eachLayer).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('indicator transparency', () => {
+    let env: Record<string, unknown>;
+    const registry = () => TestBed.inject(MainMapLayersService).registry;
+    const indicatorFeature = (): any => (component as any).currentIndicatorLayer.getLayers()[0];
+
+    const dataset = () => ({
+      indicatorName: 'Arbeitslose',
+      unit: '%',
+      indicatorType: 'STATUS_INDICATOR',
+      metadata: { description: '' },
+      geoJSON: {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: { NAME: 'A', ID: 'A' },
+            tempData: { indicatorValueText: '1', unitText: '%' },
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [7, 51],
+                  [7.5, 51],
+                  [7.5, 51.5],
+                  [7, 51],
+                ],
+              ],
+            },
+          },
+        ],
+      },
+    });
+    /** Puts an indicator on the map; its classification styles every feature with 0.7. */
+    const showIndicator = () =>
+      (component as any)._replaceIndicatorLayer(dataset(), 'Stadtteile', '2024-01-01', false);
+
+    beforeEach(() => {
+      env = { ...(window as any).__env };
+      Object.assign((window as any).__env, {
+        FEATURE_NAME_PROPERTY_NAME: 'NAME',
+        FEATURE_ID_PROPERTY_NAME: 'ID',
+        useTransparencyOnIndicator: true,
+        defaultFillOpacity: '0.7',
+        defaultFillOpacityForHighlightedFeatures: '0.8',
+      });
+      (component as unknown as { map: unknown }).map = {
+        invalidateSize: jest.fn(),
+        fitBounds: jest.fn(),
+      };
+      const selection = TestBed.inject(SelectionStateService);
+      selection.selectedSpatialUnit = { spatialUnitLevel: 'Stadtteile', spatialUnitId: 'su-1' };
+      // quantitative without labels: the tooltips need no class labels
+      selection.selectedIndicator = {
+        defaultClassificationMapping: { classificationType: 'QUANTITATIVE' },
+      };
+      jest.spyOn(selection, 'setAllFeaturesProperty').mockImplementation(() => undefined);
+      jest.spyOn(selection, 'setSelectedFeatureProperty').mockImplementation(() => undefined);
+      jest
+        .spyOn(TestBed.inject(IndicatorClassificationService), 'buildClassification')
+        .mockReturnValue({
+          datasetContainsNegativeValues: false,
+          facts: {
+            containsZeroValues: false,
+            containsNoDataValues: false,
+            containsOutliers_high: false,
+            containsOutliers_low: false,
+            outliers_high: [],
+            outliers_low: [],
+          },
+          isCategorical: false,
+          categoricalData: [],
+          styleFor: () => ({ fillColor: '#ff0000', fillOpacity: '0.7', opacity: '0.7' }),
+        } as unknown as ClassificationResult);
+      TestBed.inject(FilterHelperService).clearSelectedFeatures();
+    });
+
+    afterEach(() => {
+      (window as any).__env = env;
+      jest.restoreAllMocks();
+    });
+
+    it('starts the slider at the configured transparency and draws the features opaque in it', () => {
+      showIndicator();
+
+      expect(registry().entry('indicator')?.opacity).toBe(0.7);
+      expect(indicatorFeature().options).toMatchObject({ fillOpacity: 1, opacity: 1 });
+    });
+
+    it('keeps the transparency the user set when the indicator is replaced', () => {
+      showIndicator();
+      registry().setOpacity('indicator', 0);
+
+      showIndicator();
+
+      expect(registry().entry('indicator')?.opacity).toBe(0);
+    });
+
+    it('draws hovered and clicked features relative to the configured opacity too', () => {
+      showIndicator();
+
+      component.highlightFeatureOnMap('A');
+      expect(indicatorFeature().options.fillOpacity).toBe(1);
+
+      component.unhighlightFeatureOnMap('A');
+      component.switchHighlightFeatureOnMap('A');
+      // 0.8 is more than the pane's 0.7 lets through
+      expect(indicatorFeature().options.fillOpacity).toBe(1);
+    });
+
+    it('leaves the styles as they are without transparency on the indicator', () => {
+      (window as any).__env.useTransparencyOnIndicator = false;
+
+      showIndicator();
+
+      expect(registry().entry('indicator')?.opacity).toBe(1);
+      expect(indicatorFeature().options).toMatchObject({ fillOpacity: '0.7', opacity: '0.7' });
+    });
+
+    it('shows the opacity of the indicator in the legend', () => {
+      showIndicator();
+      registry().setOpacity('indicator', 0.4);
+      TestBed.tick();
+
+      expect(TestBed.inject(ClassificationStateService).currentIndicatorOpacity).toBe(0.4);
     });
   });
 });

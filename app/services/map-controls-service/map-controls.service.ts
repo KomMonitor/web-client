@@ -146,13 +146,6 @@ export class MapControlsService {
       capabilities: { searchable: false, remove: true },
       // the wrapper from removeSearchResultWhenCleared() then unregisters it
       owner: { remove: () => this.geosearchControl.clearResults(null, true) },
-      info: () => ({
-        items: [
-          { labelKey: 'MAP_LAYERS.INFO.ORIGIN', valueKey: 'MAP_LAYERS.INFO.ORIGINS.SEARCH' },
-          { labelKey: 'MAP_LAYERS.INFO.ADDRESS', value: location.label },
-        ],
-        noteKey: 'MAP_LAYERS.INFO.SESSION_NOTE',
-      }),
     });
   }
 

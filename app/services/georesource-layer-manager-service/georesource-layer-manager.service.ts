@@ -3,12 +3,7 @@ import * as turf from '@turf/turf';
 import * as L from 'leaflet';
 import { FeaturePopupHelperService } from 'services/feature-popup-helper-service/feature-popup-helper.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
-import {
-  MAIN_MAP_LAYER_GROUPS,
-  resolveLeafGroup,
-} from 'services/map-layer-registry-service/layer-group-catalog';
 import type {
-  LayerInfo,
   LayerKind,
   LayerSymbol,
   MapLayerOwner,
@@ -142,25 +137,6 @@ export class GeoresourceLayerManagerService {
     owner: MapLayerOwner | undefined,
     entry: { groupId: string; kind: LayerKind; symbol: LayerSymbol }
   ) {
-    // taken now: the dataset's GeoJSON is replaced when it is loaded for another date
-    const details: LayerInfo = {
-      items: [
-        {
-          labelKey: 'MAP_LAYERS.INFO.TYPE',
-          valueKey: resolveLeafGroup(MAIN_MAP_LAYER_GROUPS, entry.groupId)?.leaf.i18nKey,
-        },
-        {
-          labelKey: 'MAP_LAYERS.INFO.FEATURES',
-          value: georesourceMetadataAndGeoJSON.geoJSON?.features?.length,
-        },
-        { labelKey: 'MAP_LAYERS.INFO.AS_OF', value: date },
-        {
-          labelKey: 'MAP_LAYERS.INFO.SOURCE',
-          value: georesourceMetadataAndGeoJSON.metadata?.datasource,
-          html: true,
-        },
-      ],
-    };
     this.context.layers.register({
       id: georesourceLayerId(georesourceMetadataAndGeoJSON),
       title: georesourceMetadataAndGeoJSON.datasetName,
@@ -168,7 +144,6 @@ export class GeoresourceLayerManagerService {
       layer,
       capabilities: { searchable: true, remove: !!owner },
       owner,
-      info: () => details,
       ...entry,
     });
     this.context.map.invalidateSize(true);

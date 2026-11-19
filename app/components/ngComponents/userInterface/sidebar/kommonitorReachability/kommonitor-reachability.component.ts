@@ -1,5 +1,6 @@
 import { MapService } from 'services/map-service/map.service';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -53,6 +54,7 @@ export class KommonitorReachabilityComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
   protected reachabilityStateService = inject(ReachabilityStateService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('scenarioImportInput') scenarioImportInput!: ElementRef<HTMLInputElement>;
 
@@ -71,23 +73,25 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   ngOnInit(): void {
     // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      const title = broadcastMsg.msg;
-      const values: any = broadcastMsg.values;
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
+        const title = broadcastMsg.msg;
+        const values: any = broadcastMsg.values;
 
-      switch (title) {
-        case 'switchReportingMode':
-          {
-            this.changeStartPointsSource_fromLayer();
-          }
-          break;
-        case BroadcastMessage.RemovePotentialDrawnStartingPoints:
-          {
-            this.removePotentialDrawnStartingPoints();
-          }
-          break;
-      }
-    });
+        switch (title) {
+          case 'switchReportingMode':
+            {
+              this.changeStartPointsSource_fromLayer();
+            }
+            break;
+          case BroadcastMessage.RemovePotentialDrawnStartingPoints:
+            {
+              this.removePotentialDrawnStartingPoints();
+            }
+            break;
+        }
+      });
 
     // this.openReachabilityScenarioModal();
   }

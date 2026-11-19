@@ -92,28 +92,6 @@ describe('OgcLayerManagerService', () => {
       expect(layers.drawOrder()).toEqual(['wms:wms-8']);
     });
 
-    it('gives service, layer name and source as details', async () => {
-      service.addWmsLayer(
-        dataset({
-          datasource: 'Geoportal',
-          connectionDetails: {
-            baseUrl: 'https://example.org/wms',
-            layerName: 'schulen',
-            serviceType: 'wms',
-          } as WmsDataset['connectionDetails'],
-        }),
-        1
-      );
-
-      expect(await layers.info('wms:wms-7')).toEqual({
-        items: [
-          { labelKey: 'MAP_LAYERS.INFO.SERVICE', value: 'WMS' },
-          { labelKey: 'MAP_LAYERS.INFO.LAYER_NAME', value: 'schulen' },
-          { labelKey: 'MAP_LAYERS.INFO.SOURCE', value: 'Geoportal', html: true },
-        ],
-      });
-    });
-
     it('keeps a single entry when the same WMS is added again, e.g. from the other catalogue', () => {
       service.addWmsLayer(dataset(), 1);
       service.addWmsLayer(dataset(), 1);

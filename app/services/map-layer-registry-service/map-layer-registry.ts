@@ -11,7 +11,6 @@ import type {
   LayerEntryState,
   LayerGroupDef,
   LayerId,
-  LayerInfo,
   LayerRegistration,
   LayerStatus,
   LayerTreeNode,
@@ -157,7 +156,6 @@ export class MapLayerRegistry implements MapLayerStatusSink {
       status: registration.load ? 'idle' : 'ready',
       outOfScale: previous?.outOfScale ?? false,
       capabilities: { ...DEFAULT_LAYER_CAPABILITIES, ...registration.capabilities },
-      hasInfo: !!registration.info,
     };
     this.slots.set(id, { registration, layer: registration.layer, loaded: !registration.load });
     this._entries.update((entries) =>
@@ -265,15 +263,6 @@ export class MapLayerRegistry implements MapLayerStatusSink {
     if (this.slots.get(id)?.layer) {
       this.binding?.zoomTo(id);
     }
-  }
-
-  /**
-   * The details of an entry, from its registration's `info`; undefined if it
-   * has none or is unknown. A throwing `info` turns into a rejection.
-   */
-  info(id: LayerId): Promise<LayerInfo | undefined> {
-    const info = this.slots.get(id)?.registration.info;
-    return new Promise((resolve) => resolve(info?.()));
   }
 
   /**

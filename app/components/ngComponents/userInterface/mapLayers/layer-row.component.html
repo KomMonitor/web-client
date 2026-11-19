@@ -114,51 +114,6 @@
   </div>
 }
 
-@if (infoOpen()) {
-  <div
-    #infoBox
-    class="layer-row__info"
-    role="region"
-    tabindex="-1"
-    [attr.aria-label]="'MAP_LAYERS.INFO.TITLE' | translate: { title: entry().title }"
-    (keydown.escape)="closeInfo()"
-  >
-    <button
-      type="button"
-      class="layer-row__info-close"
-      [attr.aria-label]="'MAP_LAYERS.INFO.CLOSE' | translate"
-      (click)="closeInfo()"
-    >
-      <i class="fas fa-xmark" aria-hidden="true"></i>
-    </button>
-    @let state = info();
-    @if (state.status === 'ready') {
-      <dl class="layer-row__info-list">
-        @for (item of state.items; track $index) {
-          <dt>{{ item.labelKey | translate }}</dt>
-          @if (item.valueKey) {
-            <dd>{{ item.valueKey | translate: item.params }}</dd>
-          } @else if (item.html) {
-            <dd [innerHTML]="item.value"></dd>
-          } @else {
-            <dd>{{ item.value }}</dd>
-          }
-        }
-      </dl>
-      @if (state.noteKey) {
-        <p class="layer-row__info-note">{{ state.noteKey | translate }}</p>
-      }
-    } @else {
-      <p class="layer-row__info-status">
-        {{
-          (state.status === 'loading' ? 'MAP_LAYERS.INFO.LOADING' : 'MAP_LAYERS.INFO.EMPTY')
-            | translate
-        }}
-      </p>
-    }
-  </div>
-}
-
 <ng-template #menu>
   <app-layer-actions-menu
     [items]="menuItems()"

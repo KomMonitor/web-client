@@ -1011,6 +1011,12 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.defaultRangeSliderSetup.date,
       this.defaultRangeSliderSetup.geoJson
     );
+
+    // setupRangeSliderForFilter() resets the slider without firing its 'set'
+    // event (see the fireSetEvent=false comment above), so it never restyles
+    // the map or clears rangeFilterIsApplied. Do that explicitly here, since
+    // this is an intentional user-triggered removal, not a dataset change.
+    this.applyRangeFilter();
   }
 
   // $rootScope.$on("changeSpatialUnit", function() {
