@@ -245,7 +245,6 @@ angular
           return await this.getAllRoles_withToken(bearerToken);
         } catch (error) {
           console.error(error);
-          throw error;
         }
 
       };
